@@ -67,9 +67,10 @@ export default function ReservationModal({
         })
       } else {
         // Creating new reservation
+        // Fix timezone issue by using local date formatting instead of UTC
         const defaultDate = selectedDate 
-          ? selectedDate.toISOString().split('T')[0] 
-          : new Date().toISOString().split('T')[0]
+          ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+          : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
         const defaultTime = selectedTime || '18:00'
         
         setFormData({
@@ -181,56 +182,64 @@ export default function ReservationModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              {reservation ? 'Edit Reservation' : 'New Reservation'}
-            </h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all">
+        <div className="p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                {reservation ? 'Edit Reservation' : 'New Reservation'}
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                {reservation ? 'Update reservation details' : 'Create a new table reservation'}
+              </p>
+            </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
+              className="text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light hover:bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center"
+              aria-label="Close modal"
             >
               ×
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="customer_name" className="block text-sm font-medium text-gray-700 mb-1">
-                Customer Name *
-              </label>
-              <input
-                type="text"
-                name="customer_name"
-                id="customer_name"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={formData.customer_name}
-                onChange={handleChange}
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label htmlFor="customer_name" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Customer Name
+                </label>
+                <input
+                  type="text"
+                  name="customer_name"
+                  id="customer_name"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter customer name"
+                  value={formData.customer_name}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div>
-              <label htmlFor="customer_phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                name="customer_phone"
-                id="customer_phone"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={formData.customer_phone}
-                onChange={handleChange}
-              />
-            </div>
+              <div className="md:col-span-2">
+                <label htmlFor="customer_phone" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="customer_phone"
+                  id="customer_phone"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="(555) 123-4567"
+                  value={formData.customer_phone}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="table_number" className="block text-sm font-medium text-gray-700 mb-1">
-                  Table Number *
+                <label htmlFor="table_number" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Table Number
                 </label>
                 <input
                   type="number"
@@ -238,15 +247,16 @@ export default function ReservationModal({
                   id="table_number"
                   required
                   min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="1"
                   value={formData.table_number}
                   onChange={handleChange}
                 />
               </div>
 
               <div>
-                <label htmlFor="party_size" className="block text-sm font-medium text-gray-700 mb-1">
-                  Party Size *
+                <label htmlFor="party_size" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Party Size
                 </label>
                 <input
                   type="number"
@@ -254,105 +264,126 @@ export default function ReservationModal({
                   id="party_size"
                   required
                   min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="2"
                   value={formData.party_size}
                   onChange={handleChange}
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                  Date *
+                <label htmlFor="date" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Date
                 </label>
                 <input
                   type="date"
                   name="date"
                   id="date"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   value={formData.date}
                   onChange={handleChange}
                 />
               </div>
 
               <div>
-                <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
-                  Time *
+                <label htmlFor="time" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Time
                 </label>
                 <input
                   type="time"
                   name="time"
                   id="time"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   value={formData.time}
                   onChange={handleChange}
                 />
               </div>
+
+              <div className="md:col-span-2">
+                <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  id="status"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                  value={formData.status}
+                  onChange={handleChange}
+                >
+                  <option value="pending">🟡 Pending</option>
+                  <option value="confirmed">🟢 Confirmed</option>
+                  <option value="cancelled">🔴 Cancelled</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label htmlFor="notes" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Special Notes
+                </label>
+                <textarea
+                  name="notes"
+                  id="notes"
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Allergies, special requests, or other notes..."
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <select
-                name="status"
-                id="status"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="pending">Pending</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
-              </label>
-              <textarea
-                name="notes"
-                id="notes"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={formData.notes}
-                onChange={handleChange}
-                placeholder="Special requests, allergies, etc."
-              />
-            </div>
-
-            <div className="flex justify-between pt-4">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-gray-200">
               <div>
                 {reservation && onDelete && (
                   <button
                     type="button"
                     onClick={handleDelete}
                     disabled={loading}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+                    className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                   >
-                    {loading ? 'Deleting...' : 'Delete'}
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Deleting...
+                      </>
+                    ) : (
+                      '🗑️ Delete'
+                    )}
                   </button>
                 )}
               </div>
               
-              <div className="flex space-x-3">
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                 >
-                  {loading ? 'Saving...' : (reservation ? 'Update' : 'Create')}
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {reservation ? 'Updating...' : 'Creating...'}
+                    </>
+                  ) : (
+                    <>
+                      {reservation ? 'Update Reservation' : 'Create Reservation'}
+                    </>
+                  )}
                 </button>
               </div>
             </div>

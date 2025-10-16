@@ -73,14 +73,6 @@ export default function CalendarPage() {
                 ← Back to Dashboard
               </Link>
             </div>
-            <div className="flex items-center">
-              <Link
-                href="/dashboard/reservations/new"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Add Reservation
-              </Link>
-            </div>
           </div>
         </div>
       </nav>
@@ -100,31 +92,6 @@ export default function CalendarPage() {
               onSelectEvent={handleSelectEvent}
               onSelectSlot={handleSelectSlot}
             />
-          </div>
-
-          {/* Quick Stats */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
-                <div>
-                  <p className="text-sm text-gray-600">Status Legend</p>
-                  <p className="text-xs text-gray-500">Click reservations to edit • Click empty slots to create</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="text-center">
-                <p className="text-lg font-semibold text-gray-900">Multiple Views</p>
-                <p className="text-xs text-gray-500">Month • Week • Day • Agenda</p>
-              </div>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="text-center">
-                <p className="text-lg font-semibold text-gray-900">Real-time Updates</p>
-                <p className="text-xs text-gray-500">Changes reflect immediately</p>
-              </div>
-            </div>
           </div>
         </div>
       </main>

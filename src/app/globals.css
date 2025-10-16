@@ -188,3 +188,105 @@
     font-size: 12px;
   }
 }
+
+/* Mobile Touch Improvements - Mobile First Approach */
+.rbc-date-cell,
+.rbc-day-bg,
+.rbc-time-slot,
+.rbc-month-row {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  position: relative;
+}
+
+.rbc-date-cell:active,
+.rbc-day-bg:active,
+.rbc-time-slot:active {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  transition: background-color 0.1s ease;
+}
+
+.rbc-calendar {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Enhanced mobile touch targets */
+@media (hover: none) and (pointer: coarse) {
+  /* Mobile devices */
+  .rbc-date-cell {
+    min-height: 50px;
+    position: relative;
+  }
+
+  .rbc-day-bg {
+    min-height: 50px;
+  }
+
+  .rbc-time-slot {
+    min-height: 40px;
+  }
+
+  .rbc-event {
+    min-height: 28px;
+    touch-action: manipulation;
+    pointer-events: auto;
+  }
+
+  /* Better button sizing on mobile */
+  .rbc-btn-group button {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  /* Prevent zoom on double tap */
+  .rbc-calendar * {
+    touch-action: manipulation;
+  }
+
+  /* Add visual feedback for better UX */
+  .rbc-date-cell::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    transition: background-color 0.15s ease;
+  }
+
+  .rbc-date-cell:active::after {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+}
+
+/* Force minimum sizes for better touch targets */
+@media screen and (max-width: 768px) {
+  .rbc-month-view .rbc-date-cell {
+    min-height: 60px;
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 4px;
+  }
+
+  .rbc-calendar {
+    font-size: 14px;
+  }
+
+  .rbc-event {
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+}

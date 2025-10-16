@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { Calendar, Views, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { enUS } from 'date-fns/locale'
@@ -97,6 +97,8 @@ export default function EnhancedCalendar({
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<View>(Views.MONTH)
   const [date, setDate] = useState(selectedDate)
+  const calendarRef = useRef<HTMLDivElement>(null)
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null)
 
   // Fetch reservations from Supabase
   const fetchReservations = useCallback(async () => {
@@ -218,16 +220,6 @@ export default function EnhancedCalendar({
           >
             Day
           </button>
-          <button
-            onClick={() => setView(Views.AGENDA)}
-            className={`px-3 py-1 rounded text-sm font-medium ${
-              view === Views.AGENDA
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-            }`}
-          >
-            Agenda
-          </button>
         </div>
       </div>
     )
@@ -263,6 +255,287 @@ export default function EnhancedCalendar({
   const handleSelectSlot = useCallback((slotInfo: { start: Date; end: Date }) => {
     onSelectSlot?.(slotInfo)
   }, [onSelectSlot])
+
+  // Enhanced helper function to extract date from calendar cell
+  const getCellDate = useCallback((cell: Element): Date | null => {
+    try {
+      console.log('Getting date from cell:', {
+        className: cell.className,
+        textContent: cell.textContent,
+        innerHTML: cell.innerHTML.substring(0, 100)
+      })
+
+      // Method 1: Try data attributes first
+      const dateAttr = cell.getAttribute('data-date')
+      if (dateAttr) {
+        console.log('Found data-date attribute:', dateAttr)
+        return new Date(dateAttr)
+      }
+
+      // Method 2: For month view date cells
+      if (cell.classList.contains('rbc-date-cell')) {
+        const dateText = cell.textContent?.trim()
+        console.log('Date cell text:', dateText)
+        
+        if (dateText && /^\d{1,2}$/.test(dateText)) {
+          const day = Number(dateText)
+          const currentDate = new Date(date)
+          const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+          
+          console.log('Extracted date from date cell:', {
+            day,
+            currentMonth: currentDate.getMonth(),
+            currentYear: currentDate.getFullYear(),
+            targetDate: targetDate.toDateString()
+          })
+          
+          return targetDate
+        }
+      }
+
+      // Method 3: For day background cells (month view)
+      if (cell.classList.contains('rbc-day-bg')) {
+        // Find the parent row and determine position
+        const row = cell.closest('.rbc-month-row')
+        if (row) {
+          const dayBgs = Array.from(row.querySelectorAll('.rbc-day-bg'))
+          const index = dayBgs.indexOf(cell)
+          
+          if (index >= 0) {
+            // Get the corresponding date cell
+            const dateCells = Array.from(row.querySelectorAll('.rbc-date-cell'))
+            const dateCell = dateCells[index]
+            
+            if (dateCell) {
+              const dateText = dateCell.textContent?.trim()
+              if (dateText && /^\d{1,2}$/.test(dateText)) {
+                const day = Number(dateText)
+                const currentDate = new Date(date)
+                const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+                
+                console.log('Extracted date from day-bg via position:', {
+                  index,
+                  day,
+                  targetDate: targetDate.toDateString()
+                })
+                
+                return targetDate
+              }
+            }
+          }
+        }
+      }
+
+      // Method 4: For month view rows - find closest date cell
+      if (cell.classList.contains('rbc-month-row')) {
+        const touchX = touchStartPos.current?.x
+        if (touchX) {
+          const dateCells = Array.from(cell.querySelectorAll('.rbc-date-cell'))
+          
+          let closestCell = null
+          let closestDistance = Infinity
+          
+          for (const dateCell of dateCells) {
+            const rect = dateCell.getBoundingClientRect()
+            const centerX = rect.left + rect.width / 2
+            const distance = Math.abs(touchX - centerX)
+            
+            if (distance < closestDistance) {
+              closestDistance = distance
+              closestCell = dateCell
+            }
+          }
+          
+          if (closestCell) {
+            const dateText = closestCell.textContent?.trim()
+            if (dateText && /^\d{1,2}$/.test(dateText)) {
+              const day = Number(dateText)
+              const currentDate = new Date(date)
+              const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+              
+              console.log('Extracted date from row by position:', {
+                touchX,
+                day,
+                targetDate: targetDate.toDateString()
+              })
+              
+              return targetDate
+            }
+          }
+        }
+      }
+
+      // Method 5: Look up the DOM tree for date information
+      let parent = cell.parentElement
+      while (parent && !parent.classList.contains('rbc-calendar')) {
+        if (parent.classList.contains('rbc-date-cell')) {
+          const dateText = parent.textContent?.trim()
+          if (dateText && /^\d{1,2}$/.test(dateText)) {
+            const day = Number(dateText)
+            const currentDate = new Date(date)
+            const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+            
+            console.log('Found date in parent element:', {
+              day,
+              targetDate: targetDate.toDateString()
+            })
+            
+            return targetDate
+          }
+        }
+        parent = parent.parentElement
+      }
+
+      // Method 6: For time slots in day/week view
+      if (cell.classList.contains('rbc-time-slot')) {
+        const slotDate = new Date(date)
+        slotDate.setHours(9, 0, 0, 0)
+        console.log('Using time slot date:', slotDate.toDateString())
+        return slotDate
+      }
+
+      console.warn('Could not extract date from cell, using current date as fallback')
+      return new Date(date)
+
+    } catch (error) {
+      console.error('Error extracting date from cell:', error)
+      return new Date(date)
+    }
+  }, [date])
+
+  // Robust mobile touch handlers
+  const touchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const touchHandledRef = useRef(false)
+  const lastTapTime = useRef(0)
+  const lastTapTarget = useRef<Element | null>(null)
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY }
+    touchHandledRef.current = false
+    
+    // Clear any existing timeout
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current)
+    }
+  }, [])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchStartPos.current) return
+
+    const touch = e.changedTouches[0]
+    const deltaX = Math.abs(touch.clientX - touchStartPos.current.x)
+    const deltaY = Math.abs(touch.clientY - touchStartPos.current.y)
+    const now = Date.now()
+
+    // More lenient movement threshold for mobile
+    if (deltaX < 25 && deltaY < 25) {
+      const target = e.target as HTMLElement
+      
+      // More comprehensive cell detection
+      const cell = target.closest('.rbc-date-cell, .rbc-day-bg, .rbc-time-slot, .rbc-day-slot, .rbc-month-row')
+      
+      if (cell && !target.closest('.rbc-event, .rbc-button-link, .rbc-toolbar')) {
+        // Check for double tap
+        const isDoubleTap = now - lastTapTime.current < 300 && cell === lastTapTarget.current
+        
+        e.preventDefault()
+        e.stopPropagation()
+        
+        lastTapTime.current = now
+        lastTapTarget.current = cell
+        
+        // Handle both single and double taps
+        const handleTap = () => {
+          if (!touchHandledRef.current) {
+            touchHandledRef.current = true
+            
+            const cellDate = getCellDate(cell)
+            
+            if (cellDate) {
+              const slotInfo = {
+                start: cellDate,
+                end: new Date(cellDate.getTime() + 60 * 60 * 1000)
+              }
+              console.log('Mobile tap detected, creating reservation for:', {
+                extractedDate: cellDate.toDateString(),
+                currentCalendarDate: date.toDateString(),
+                cellType: cell.className,
+                slotInfo
+              })
+              handleSelectSlot(slotInfo)
+            } else {
+              console.warn('Could not extract date from tapped cell:', {
+                cellType: cell.className,
+                cellText: cell.textContent,
+                fallbackToCurrentDate: date.toDateString()
+              })
+              // Fallback to current calendar date
+              const slotInfo = {
+                start: new Date(date),
+                end: new Date(date.getTime() + 60 * 60 * 1000)
+              }
+              handleSelectSlot(slotInfo)
+            }
+          }
+        }
+
+        // Clear any existing timeout
+        if (touchTimeoutRef.current) {
+          clearTimeout(touchTimeoutRef.current)
+        }
+
+        if (isDoubleTap) {
+          // Handle double tap immediately
+          handleTap()
+        } else {
+          // Wait a bit to see if it's a double tap, then handle single tap
+          touchTimeoutRef.current = setTimeout(() => {
+            handleTap()
+          }, 100)
+        }
+      }
+    }
+    
+    // Reset after a delay
+    setTimeout(() => {
+      touchStartPos.current = null
+      touchHandledRef.current = false
+    }, 200)
+  }, [handleSelectSlot, getCellDate, date])
+
+  // Handle click events as fallback
+  const handleCellClick = useCallback((e: React.MouseEvent) => {
+    // Only handle if touch didn't already handle it
+    if (touchHandledRef.current) {
+      touchHandledRef.current = false
+      return
+    }
+
+    const target = e.target as HTMLElement
+    const cell = target.closest('.rbc-date-cell, .rbc-day-bg, .rbc-time-slot')
+    
+    if (cell && !target.closest('.rbc-event, .rbc-button-link')) {
+      const cellDate = getCellDate(cell)
+      
+      if (cellDate) {
+        const slotInfo = {
+          start: cellDate,
+          end: new Date(cellDate.getTime() + 60 * 60 * 1000)
+        }
+        handleSelectSlot(slotInfo)
+      }
+    }
+  }, [handleSelectSlot, getCellDate])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (touchTimeoutRef.current) {
+        clearTimeout(touchTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Custom event style based on reservation status
   const eventStyleGetter = useCallback((event: CalendarEvent) => {
@@ -348,46 +621,85 @@ export default function EnhancedCalendar({
         }
       `}</style>
 
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold mb-2">Restaurant Reservations Calendar</h3>
-        <p className="text-sm text-gray-600">
-          {isAuthenticated && hasSupabase 
-            ? "Live reservations loaded. Click on events to edit, or click empty slots to create new reservations."
-            : !hasSupabase 
-              ? "Demo mode: Supabase not configured. Sample reservations shown."
-              : "Demo mode: Please log in for full functionality. Sample reservations shown."
-          }
-        </p>
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Restaurant Reservations Calendar</h3>
+          <p className="text-sm text-gray-600">
+            {isAuthenticated && hasSupabase 
+              ? (
+                <>
+                  <span className="hidden md:inline">Live reservations loaded. Click on events to edit, or click empty slots to create new reservations.</span>
+                  <span className="md:hidden">Live reservations loaded. Tap calendar dates to create reservations, or use the button above. Tap existing reservations to edit.</span>
+                </>
+              )
+              : !hasSupabase 
+                ? "Demo mode: Supabase not configured. Sample reservations shown."
+                : "Demo mode: Please log in for full functionality. Sample reservations shown."
+            }
+          </p>
+        </div>
+        
+        {/* Mobile-friendly "Add Reservation" button - always show for mobile-first approach */}
+        <button
+          onClick={() => {
+            const now = new Date()
+            const slotInfo = {
+              start: now,
+              end: new Date(now.getTime() + 60 * 60 * 1000) // 1 hour later
+            }
+            console.log('Mobile button clicked, creating reservation for now')
+            handleSelectSlot(slotInfo)
+          }}
+          className="md:hidden bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium whitespace-nowrap shadow-lg"
+        >
+          ➕ Add Reservation
+        </button>
       </div>
       
       <div style={{ height: '600px' }}>
-        <Calendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: '100%' }}
-          onSelectEvent={handleSelectEvent}
-          onSelectSlot={handleSelectSlot}
-          selectable
-          view={view}
-          onView={setView}
-          date={date}
-          onNavigate={setDate}
-          eventPropGetter={eventStyleGetter}
-          components={{
-            toolbar: CustomToolbar,
+        <div 
+          ref={calendarRef}
+          className="touch-manipulation"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onClick={handleCellClick}
+          style={{ 
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
+            height: '100%'
           }}
-          step={30}
-          timeslots={2}
-          min={new Date(2000, 1, 1, 8, 0, 0)} // 8 AM
-          max={new Date(2000, 1, 1, 23, 0, 0)} // 11 PM
-          formats={{
-            timeGutterFormat: 'h:mm a',
-            eventTimeRangeFormat: ({ start, end }) =>
-              `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')}`,
-          }}
-        />
+        >
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%' }}
+            onSelectEvent={handleSelectEvent}
+            onSelectSlot={handleSelectSlot}
+            selectable
+            view={view}
+            onView={setView}
+            date={date}
+            onNavigate={setDate}
+            eventPropGetter={eventStyleGetter}
+            components={{
+              toolbar: CustomToolbar,
+            }}
+            step={30}
+            timeslots={2}
+            min={new Date(2000, 1, 1, 8, 0, 0)} // 8 AM
+            max={new Date(2000, 1, 1, 23, 0, 0)} // 11 PM
+            formats={{
+              timeGutterFormat: 'h:mm a',
+              eventTimeRangeFormat: ({ start, end }) =>
+                `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')}`,
+            }}
+            // Mobile-specific props
+            popup={true}
+            popupOffset={{x: 10, y: 10}}
+          />
+        </div>
       </div>
       
       {/* Legend */}
