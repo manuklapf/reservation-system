@@ -83,12 +83,14 @@ interface EnhancedCalendarProps {
   onSelectEvent?: (reservation: Reservation) => void
   onSelectSlot?: (slotInfo: { start: Date; end: Date }) => void
   selectedDate?: Date
+  refreshKey?: number // Add this to force refresh from parent
 }
 
 export default function EnhancedCalendar({ 
   onSelectEvent, 
   onSelectSlot, 
-  selectedDate = new Date() 
+  selectedDate = new Date(),
+  refreshKey = 0
 }: EnhancedCalendarProps) {
   const { user, tenantId } = useAuth()
   const [reservations, setReservations] = useState<Reservation[]>([])
@@ -100,9 +102,12 @@ export default function EnhancedCalendar({
   const fetchReservations = useCallback(async () => {
     setLoading(true)
     
+    console.log('Fetching reservations...', { supabase: !!supabase, tenantId, user: !!user })
+    
     // Try to fetch real data first, fall back to sample data
     if (supabase && tenantId) {
       try {
+        console.log('Attempting to fetch from Supabase...')
         const { data, error } = await supabase
           .from('reservations')
           .select('*')
@@ -111,6 +116,7 @@ export default function EnhancedCalendar({
           .order('time', { ascending: true })
 
         if (error) throw error
+        console.log('Successfully fetched reservations:', data?.length || 0)
         setReservations(data || [])
         setLoading(false)
         return
@@ -121,6 +127,7 @@ export default function EnhancedCalendar({
     }
     
     // Use sample data when Supabase is not available or on error
+    console.log('Using sample data')
     try {
       // Simulate loading delay
       await new Promise(resolve => setTimeout(resolve, 500))
@@ -131,7 +138,7 @@ export default function EnhancedCalendar({
     } finally {
       setLoading(false)
     }
-  }, [tenantId])
+  }, [tenantId, user])
 
   // Custom toolbar component
   const CustomToolbar = useCallback((toolbar: any) => {
@@ -227,9 +234,9 @@ export default function EnhancedCalendar({
   }, [view])
 
   useEffect(() => {
-    // Always fetch reservations on component mount
+    // Always fetch reservations on component mount and when refreshKey changes
     fetchReservations()
-  }, [fetchReservations])
+  }, [fetchReservations, refreshKey])
 
   // Convert reservations to calendar events
   const events: CalendarEvent[] = useMemo(() => {

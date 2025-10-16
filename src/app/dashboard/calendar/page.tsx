@@ -96,7 +96,7 @@ export default function CalendarPage() {
 
           <div className="bg-white rounded-lg shadow-sm p-6">
             <EnhancedCalendar
-              key={calendarKey}
+              refreshKey={calendarKey}
               onSelectEvent={handleSelectEvent}
               onSelectSlot={handleSelectSlot}
             />

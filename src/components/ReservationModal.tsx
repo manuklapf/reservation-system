@@ -88,7 +88,21 @@ export default function ReservationModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !tenantId || !supabase) return
+    
+    if (!user) {
+      alert('Error: Not authenticated. Please log in.')
+      return
+    }
+    
+    if (!tenantId) {
+      alert('Error: No tenant selected. Please contact support.')
+      return
+    }
+    
+    if (!supabase) {
+      alert('Error: Database connection not available. Please check your configuration.')
+      return
+    }
 
     setLoading(true)
     

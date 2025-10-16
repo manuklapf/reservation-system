@@ -29,6 +29,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
+      if (session?.user) {
+        fetchUserTenant(session.user.email!)
+      }
       setLoading(false)
     })
 
@@ -36,12 +39,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user ?? null)
+        if (session?.user) {
+          fetchUserTenant(session.user.email!)
+        } else {
+          setTenantId(null)
+        }
         setLoading(false)
       }
     )
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const fetchUserTenant = async (email: string) => {
+    if (!supabase) return
+    
+    try {
+      const { data, error } = await supabase
+        .from('staff')
+        .select('tenant_id')
+        .eq('email', email)
+        .single()
+      
+      if (error) {
+        console.error('Error fetching tenant for user:', error)
+        return
+      }
+      
+      setTenantId(data.tenant_id)
+    } catch (error) {
+      console.error('Error fetching user tenant:', error)
+    }
+  }
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) {
