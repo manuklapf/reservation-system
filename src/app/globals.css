@@ -5,6 +5,11 @@
 /* React Big Calendar Styles */
 @import 'react-big-calendar/lib/css/react-big-calendar.css';
 
+/* Safe area support for iOS */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Custom Calendar Styling */
 .rbc-calendar {
   font-family: inherit;
@@ -157,32 +162,32 @@
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .rbc-toolbar-label {
     order: -1;
     text-align: center;
     font-size: 18px;
     font-weight: 600;
   }
-  
+
   .rbc-btn-group {
     display: flex;
     justify-content: center;
   }
-  
+
   .rbc-event {
     font-size: 11px;
     padding: 1px 3px;
   }
-  
+
   .rbc-calendar {
     height: 500px;
   }
-  
+
   .rbc-time-view .rbc-time-gutter {
     font-size: 12px;
   }
-  
+
   .rbc-header {
     padding: 8px 4px;
     font-size: 12px;

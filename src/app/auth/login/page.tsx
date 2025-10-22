@@ -27,15 +27,47 @@ export default function LoginPage() {
                 Supabase Configuration Missing
               </h3>
               <p className="text-sm text-yellow-700 mb-4">
-                To use this application, you need to set up your Supabase project and environment variables.
+                To use this application, you need to set up your Supabase
+                project and environment variables.
               </p>
               <div className="text-left text-sm text-yellow-700 space-y-2">
-                <p><strong>Steps:</strong></p>
+                <p>
+                  <strong>Steps:</strong>
+                </p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li>Create a Supabase project at <a href="https://supabase.com" className="underline" target="_blank" rel="noopener noreferrer">supabase.com</a></li>
-                  <li>Copy <code className="bg-yellow-100 px-1 rounded">.env.example</code> to <code className="bg-yellow-100 px-1 rounded">.env.local</code></li>
-                  <li>Add your Supabase URL and API key to <code className="bg-yellow-100 px-1 rounded">.env.local</code></li>
-                  <li>Run the SQL schema from <code className="bg-yellow-100 px-1 rounded">supabase-schema.sql</code></li>
+                  <li>
+                    Create a Supabase project at{' '}
+                    <a
+                      href="https://supabase.com"
+                      className="underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      supabase.com
+                    </a>
+                  </li>
+                  <li>
+                    Copy{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      .env.example
+                    </code>{' '}
+                    to{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      .env.local
+                    </code>
+                  </li>
+                  <li>
+                    Add your Supabase URL and API key to{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      .env.local
+                    </code>
+                  </li>
+                  <li>
+                    Run the SQL schema from{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      supabase-schema.sql
+                    </code>
+                  </li>
                   <li>Restart the development server</li>
                 </ol>
               </div>
@@ -52,13 +84,13 @@ export default function LoginPage() {
     setError('')
 
     const { error } = await signIn(email, password)
-    
+
     if (error) {
       setError(error.message)
     } else {
       router.push('/dashboard')
     }
-    
+
     setLoading(false)
   }
 
@@ -88,7 +120,7 @@ export default function LoginPage() {
                 className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -104,7 +136,7 @@ export default function LoginPage() {
                 className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
               />
             </div>
           </div>

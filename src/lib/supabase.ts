@@ -4,9 +4,10 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // Only create client if environment variables are provided
-export const supabase = supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http') 
-  ? createBrowserClient(supabaseUrl, supabaseAnonKey)
-  : null
+export const supabase =
+  supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')
+    ? createBrowserClient(supabaseUrl, supabaseAnonKey)
+    : null
 
 export type Database = {
   public: {

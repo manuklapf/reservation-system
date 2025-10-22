@@ -19,18 +19,55 @@ export default function HomePage() {
                 To get started, you need to configure your Supabase project.
               </p>
               <div className="text-left text-sm text-yellow-700 space-y-2">
-                <p><strong>Quick Setup:</strong></p>
+                <p>
+                  <strong>Quick Setup:</strong>
+                </p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li>Create a Supabase project at <a href="https://supabase.com" className="underline" target="_blank" rel="noopener noreferrer">supabase.com</a></li>
-                  <li>Copy <code className="bg-yellow-100 px-1 rounded">.env.example</code> to <code className="bg-yellow-100 px-1 rounded">.env.local</code></li>
-                  <li>Add your Supabase credentials to <code className="bg-yellow-100 px-1 rounded">.env.local</code></li>
-                  <li>Run the SQL schema from <code className="bg-yellow-100 px-1 rounded">supabase-schema.sql</code></li>
-                  <li>Restart the server with <code className="bg-yellow-100 px-1 rounded">npm run dev</code></li>
+                  <li>
+                    Create a Supabase project at{' '}
+                    <a
+                      href="https://supabase.com"
+                      className="underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      supabase.com
+                    </a>
+                  </li>
+                  <li>
+                    Copy{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      .env.example
+                    </code>{' '}
+                    to{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      .env.local
+                    </code>
+                  </li>
+                  <li>
+                    Add your Supabase credentials to{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      .env.local
+                    </code>
+                  </li>
+                  <li>
+                    Run the SQL schema from{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      supabase-schema.sql
+                    </code>
+                  </li>
+                  <li>
+                    Restart the server with{' '}
+                    <code className="bg-yellow-100 px-1 rounded">
+                      npm run dev
+                    </code>
+                  </li>
                 </ol>
               </div>
               <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded">
                 <p className="text-sm text-blue-700">
-                  📖 See <strong>README.md</strong> for detailed setup instructions
+                  📖 See <strong>README.md</strong> for detailed setup
+                  instructions
                 </p>
               </div>
             </div>
@@ -49,7 +86,7 @@ export default function HomePage() {
           <p className="text-xl text-gray-600 mb-12">
             Manage your restaurant reservations efficiently
           </p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="bg-white rounded-lg shadow-md p-8">
               <h2 className="text-2xl font-semibold mb-4">Staff Dashboard</h2>
@@ -63,7 +100,7 @@ export default function HomePage() {
                 Staff Login
               </Link>
             </div>
-            
+
             <div className="bg-white rounded-lg shadow-md p-8">
               <h2 className="text-2xl font-semibold mb-4">Embeddable Widget</h2>
               <p className="text-gray-600 mb-6">

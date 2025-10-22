@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import Picker from 'react-mobile-picker'
 
 interface Reservation {
   id: string
@@ -35,10 +36,13 @@ export default function ReservationModal({
   selectedDate,
   selectedTime,
   onSave,
-  onDelete
+  onDelete,
 }: ReservationModalProps) {
   const { user, tenantId } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [showPickerModal, setShowPickerModal] = useState(false)
+  const [tempPartySize, setTempPartySize] = useState('')
+  const [isManualInput, setIsManualInput] = useState(false)
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
@@ -47,8 +51,23 @@ export default function ReservationModal({
     time: '',
     party_size: '',
     notes: '',
-    status: 'pending'
+    status: 'pending',
   })
+
+  const [width, setWidth] = useState<number>(window.innerWidth)
+
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth)
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowSizeChange)
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange)
+    }
+  }, [])
+
+  const isMobile = width <= 1400
 
   // Initialize form data when modal opens
   useEffect(() => {
@@ -63,16 +82,16 @@ export default function ReservationModal({
           time: reservation.time,
           party_size: reservation.party_size.toString(),
           notes: reservation.notes || '',
-          status: reservation.status
+          status: reservation.status,
         })
       } else {
         // Creating new reservation
         // Fix timezone issue by using local date formatting instead of UTC
-        const defaultDate = selectedDate 
+        const defaultDate = selectedDate
           ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
           : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
         const defaultTime = selectedTime || '18:00'
-        
+
         setFormData({
           customer_name: '',
           customer_phone: '',
@@ -81,7 +100,7 @@ export default function ReservationModal({
           time: defaultTime,
           party_size: '2',
           notes: '',
-          status: 'pending'
+          status: 'pending',
         })
       }
     }
@@ -89,31 +108,33 @@ export default function ReservationModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!user) {
       alert('Error: Not authenticated. Please log in.')
       return
     }
-    
+
     if (!tenantId) {
       alert('Error: No tenant selected. Please contact support.')
       return
     }
-    
+
     if (!supabase) {
-      alert('Error: Database connection not available. Please check your configuration.')
+      alert(
+        'Error: Database connection not available. Please check your configuration.'
+      )
       return
     }
 
     setLoading(true)
-    
+
     try {
       const reservationData = {
         ...formData,
         table_number: parseInt(formData.table_number),
         party_size: parseInt(formData.party_size),
         tenant_id: tenantId,
-        created_by: user.id
+        created_by: user.id,
       }
 
       if (reservation) {
@@ -138,7 +159,7 @@ export default function ReservationModal({
         if (error) throw error
         onSave(data)
       }
-      
+
       onClose()
     } catch (error) {
       console.error('Error saving reservation:', error)
@@ -150,7 +171,7 @@ export default function ReservationModal({
 
   const handleDelete = async () => {
     if (!reservation || !supabase) return
-    
+
     if (!confirm('Are you sure you want to delete this reservation?')) return
 
     setLoading(true)
@@ -161,7 +182,7 @@ export default function ReservationModal({
         .eq('id', reservation.id)
 
       if (error) throw error
-      
+
       onDelete?.(reservation.id)
       onClose()
     } catch (error) {
@@ -172,10 +193,14 @@ export default function ReservationModal({
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     })
   }
 
@@ -191,7 +216,9 @@ export default function ReservationModal({
                 {reservation ? 'Edit Reservation' : 'New Reservation'}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
-                {reservation ? 'Update reservation details' : 'Create a new table reservation'}
+                {reservation
+                  ? 'Update reservation details'
+                  : 'Create a new table reservation'}
               </p>
             </div>
             <button
@@ -206,7 +233,10 @@ export default function ReservationModal({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label htmlFor="customer_name" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="customer_name"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Customer Name
                 </label>
                 <input
@@ -222,7 +252,10 @@ export default function ReservationModal({
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="customer_phone" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="customer_phone"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Phone Number
                 </label>
                 <input
@@ -238,7 +271,10 @@ export default function ReservationModal({
               </div>
 
               <div>
-                <label htmlFor="table_number" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="table_number"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Table Number
                 </label>
                 <input
@@ -255,24 +291,65 @@ export default function ReservationModal({
               </div>
 
               <div>
-                <label htmlFor="party_size" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="party_size"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Party Size
                 </label>
-                <input
-                  type="number"
-                  name="party_size"
-                  id="party_size"
-                  required
-                  min="1"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="2"
-                  value={formData.party_size}
-                  onChange={handleChange}
-                />
+
+                {isMobile ? (
+                  <div
+                    onClick={() => {
+                      setTempPartySize(formData.party_size || '2')
+                      setIsManualInput(false)
+                      setShowPickerModal(true)
+                    }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white cursor-pointer flex justify-between items-center"
+                  >
+                    <span
+                      className={
+                        formData.party_size ? 'text-gray-900' : 'text-gray-400'
+                      }
+                    >
+                      {formData.party_size
+                        ? `${formData.party_size} ${formData.party_size === '1' ? 'person' : 'people'}`
+                        : 'Select party size'}
+                    </span>
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                ) : (
+                  <input
+                    type="number"
+                    name="party_size"
+                    id="party_size"
+                    required
+                    min="1"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="2"
+                    value={formData.party_size}
+                    onChange={handleChange}
+                  />
+                )}
               </div>
 
               <div>
-                <label htmlFor="date" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Date
                 </label>
                 <input
@@ -287,7 +364,10 @@ export default function ReservationModal({
               </div>
 
               <div>
-                <label htmlFor="time" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="time"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Time
                 </label>
                 <input
@@ -302,7 +382,10 @@ export default function ReservationModal({
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="status"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Status
                 </label>
                 <select
@@ -319,7 +402,10 @@ export default function ReservationModal({
               </div>
 
               <div className="md:col-span-2">
-                <label htmlFor="notes" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="notes"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Special Notes
                 </label>
                 <textarea
@@ -345,9 +431,25 @@ export default function ReservationModal({
                   >
                     {loading ? (
                       <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
                         </svg>
                         Deleting...
                       </>
@@ -357,7 +459,7 @@ export default function ReservationModal({
                   </button>
                 )}
               </div>
-              
+
               <div className="flex gap-3">
                 <button
                   type="button"
@@ -373,15 +475,33 @@ export default function ReservationModal({
                 >
                   {loading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                       {reservation ? 'Updating...' : 'Creating...'}
                     </>
                   ) : (
                     <>
-                      {reservation ? 'Update Reservation' : 'Create Reservation'}
+                      {reservation
+                        ? 'Update Reservation'
+                        : 'Create Reservation'}
                     </>
                   )}
                 </button>
@@ -390,6 +510,101 @@ export default function ReservationModal({
           </form>
         </div>
       </div>
+
+      {/* Party Size Picker Modal */}
+      {showPickerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-[60]">
+          <div className="bg-white rounded-t-xl w-full max-w-lg pb-safe max-h-[80vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white flex items-center justify-between p-4 border-b border-gray-200 z-10">
+              <button
+                onClick={() => setShowPickerModal(false)}
+                className="text-blue-600 font-medium"
+              >
+                Cancel
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Party Size
+              </h3>
+              <button
+                onClick={() => {
+                  setFormData({ ...formData, party_size: tempPartySize })
+                  setShowPickerModal(false)
+                }}
+                className="text-blue-600 font-medium"
+              >
+                Done
+              </button>
+            </div>
+            <div className="p-4">
+              <Picker
+                value={{
+                  party_size:
+                    !isManualInput &&
+                    tempPartySize &&
+                    parseInt(tempPartySize) <= 100
+                      ? tempPartySize
+                      : '1',
+                }}
+                onChange={value => {
+                  if (!isManualInput) {
+                    setTempPartySize(value.party_size)
+                  }
+                }}
+                height={216}
+              >
+                <Picker.Column name="party_size">
+                  {[...Array(100)].map((_, i) => {
+                    const size = (i + 1).toString()
+                    return (
+                      <Picker.Item key={size} value={size}>
+                        {size} {size === '1' ? 'person' : 'people'}
+                      </Picker.Item>
+                    )
+                  })}
+                </Picker.Column>
+              </Picker>
+
+              {/* Manual Input for 300+ */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <label
+                  htmlFor="manual_party_size"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Or enter a number
+                </label>
+                <input
+                  type="number"
+                  id="manual_party_size"
+                  min="1"
+                  placeholder="Enter party size"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  value={isManualInput ? tempPartySize : ''}
+                  onChange={e => {
+                    const value = e.target.value
+                    setIsManualInput(true)
+                    if (value === '' || parseInt(value) >= 1) {
+                      setTempPartySize(value)
+                    }
+                  }}
+                  onFocus={() => {
+                    setIsManualInput(true)
+                    if (!tempPartySize || parseInt(tempPartySize) <= 100) {
+                      setTempPartySize('')
+                    }
+                  }}
+                  onBlur={() => {
+                    // If input is empty on blur, revert to picker mode
+                    if (!tempPartySize) {
+                      setIsManualInput(false)
+                      setTempPartySize('2')
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

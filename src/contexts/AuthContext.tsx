@@ -36,36 +36,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null)
-        if (session?.user) {
-          fetchUserTenant(session.user.email!)
-        } else {
-          setTenantId(null)
-        }
-        setLoading(false)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        fetchUserTenant(session.user.email!)
+      } else {
+        setTenantId(null)
       }
-    )
+      setLoading(false)
+    })
 
     return () => subscription.unsubscribe()
   }, [])
 
   const fetchUserTenant = async (email: string) => {
     if (!supabase) return
-    
+
     try {
       const { data, error } = await supabase
         .from('staff')
         .select('tenant_id')
         .eq('email', email)
         .single()
-      
+
       if (error) {
         console.error('Error fetching tenant for user:', error)
         return
       }
-      
+
       setTenantId(data.tenant_id)
     } catch (error) {
       console.error('Error fetching user tenant:', error)
@@ -74,9 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) {
-      return { error: new Error('Supabase client not initialized. Please check your environment variables.') }
+      return {
+        error: new Error(
+          'Supabase client not initialized. Please check your environment variables.'
+        ),
+      }
     }
-    
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -86,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     if (!supabase) return
-    
+
     await supabase.auth.signOut()
     setTenantId(null)
   }

@@ -22,8 +22,12 @@ interface Reservation {
 
 export default function CalendarPage() {
   const { user } = useAuth()
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
-  const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null)
+  const [selectedReservation, setSelectedReservation] =
+    useState<Reservation | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<{
+    start: Date
+    end: Date
+  } | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [calendarKey, setCalendarKey] = useState(0) // For forcing calendar refresh
 
@@ -69,7 +73,10 @@ export default function CalendarPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link href="/dashboard" className="text-xl font-semibold text-gray-900 hover:text-blue-600">
+              <Link
+                href="/dashboard"
+                className="text-xl font-semibold text-gray-900 hover:text-blue-600"
+              >
                 ← Back to Dashboard
               </Link>
             </div>
@@ -80,9 +87,13 @@ export default function CalendarPage() {
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Reservations Calendar</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Reservations Calendar
+            </h2>
             <p className="text-gray-600">
-              View and manage reservations in calendar format. Click on a reservation to edit, or click on an empty slot to create a new reservation.
+              View and manage reservations in calendar format. Click on a
+              reservation to edit, or click on an empty slot to create a new
+              reservation.
             </p>
           </div>
 
@@ -102,9 +113,10 @@ export default function CalendarPage() {
         onClose={handleCloseModal}
         reservation={selectedReservation}
         selectedDate={selectedSlot?.start}
-        selectedTime={selectedSlot?.start ? 
-          `${selectedSlot.start.getHours().toString().padStart(2, '0')}:${selectedSlot.start.getMinutes().toString().padStart(2, '0')}` : 
-          undefined
+        selectedTime={
+          selectedSlot?.start
+            ? `${selectedSlot.start.getHours().toString().padStart(2, '0')}:${selectedSlot.start.getMinutes().toString().padStart(2, '0')}`
+            : undefined
         }
         onSave={handleSaveReservation}
         onDelete={handleDeleteReservation}
