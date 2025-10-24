@@ -10,6 +10,7 @@ interface Reservation {
   customer_name: string
   customer_phone: string
   table_number: number
+  table_id: string | null
   date: string
   time: string
   party_size: number
@@ -17,6 +18,13 @@ interface Reservation {
   notes: string | null
   tenant_id: string
   created_by: string
+}
+
+interface Table {
+  id: string
+  table_identifier: string
+  capacity: number
+  is_active: boolean
 }
 
 interface ReservationModalProps {
@@ -43,10 +51,13 @@ export default function ReservationModal({
   const [showPickerModal, setShowPickerModal] = useState(false)
   const [tempPartySize, setTempPartySize] = useState('')
   const [isManualInput, setIsManualInput] = useState(false)
+  const [tables, setTables] = useState<Table[]>([])
+  const [availableTables, setAvailableTables] = useState<Table[]>([])
+  const [loadingTables, setLoadingTables] = useState(false)
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
-    table_number: '',
+    table_id: '',
     date: '',
     time: '',
     party_size: '',
@@ -69,6 +80,73 @@ export default function ReservationModal({
 
   const isMobile = width <= 1400
 
+  const fetchTables = React.useCallback(async () => {
+    if (!supabase || !tenantId) return
+
+    try {
+      setLoadingTables(true)
+      const { data, error } = await supabase
+        .from('tables')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .eq('is_active', true)
+        .order('table_identifier')
+
+      if (error) throw error
+      setTables(data || [])
+    } catch (err) {
+      console.error('Error fetching tables:', err)
+    } finally {
+      setLoadingTables(false)
+    }
+  }, [tenantId])
+
+  // Fetch all tables for the tenant
+  useEffect(() => {
+    if (isOpen && tenantId && supabase) {
+      fetchTables()
+    }
+  }, [isOpen, tenantId, fetchTables])
+
+  const filterAvailableTables = React.useCallback(async () => {
+    if (!supabase || !tenantId || !formData.date || !formData.time) return
+
+    try {
+      // Fetch reservations for the selected date and time
+      const { data: reservations, error } = await supabase
+        .from('reservations')
+        .select('table_id')
+        .eq('tenant_id', tenantId)
+        .eq('date', formData.date)
+        .eq('time', formData.time)
+        .not('table_id', 'is', null)
+
+      if (error) throw error
+
+      // Get list of reserved table IDs (exclude current reservation if editing)
+      const reservedTableIds = (reservations || [])
+        .filter(r => !reservation || r.table_id !== reservation.table_id)
+        .map(r => r.table_id)
+
+      // Filter out reserved tables
+      const available = tables.filter(
+        table => !reservedTableIds.includes(table.id)
+      )
+
+      setAvailableTables(available)
+    } catch (err) {
+      console.error('Error filtering available tables:', err)
+      setAvailableTables(tables) // Fallback to all tables if error
+    }
+  }, [tenantId, formData.date, formData.time, tables, reservation])
+
+  // Filter available tables based on date, time, and existing reservations
+  useEffect(() => {
+    if (isOpen && tables.length > 0 && formData.date && formData.time) {
+      filterAvailableTables()
+    }
+  }, [isOpen, tables, formData.date, formData.time, filterAvailableTables])
+
   // Initialize form data when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -77,7 +155,7 @@ export default function ReservationModal({
         setFormData({
           customer_name: reservation.customer_name,
           customer_phone: reservation.customer_phone,
-          table_number: reservation.table_number.toString(),
+          table_id: reservation.table_id || '',
           date: reservation.date,
           time: reservation.time,
           party_size: reservation.party_size.toString(),
@@ -95,7 +173,7 @@ export default function ReservationModal({
         setFormData({
           customer_name: '',
           customer_phone: '',
-          table_number: '1',
+          table_id: '',
           date: defaultDate,
           time: defaultTime,
           party_size: '2',
@@ -126,13 +204,23 @@ export default function ReservationModal({
       return
     }
 
+    if (!formData.table_id) {
+      alert('Please select a table.')
+      return
+    }
+
     setLoading(true)
 
     try {
       const reservationData = {
-        ...formData,
-        table_number: parseInt(formData.table_number),
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        table_id: formData.table_id,
+        date: formData.date,
+        time: formData.time,
         party_size: parseInt(formData.party_size),
+        notes: formData.notes,
+        status: formData.status,
         tenant_id: tenantId,
         created_by: user.id,
       }
@@ -161,9 +249,36 @@ export default function ReservationModal({
       }
 
       onClose()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving reservation:', error)
-      alert('Error saving reservation')
+
+      // Show detailed error message
+      let errorMessage = 'Error saving reservation'
+      if (error?.message) {
+        errorMessage += ': ' + error.message
+      }
+      if (error?.hint) {
+        errorMessage += '\n\nHint: ' + error.hint
+      }
+
+      // Check for specific errors
+      if (
+        error?.message?.includes('column "table_id" of relation "reservations"')
+      ) {
+        errorMessage =
+          'Database setup required!\n\nPlease run the SQL schema in Supabase:\n1. Open: https://app.supabase.com/project/gvgsndjcwqbrzfvgxxdy/sql\n2. Run the contents of supabase-tables-schema.sql'
+      }
+
+      if (
+        error?.message?.includes('null value in column "table_number"') ||
+        (error?.message?.includes('table_number') &&
+          error?.message?.includes('not-null'))
+      ) {
+        errorMessage =
+          'Database migration required!\n\nThe table_number column needs to be made nullable.\n\nPlease run the UPDATED SQL schema in Supabase:\n1. Open: https://app.supabase.com/project/gvgsndjcwqbrzfvgxxdy/sql\n2. Run the contents of supabase-tables-schema.sql\n\nThe SQL now includes: ALTER TABLE reservations ALTER COLUMN table_number DROP NOT NULL;'
+      }
+
+      alert(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -272,22 +387,40 @@ export default function ReservationModal({
 
               <div>
                 <label
-                  htmlFor="table_number"
+                  htmlFor="table_id"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Table Number
+                  Table
                 </label>
-                <input
-                  type="number"
-                  name="table_number"
-                  id="table_number"
-                  required
-                  min="1"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="1"
-                  value={formData.table_number}
-                  onChange={handleChange}
-                />
+                {loadingTables ? (
+                  <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                    Loading tables...
+                  </div>
+                ) : availableTables.length === 0 && tables.length > 0 ? (
+                  <div className="w-full px-4 py-3 border border-red-300 rounded-lg bg-red-50 text-red-700 text-sm">
+                    No tables available for this time slot
+                  </div>
+                ) : tables.length === 0 ? (
+                  <div className="w-full px-4 py-3 border border-yellow-300 rounded-lg bg-yellow-50 text-yellow-800 text-sm">
+                    No tables configured. Please set up tables first.
+                  </div>
+                ) : (
+                  <select
+                    name="table_id"
+                    id="table_id"
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    value={formData.table_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select a table</option>
+                    {availableTables.map(table => (
+                      <option key={table.id} value={table.id}>
+                        {table.table_identifier} (Seats {table.capacity})
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>

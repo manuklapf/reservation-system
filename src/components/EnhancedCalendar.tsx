@@ -28,30 +28,32 @@ const sampleReservations: Reservation[] = [
     customer_name: 'John Doe',
     customer_phone: '123-456-7890',
     table_number: 5,
+    table_id: null,
     date: '2025-10-15',
     time: '18:00',
     party_size: 4,
     status: 'confirmed',
-    notes: 'Anniversary dinner',
-    created_at: '2025-10-14T10:00:00Z',
-    updated_at: '2025-10-14T10:00:00Z',
+    notes: 'Window seat requested',
+    created_at: '2025-10-10T10:00:00Z',
+    updated_at: '2025-10-10T10:00:00Z',
     tenant_id: 'sample-tenant',
-    created_by: 'staff-1',
+    created_by: 'sample-user',
   },
   {
     id: '2',
     customer_name: 'Jane Smith',
     customer_phone: '987-654-3210',
     table_number: 3,
+    table_id: null,
     date: '2025-10-16',
     time: '19:30',
     party_size: 2,
     status: 'pending',
     notes: null,
-    created_at: '2025-10-14T11:00:00Z',
-    updated_at: '2025-10-14T11:00:00Z',
+    created_at: '2025-10-11T14:30:00Z',
+    updated_at: '2025-10-11T14:30:00Z',
     tenant_id: 'sample-tenant',
-    created_by: 'staff-1',
+    created_by: 'sample-user',
   },
 ]
 
@@ -59,7 +61,8 @@ interface Reservation {
   id: string
   customer_name: string
   customer_phone: string
-  table_number: number
+  table_number: number | null
+  table_id: string | null
   date: string
   time: string
   party_size: number
@@ -69,6 +72,10 @@ interface Reservation {
   updated_at: string
   tenant_id: string
   created_by: string
+  tables?: {
+    table_identifier: string
+    capacity: number
+  }
 }
 
 interface CalendarEvent {
@@ -116,7 +123,15 @@ export default function EnhancedCalendar({
         console.log('Attempting to fetch from Supabase...')
         const { data, error } = await supabase
           .from('reservations')
-          .select('*')
+          .select(
+            `
+            *,
+            tables (
+              table_identifier,
+              capacity
+            )
+          `
+          )
           .eq('tenant_id', tenantId)
           .order('date', { ascending: true })
           .order('time', { ascending: true })
@@ -243,9 +258,15 @@ export default function EnhancedCalendar({
       const startDate = new Date(`${reservation.date}T${reservation.time}`)
       const endDate = new Date(startDate.getTime() + 60 * 60 * 1000) // 1 hour duration
 
+      // Get table identifier from joined data or fall back to table_number
+      const tableDisplay =
+        reservation.tables?.table_identifier ||
+        reservation.table_number ||
+        'N/A'
+
       return {
         id: reservation.id,
-        title: `${reservation.customer_name} (Table ${reservation.table_number})`,
+        title: `${reservation.customer_name} (Table ${tableDisplay})`,
         start: startDate,
         end: endDate,
         resource: reservation,
