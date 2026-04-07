@@ -5,20 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import EnhancedCalendar from '@/components/EnhancedCalendar'
 import ReservationModal from '@/components/ReservationModal'
-
-interface Reservation {
-  id: string
-  customer_name: string
-  customer_phone: string
-  table_number: number
-  date: string
-  time: string
-  party_size: number
-  status: string
-  notes: string | null
-  tenant_id: string
-  created_by: string
-}
+import { Reservation } from '@/types/reservation'
 
 export default function CalendarPage() {
   const { user } = useAuth()

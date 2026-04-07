@@ -4,21 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import Picker from 'react-mobile-picker'
-
-interface Reservation {
-  id: string
-  customer_name: string
-  customer_phone: string
-  table_number: number
-  table_id: string | null
-  date: string
-  time: string
-  party_size: number
-  status: string
-  notes: string | null
-  tenant_id: string
-  created_by: string
-}
+import { Reservation } from '@/types/reservation'
 
 interface Table {
   id: string
