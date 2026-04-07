@@ -62,7 +62,7 @@ export default function ReservationModal({
     time: '',
     party_size: '',
     notes: '',
-    status: 'pending',
+    status: 'confirmed',
   })
 
   const [width, setWidth] = useState<number>(window.innerWidth)
@@ -178,7 +178,7 @@ export default function ReservationModal({
           time: defaultTime,
           party_size: '2',
           notes: '',
-          status: 'pending',
+          status: 'confirmed',
         })
       }
     }

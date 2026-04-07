@@ -62,13 +62,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error) {
-        console.error('Error fetching tenant for user:', error)
+        // Check if it's a "no rows" error (user not in staff table)
+        if (error.code === 'PGRST116') {
+          console.warn(
+            `User ${email} not found in staff table. Please add them to access the system.`
+          )
+        } else {
+          console.error('Error fetching tenant for user:', error)
+        }
         return
       }
 
-      setTenantId(data.tenant_id)
+      if (data?.tenant_id) {
+        setTenantId(data.tenant_id)
+      } else {
+        console.warn(
+          `User ${email} found in staff table but has no tenant_id assigned.`
+        )
+      }
     } catch (error) {
-      console.error('Error fetching user tenant:', error)
+      console.error('Unexpected error fetching user tenant:', error)
     }
   }
 

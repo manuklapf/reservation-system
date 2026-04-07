@@ -172,12 +172,17 @@ export default function EnhancedCalendar({
         }
         .rbc-header {
           background-color: #f8fafc;
-          padding: 8px;
           font-weight: 600;
-          border-bottom: 1px solid #e2e8f0;
+          display: flex;
+          justify-content: center;
+          align-content: center;
+          flex-wrap: wrap;
         }
         .rbc-today {
           background-color: #dbeafe;
+        }
+        .rbc-time-header .rbc-header {
+          border-left: none;
         }
         .rbc-off-range-bg {
           background-color: #f8fafc;
@@ -187,15 +192,25 @@ export default function EnhancedCalendar({
           padding: 2px 4px;
           font-size: 12px;
           border: none;
+          box-sizing: border-box;
         }
         .rbc-event-content {
           font-weight: 500;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        /* Ensure proper spacing for overlapping events in day/week view */
+        .rbc-time-slot .rbc-event,
+        .rbc-day-slot .rbc-event {
+          margin-right: 1px;
         }
         .rbc-time-view .rbc-time-gutter {
           background-color: #f8fafc;
         }
         .rbc-day-slot .rbc-time-slot {
           border-top: 1px solid #e5e7eb;
+          background-color: #ffffff;
         }
         .rbc-current-time-indicator {
           background-color: #ef4444;
@@ -229,20 +244,20 @@ export default function EnhancedCalendar({
             date={date}
             onNavigate={setDate}
             eventPropGetter={eventStyleGetter}
+            popup={true}
+            popupOffset={{ x: 10, y: 10 }}
             components={{
               toolbar: Toolbar,
             }}
-            step={30}
-            timeslots={2}
-            min={new Date(2000, 1, 1, 8, 0, 0)}
-            max={new Date(2000, 1, 1, 23, 0, 0)}
+            step={60}
+            timeslots={1}
+            min={new Date(2000, 1, 1, 0, 0, 0)}
+            max={new Date(2000, 1, 1, 23, 59, 59)}
             formats={{
               timeGutterFormat: 'h:mm a',
               eventTimeRangeFormat: ({ start, end }) =>
                 `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')}`,
             }}
-            popup={true}
-            popupOffset={{ x: 10, y: 10 }}
           />
         </div>
       </div>
