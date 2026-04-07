@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { Pencil, Trash2 } from 'lucide-react'
 
 type Table = {
   id: string
@@ -364,9 +365,11 @@ export default function TableSetupPage() {
                             <button
                               onClick={() => startEdit(table)}
                               disabled={saving}
-                              className="text-blue-600 hover:text-blue-900 disabled:text-gray-400"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-900 disabled:text-gray-400"
+                              aria-label="Edit table"
+                              title="Edit table"
                             >
-                              Edit
+                              <Pencil className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() =>
@@ -380,9 +383,11 @@ export default function TableSetupPage() {
                             <button
                               onClick={() => handleDeleteTable(table.id)}
                               disabled={saving}
-                              className="text-red-600 hover:text-red-900 disabled:text-gray-400"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-red-600 hover:bg-red-50 hover:text-red-900 disabled:text-gray-400"
+                              aria-label="Delete table"
+                              title="Delete table"
                             >
-                              Delete
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
                         )}

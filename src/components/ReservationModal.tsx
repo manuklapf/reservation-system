@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import Picker from 'react-mobile-picker'
+import { Trash2 } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 
 interface Table {
@@ -546,12 +547,14 @@ export default function ReservationModal({
                     type="button"
                     onClick={handleDelete}
                     disabled={loading}
-                    className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Delete reservation"
+                    title="Delete reservation"
                   >
                     {loading ? (
                       <>
                         <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          className="h-4 w-4 animate-spin text-white"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -570,10 +573,10 @@ export default function ReservationModal({
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           ></path>
                         </svg>
-                        Deleting...
+                        <span className="sr-only">Deleting reservation...</span>
                       </>
                     ) : (
-                      '🗑️ Delete'
+                      <Trash2 className="h-4 w-4" />
                     )}
                   </button>
                 )}

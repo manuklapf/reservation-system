@@ -5,29 +5,18 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-
-interface Reservation {
-  id: string
-  customer_name: string
-  customer_phone: string
-  table_number: number | null
-  table_id: string | null
-  date: string
-  time: string
-  party_size: number
-  status: string
-  notes: string | null
-  tables?: {
-    table_identifier: string
-    capacity: number
-  }
-}
+import { Pencil } from 'lucide-react'
+import ReservationModal from '@/components/ReservationModal'
+import { Reservation } from '@/types/reservation'
 
 export default function DashboardPage() {
   const { user, loading, signOut, tenantId } = useAuth()
   const router = useRouter()
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
+  const [selectedReservation, setSelectedReservation] =
+    useState<Reservation | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -45,6 +34,7 @@ export default function DashboardPage() {
     if (!supabase) return
 
     try {
+      setLoadingReservations(true)
       const { data, error } = await supabase
         .from('reservations')
         .select(
@@ -72,6 +62,24 @@ export default function DashboardPage() {
   const handleSignOut = async () => {
     await signOut()
     router.push('/')
+  }
+
+  const handleOpenEditModal = (reservation: Reservation) => {
+    setSelectedReservation(reservation)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedReservation(null)
+  }
+
+  const handleSaveReservation = async () => {
+    await fetchReservations()
+  }
+
+  const handleDeleteReservation = async () => {
+    await fetchReservations()
   }
 
   if (loading) {
@@ -155,7 +163,7 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center">
-                              <p className="text-sm font-medium text-blue-600 truncate">
+                              <p className="text-sm font-medium text-gray-900 truncate">
                                 {reservation.customer_name}
                               </p>
                               <div className="ml-2 flex-shrink-0 flex">
@@ -193,12 +201,15 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <div className="ml-4 flex-shrink-0">
-                            <Link
-                              href={`/dashboard/reservations/${reservation.id}/edit`}
-                              className="text-sm text-blue-600 hover:text-blue-800"
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditModal(reservation)}
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-800"
+                              aria-label="Edit reservation"
+                              title="Edit reservation"
                             >
-                              Edit
-                            </Link>
+                              <Pencil className="h-4 w-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -210,6 +221,14 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+
+      <ReservationModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        reservation={selectedReservation}
+        onSave={handleSaveReservation}
+        onDelete={handleDeleteReservation}
+      />
     </div>
   )
 }
