@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import Picker from 'react-mobile-picker'
 import { Trash2 } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
+import { useI18n } from '@/contexts/I18nContext'
 
 interface Table {
   id: string
@@ -34,6 +35,9 @@ export default function ReservationModal({
   onDelete,
 }: ReservationModalProps) {
   const { user, tenantId } = useAuth()
+  const { messages } = useI18n()
+  const t = messages.reservationModal
+  const common = messages.common
   const [loading, setLoading] = useState(false)
   const [showPickerModal, setShowPickerModal] = useState(false)
   const [tempPartySize, setTempPartySize] = useState('')
@@ -175,24 +179,22 @@ export default function ReservationModal({
     e.preventDefault()
 
     if (!user) {
-      alert('Error: Not authenticated. Please log in.')
+      alert(t.errors.notAuthenticated)
       return
     }
 
     if (!tenantId) {
-      alert('Error: No tenant selected. Please contact support.')
+      alert(t.errors.noTenant)
       return
     }
 
     if (!supabase) {
-      alert(
-        'Error: Database connection not available. Please check your configuration.'
-      )
+      alert(t.errors.noDbConnection)
       return
     }
 
     if (!formData.table_id) {
-      alert('Please select a table.')
+      alert(t.errors.selectTable)
       return
     }
 
@@ -240,20 +242,19 @@ export default function ReservationModal({
       console.error('Error saving reservation:', error)
 
       // Show detailed error message
-      let errorMessage = 'Error saving reservation'
+      let errorMessage = t.errors.saveFailed
       if (error?.message) {
         errorMessage += ': ' + error.message
       }
       if (error?.hint) {
-        errorMessage += '\n\nHint: ' + error.hint
+        errorMessage += `\n\n${t.errors.hintPrefix}: ` + error.hint
       }
 
       // Check for specific errors
       if (
         error?.message?.includes('column "table_id" of relation "reservations"')
       ) {
-        errorMessage =
-          'Database setup required!\n\nPlease run the SQL schema in Supabase:\n1. Open: https://app.supabase.com/project/gvgsndjcwqbrzfvgxxdy/sql\n2. Run the contents of supabase-tables-schema.sql'
+        errorMessage = t.errors.dbSetupRequired
       }
 
       if (
@@ -261,8 +262,7 @@ export default function ReservationModal({
         (error?.message?.includes('table_number') &&
           error?.message?.includes('not-null'))
       ) {
-        errorMessage =
-          'Database migration required!\n\nThe table_number column needs to be made nullable.\n\nPlease run the UPDATED SQL schema in Supabase:\n1. Open: https://app.supabase.com/project/gvgsndjcwqbrzfvgxxdy/sql\n2. Run the contents of supabase-tables-schema.sql\n\nThe SQL now includes: ALTER TABLE reservations ALTER COLUMN table_number DROP NOT NULL;'
+        errorMessage = t.errors.dbMigrationRequired
       }
 
       alert(errorMessage)
@@ -274,7 +274,7 @@ export default function ReservationModal({
   const handleDelete = async () => {
     if (!reservation || !supabase) return
 
-    if (!confirm('Are you sure you want to delete this reservation?')) return
+    if (!confirm(t.confirmDelete)) return
 
     setLoading(true)
     try {
@@ -289,7 +289,7 @@ export default function ReservationModal({
       onClose()
     } catch (error) {
       console.error('Error deleting reservation:', error)
-      alert('Error deleting reservation')
+      alert(t.errors.deleteFailed)
     } finally {
       setLoading(false)
     }
@@ -315,18 +315,16 @@ export default function ReservationModal({
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                {reservation ? 'Edit Reservation' : 'New Reservation'}
+                {reservation ? t.editReservation : t.newReservation}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
-                {reservation
-                  ? 'Update reservation details'
-                  : 'Create a new table reservation'}
+                {reservation ? t.updateDetails : t.createNew}
               </p>
             </div>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light hover:bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center"
-              aria-label="Close modal"
+              aria-label={t.closeModal}
             >
               ×
             </button>
@@ -339,7 +337,7 @@ export default function ReservationModal({
                   htmlFor="customer_name"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Customer Name
+                  {t.customerName}
                 </label>
                 <input
                   type="text"
@@ -347,7 +345,7 @@ export default function ReservationModal({
                   id="customer_name"
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Enter customer name"
+                  placeholder={t.customerNamePlaceholder}
                   value={formData.customer_name}
                   onChange={handleChange}
                 />
@@ -358,7 +356,7 @@ export default function ReservationModal({
                   htmlFor="customer_phone"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Phone Number
+                  {t.phoneNumber}
                 </label>
                 <input
                   type="tel"
@@ -366,7 +364,7 @@ export default function ReservationModal({
                   id="customer_phone"
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="(555) 123-4567"
+                  placeholder={t.phonePlaceholder}
                   value={formData.customer_phone}
                   onChange={handleChange}
                 />
@@ -377,19 +375,19 @@ export default function ReservationModal({
                   htmlFor="table_id"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Table
+                  {t.table}
                 </label>
                 {loadingTables ? (
                   <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
-                    Loading tables...
+                    {t.loadingTables}
                   </div>
                 ) : availableTables.length === 0 && tables.length > 0 ? (
                   <div className="w-full px-4 py-3 border border-red-300 rounded-lg bg-red-50 text-red-700 text-sm">
-                    No tables available for this time slot
+                    {t.noTablesForSlot}
                   </div>
                 ) : tables.length === 0 ? (
                   <div className="w-full px-4 py-3 border border-yellow-300 rounded-lg bg-yellow-50 text-yellow-800 text-sm">
-                    No tables configured. Please set up tables first.
+                    {t.noTablesConfigured}
                   </div>
                 ) : (
                   <select
@@ -400,10 +398,10 @@ export default function ReservationModal({
                     value={formData.table_id}
                     onChange={handleChange}
                   >
-                    <option value="">Select a table</option>
+                    <option value="">{t.selectTable}</option>
                     {availableTables.map(table => (
                       <option key={table.id} value={table.id}>
-                        {table.table_identifier} (Seats {table.capacity})
+                        {table.table_identifier} ({t.seats} {table.capacity})
                       </option>
                     ))}
                   </select>
@@ -415,7 +413,7 @@ export default function ReservationModal({
                   htmlFor="party_size"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Party Size
+                  {t.partySize}
                 </label>
 
                 {isMobile ? (
@@ -433,8 +431,8 @@ export default function ReservationModal({
                       }
                     >
                       {formData.party_size
-                        ? `${formData.party_size} ${formData.party_size === '1' ? 'person' : 'people'}`
-                        : 'Select party size'}
+                        ? `${formData.party_size} ${formData.party_size === '1' ? t.person : t.people}`
+                        : t.selectPartySize}
                     </span>
                     <svg
                       className="w-5 h-5 text-gray-400"
@@ -470,7 +468,7 @@ export default function ReservationModal({
                   htmlFor="date"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Date
+                  {t.date}
                 </label>
                 <input
                   type="date"
@@ -488,7 +486,7 @@ export default function ReservationModal({
                   htmlFor="time"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Time
+                  {t.time}
                 </label>
                 <input
                   type="time"
@@ -506,7 +504,7 @@ export default function ReservationModal({
                   htmlFor="status"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Status
+                  {t.status}
                 </label>
                 <select
                   name="status"
@@ -515,9 +513,9 @@ export default function ReservationModal({
                   value={formData.status}
                   onChange={handleChange}
                 >
-                  <option value="pending">🟡 Pending</option>
-                  <option value="confirmed">🟢 Confirmed</option>
-                  <option value="cancelled">🔴 Cancelled</option>
+                  <option value="pending">🟡 {common.pending}</option>
+                  <option value="confirmed">🟢 {common.confirmed}</option>
+                  <option value="cancelled">🔴 {common.cancelled}</option>
                 </select>
               </div>
 
@@ -526,7 +524,7 @@ export default function ReservationModal({
                   htmlFor="notes"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Special Notes
+                  {t.specialNotes}
                 </label>
                 <textarea
                   name="notes"
@@ -535,7 +533,7 @@ export default function ReservationModal({
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                   value={formData.notes}
                   onChange={handleChange}
-                  placeholder="Allergies, special requests, or other notes..."
+                  placeholder={t.specialNotesPlaceholder}
                 />
               </div>
             </div>
@@ -548,8 +546,8 @@ export default function ReservationModal({
                     onClick={handleDelete}
                     disabled={loading}
                     className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Delete reservation"
-                    title="Delete reservation"
+                    aria-label={t.deleteReservation}
+                    title={t.deleteReservation}
                   >
                     {loading ? (
                       <>
@@ -573,7 +571,7 @@ export default function ReservationModal({
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           ></path>
                         </svg>
-                        <span className="sr-only">Deleting reservation...</span>
+                        <span className="sr-only">{t.deletingReservation}</span>
                       </>
                     ) : (
                       <Trash2 className="h-4 w-4" />
@@ -588,7 +586,7 @@ export default function ReservationModal({
                   onClick={onClose}
                   className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
                 >
-                  Cancel
+                  {common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -617,13 +615,11 @@ export default function ReservationModal({
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      {reservation ? 'Updating...' : 'Creating...'}
+                      {reservation ? t.updating : t.creating}
                     </>
                   ) : (
                     <>
-                      {reservation
-                        ? 'Update Reservation'
-                        : 'Create Reservation'}
+                      {reservation ? t.updateReservation : t.createReservation}
                     </>
                   )}
                 </button>
@@ -642,10 +638,10 @@ export default function ReservationModal({
                 onClick={() => setShowPickerModal(false)}
                 className="text-blue-600 font-medium"
               >
-                Cancel
+                {common.cancel}
               </button>
               <h3 className="text-lg font-semibold text-gray-900">
-                Party Size
+                {t.partySize}
               </h3>
               <button
                 onClick={() => {
@@ -654,7 +650,7 @@ export default function ReservationModal({
                 }}
                 className="text-blue-600 font-medium"
               >
-                Done
+                {t.done}
               </button>
             </div>
             <div className="p-4">
@@ -679,7 +675,7 @@ export default function ReservationModal({
                     const size = (i + 1).toString()
                     return (
                       <Picker.Item key={size} value={size}>
-                        {size} {size === '1' ? 'person' : 'people'}
+                        {size} {size === '1' ? t.person : t.people}
                       </Picker.Item>
                     )
                   })}
@@ -692,13 +688,13 @@ export default function ReservationModal({
                   htmlFor="manual_party_size"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Or enter a number
+                  {t.orEnterNumber}
                 </label>
                 <input
                   type="number"
                   id="manual_party_size"
                   min="1"
-                  placeholder="Enter party size"
+                  placeholder={t.enterPartySize}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   value={isManualInput ? tempPartySize : ''}
                   onChange={e => {

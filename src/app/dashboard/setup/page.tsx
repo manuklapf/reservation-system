@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Pencil, Trash2 } from 'lucide-react'
+import { useI18n } from '@/contexts/I18nContext'
 
 type Table = {
   id: string
@@ -15,6 +16,8 @@ type Table = {
 
 export default function TableSetupPage() {
   const { user, tenantId } = useAuth()
+  const { messages } = useI18n()
+  const t = messages.setupPage
   const [tables, setTables] = useState<Table[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -46,11 +49,11 @@ export default function TableSetupPage() {
         err?.code === '42P01' ||
         err?.message?.includes('relation "tables" does not exist')
       ) {
-        setError(
-          '⚠️ Database setup required! Please run supabase-tables-schema.sql in your Supabase SQL Editor first.'
-        )
+        setError(`⚠️ ${t.errors.dbSetupRequired}`)
       } else {
-        setError('Failed to load tables: ' + (err?.message || 'Unknown error'))
+        setError(
+          `${t.errors.failedLoad}: ${err?.message || t.errors.unknownError}`
+        )
       }
     } finally {
       setLoading(false)
@@ -66,13 +69,13 @@ export default function TableSetupPage() {
   const handleAddTable = async () => {
     if (!supabase) return
     if (!newTableIdentifier.trim() || !newTableCapacity) {
-      setError('Please enter table identifier and capacity')
+      setError(t.errors.enterIdentifierAndCapacity)
       return
     }
 
     const capacity = parseInt(newTableCapacity)
     if (isNaN(capacity) || capacity <= 0) {
-      setError('Capacity must be a positive number')
+      setError(t.errors.capacityPositive)
       return
     }
 
@@ -95,9 +98,9 @@ export default function TableSetupPage() {
     } catch (err: any) {
       console.error('Error adding table:', err)
       if (err.message?.includes('duplicate')) {
-        setError('A table with this identifier already exists')
+        setError(t.errors.duplicateIdentifier)
       } else {
-        setError('Failed to add table')
+        setError(t.errors.failedAdd)
       }
     } finally {
       setSaving(false)
@@ -108,13 +111,13 @@ export default function TableSetupPage() {
     if (!supabase) return
 
     if (!editIdentifier.trim() || !editCapacity) {
-      setError('Please enter table identifier and capacity')
+      setError(t.errors.enterIdentifierAndCapacity)
       return
     }
 
     const capacity = parseInt(editCapacity)
     if (isNaN(capacity) || capacity <= 0) {
-      setError('Capacity must be a positive number')
+      setError(t.errors.capacityPositive)
       return
     }
 
@@ -139,9 +142,9 @@ export default function TableSetupPage() {
     } catch (err: any) {
       console.error('Error updating table:', err)
       if (err.message?.includes('duplicate')) {
-        setError('A table with this identifier already exists')
+        setError(t.errors.duplicateIdentifier)
       } else {
-        setError('Failed to update table')
+        setError(t.errors.failedUpdate)
       }
     } finally {
       setSaving(false)
@@ -165,7 +168,7 @@ export default function TableSetupPage() {
       await fetchTables()
     } catch (err) {
       console.error('Error toggling table status:', err)
-      setError('Failed to update table status')
+      setError(t.errors.failedStatusUpdate)
     } finally {
       setSaving(false)
     }
@@ -173,7 +176,7 @@ export default function TableSetupPage() {
 
   const handleDeleteTable = async (id: string) => {
     if (!supabase) return
-    if (!confirm('Are you sure you want to delete this table?')) return
+    if (!confirm(t.confirmDelete)) return
 
     try {
       setSaving(true)
@@ -186,7 +189,7 @@ export default function TableSetupPage() {
       await fetchTables()
     } catch (err) {
       console.error('Error deleting table:', err)
-      setError('Failed to delete table')
+      setError(t.errors.failedDelete)
     } finally {
       setSaving(false)
     }
@@ -209,7 +212,7 @@ export default function TableSetupPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Please log in to access this page.</p>
+        <p>{t.loginRequired}</p>
       </div>
     )
   }
@@ -218,12 +221,12 @@ export default function TableSetupPage() {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Table Setup</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
           <Link
             href="/dashboard"
             className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
           >
-            Back to Dashboard
+            {t.backToDashboard}
           </Link>
         </div>
 
@@ -235,11 +238,11 @@ export default function TableSetupPage() {
 
         {/* Add New Table Form */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Add New Table</h2>
+          <h2 className="text-xl font-semibold mb-4">{t.addNewTable}</h2>
           <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
-              placeholder="Table identifier (e.g., A1, 12, Window-1)"
+              placeholder={t.tableIdentifierPlaceholder}
               value={newTableIdentifier}
               onChange={e => setNewTableIdentifier(e.target.value)}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -247,7 +250,7 @@ export default function TableSetupPage() {
             />
             <input
               type="number"
-              placeholder="Capacity"
+              placeholder={t.capacityPlaceholder}
               value={newTableCapacity}
               onChange={e => setNewTableCapacity(e.target.value)}
               className="w-full sm:w-32 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -259,7 +262,7 @@ export default function TableSetupPage() {
               disabled={saving}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {saving ? 'Adding...' : 'Add Table'}
+              {saving ? t.adding : t.addTable}
             </button>
           </div>
         </div>
@@ -267,33 +270,31 @@ export default function TableSetupPage() {
         {/* Tables List */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold">Your Tables</h2>
+            <h2 className="text-xl font-semibold">{t.yourTables}</h2>
           </div>
 
           {loading ? (
             <div className="p-8 text-center text-gray-500">
-              Loading tables...
+              {t.loadingTables}
             </div>
           ) : tables.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No tables yet. Add your first table above!
-            </div>
+            <div className="p-8 text-center text-gray-500">{t.noTables}</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Table
+                      {t.table}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Capacity
+                      {t.capacity}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      {t.status}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      {t.actions}
                     </th>
                   </tr>
                 </thead>
@@ -327,7 +328,7 @@ export default function TableSetupPage() {
                           />
                         ) : (
                           <span className="text-sm text-gray-900">
-                            {table.capacity} people
+                            {table.capacity} {t.people}
                           </span>
                         )}
                       </td>
@@ -339,7 +340,7 @@ export default function TableSetupPage() {
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >
-                          {table.is_active ? 'Active' : 'Inactive'}
+                          {table.is_active ? t.active : t.inactive}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -350,14 +351,14 @@ export default function TableSetupPage() {
                               disabled={saving}
                               className="text-green-600 hover:text-green-900 disabled:text-gray-400"
                             >
-                              Save
+                              {t.save}
                             </button>
                             <button
                               onClick={cancelEdit}
                               disabled={saving}
                               className="text-gray-600 hover:text-gray-900 disabled:text-gray-400"
                             >
-                              Cancel
+                              {t.cancel}
                             </button>
                           </div>
                         ) : (
@@ -366,8 +367,8 @@ export default function TableSetupPage() {
                               onClick={() => startEdit(table)}
                               disabled={saving}
                               className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-900 disabled:text-gray-400"
-                              aria-label="Edit table"
-                              title="Edit table"
+                              aria-label={t.editTable}
+                              title={t.editTable}
                             >
                               <Pencil className="h-4 w-4" />
                             </button>
@@ -378,14 +379,14 @@ export default function TableSetupPage() {
                               disabled={saving}
                               className="text-yellow-600 hover:text-yellow-900 disabled:text-gray-400"
                             >
-                              {table.is_active ? 'Deactivate' : 'Activate'}
+                              {table.is_active ? t.deactivate : t.activate}
                             </button>
                             <button
                               onClick={() => handleDeleteTable(table.id)}
                               disabled={saving}
                               className="inline-flex h-9 w-9 items-center justify-center rounded-md text-red-600 hover:bg-red-50 hover:text-red-900 disabled:text-gray-400"
-                              aria-label="Delete table"
-                              title="Delete table"
+                              aria-label={t.deleteTable}
+                              title={t.deleteTable}
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>

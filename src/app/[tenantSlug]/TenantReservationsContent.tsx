@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useI18n } from '@/contexts/I18nContext'
 
 interface Reservation {
   id: string
@@ -24,6 +25,8 @@ export default function TenantReservationsContent({
 }: {
   tenantSlug: string
 }) {
+  const { messages, language } = useI18n()
+  const t = messages.tenant
   const [tenant, setTenant] = useState<Tenant | null>(null)
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
@@ -85,7 +88,7 @@ export default function TenantReservationsContent({
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+        <div className="text-xl text-gray-600">{t.loading}</div>
       </div>
     )
   }
@@ -95,11 +98,9 @@ export default function TenantReservationsContent({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Restaurant Not Found
+            {t.restaurantNotFound}
           </h1>
-          <p className="text-gray-600">
-            The restaurant you&apos;re looking for doesn&apos;t exist.
-          </p>
+          <p className="text-gray-600">{t.restaurantMissing}</p>
         </div>
       </div>
     )
@@ -112,7 +113,7 @@ export default function TenantReservationsContent({
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {tenant.name}
           </h1>
-          <p className="text-lg text-gray-600">Current Reservations</p>
+          <p className="text-lg text-gray-600">{t.currentReservations}</p>
         </div>
 
         {/* Date Filter */}
@@ -122,7 +123,7 @@ export default function TenantReservationsContent({
               htmlFor="date"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Select Date
+              {t.selectDate}
             </label>
             <input
               type="date"
@@ -138,20 +139,23 @@ export default function TenantReservationsContent({
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
-              Reservations for{' '}
-              {new Date(selectedDate).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              {t.reservationsFor}{' '}
+              {new Date(selectedDate).toLocaleDateString(
+                language === 'de' ? 'de-DE' : 'en-US',
+                {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                }
+              )}
             </h2>
           </div>
 
           {reservations.length === 0 ? (
             <div className="px-6 py-12 text-center">
               <p className="text-gray-500 text-lg">
-                No confirmed reservations for this date.
+                {t.noConfirmedReservations}
               </p>
             </div>
           ) : (
@@ -165,24 +169,24 @@ export default function TenantReservationsContent({
                           {reservation.customer_name}
                         </h3>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Confirmed
+                          {messages.common.confirmed}
                         </span>
                       </div>
                       <div className="mt-2 flex flex-wrap items-center text-sm text-gray-600 space-x-4">
                         <div className="flex items-center">
-                          <span className="font-medium">Time:</span>
+                          <span className="font-medium">{t.time}:</span>
                           <span className="ml-1">
                             {formatTime(reservation.time)}
                           </span>
                         </div>
                         <div className="flex items-center">
-                          <span className="font-medium">Table:</span>
+                          <span className="font-medium">{t.table}:</span>
                           <span className="ml-1">
                             {reservation.table_number}
                           </span>
                         </div>
                         <div className="flex items-center">
-                          <span className="font-medium">Party Size:</span>
+                          <span className="font-medium">{t.partySize}:</span>
                           <span className="ml-1">{reservation.party_size}</span>
                         </div>
                       </div>
@@ -195,9 +199,7 @@ export default function TenantReservationsContent({
         </div>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500">
-            Powered by Restaurant Reservation System
-          </p>
+          <p className="text-sm text-gray-500">{t.poweredBy}</p>
         </div>
       </div>
     </div>

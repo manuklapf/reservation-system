@@ -3,6 +3,7 @@ import { Views, View } from 'react-big-calendar'
 import { dateFnsLocalizer } from 'react-big-calendar'
 import { format } from 'date-fns'
 import { enUS } from 'date-fns/locale'
+import { useI18n } from '@/contexts/I18nContext'
 
 const localizer = dateFnsLocalizer({
   format,
@@ -25,6 +26,9 @@ export function CustomToolbar({
   onNavigate,
   onViewChange,
 }: CustomToolbarProps) {
+  const { messages } = useI18n()
+  const common = messages.common
+
   const ViewButton = useCallback(
     ({ targetView, label }: { targetView: View; label: string }) => (
       <button
@@ -48,7 +52,7 @@ export function CustomToolbar({
         <button
           onClick={() => onNavigate('PREV')}
           className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-          aria-label="Previous"
+          aria-label={common.previous}
         >
           ←
         </button>
@@ -56,12 +60,12 @@ export function CustomToolbar({
           onClick={() => onNavigate('TODAY')}
           className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
         >
-          Today
+          {common.today}
         </button>
         <button
           onClick={() => onNavigate('NEXT')}
           className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-          aria-label="Next"
+          aria-label={common.next}
         >
           →
         </button>
@@ -72,9 +76,9 @@ export function CustomToolbar({
 
       {/* View switcher */}
       <div className="flex space-x-2">
-        <ViewButton targetView={Views.MONTH} label="Month" />
-        <ViewButton targetView={Views.WEEK} label="Week" />
-        <ViewButton targetView={Views.DAY} label="Day" />
+        <ViewButton targetView={Views.MONTH} label={common.month} />
+        <ViewButton targetView={Views.WEEK} label={common.week} />
+        <ViewButton targetView={Views.DAY} label={common.day} />
       </div>
     </div>
   )

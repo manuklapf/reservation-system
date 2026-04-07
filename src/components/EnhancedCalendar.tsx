@@ -10,6 +10,7 @@ import { Reservation, CalendarEvent } from '@/types/reservation'
 import { useReservations } from '@/hooks/useReservations'
 import { useMobileTouch } from '@/hooks/useMobileTouch'
 import { getEventStyle } from '@/utils/calendarHelpers'
+import { useI18n } from '@/contexts/I18nContext'
 
 // Setup the localizer for react-big-calendar
 const locales = {
@@ -38,6 +39,9 @@ export default function EnhancedCalendar({
   refreshKey = 0,
 }: EnhancedCalendarProps) {
   const { tenantId } = useAuth()
+  const { messages } = useI18n()
+  const t = messages.calendar
+  const common = messages.common
   const [view, setView] = useState<View>(Views.MONTH)
   const [date, setDate] = useState(selectedDate)
   const calendarRef = useRef<HTMLDivElement>(null)
@@ -61,11 +65,11 @@ export default function EnhancedCalendar({
       const tableDisplay =
         reservation.tables?.table_identifier ||
         reservation.table_number ||
-        'N/A'
+        common.notAvailable
 
       return {
         id: reservation.id,
-        title: `${reservation.customer_name} (Table ${tableDisplay})`,
+        title: `${reservation.customer_name} (${t.tableLabel} ${tableDisplay})`,
         start: startDate,
         end: endDate,
         resource: reservation,
@@ -102,7 +106,7 @@ export default function EnhancedCalendar({
             <button
               onClick={goToBack}
               className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-              aria-label="Previous"
+              aria-label={common.previous}
             >
               ←
             </button>
@@ -110,12 +114,12 @@ export default function EnhancedCalendar({
               onClick={goToCurrent}
               className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
             >
-              Today
+              {common.today}
             </button>
             <button
               onClick={goToNext}
               className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-              aria-label="Next"
+              aria-label={common.next}
             >
               →
             </button>
@@ -126,9 +130,9 @@ export default function EnhancedCalendar({
 
           <div className="flex space-x-2">
             {[
-              { view: Views.MONTH, label: 'Month' },
-              { view: Views.WEEK, label: 'Week' },
-              { view: Views.DAY, label: 'Day' },
+              { view: Views.MONTH, label: common.month },
+              { view: Views.WEEK, label: common.week },
+              { view: Views.DAY, label: common.day },
             ].map(({ view: v, label }) => (
               <button
                 key={label}
@@ -158,7 +162,7 @@ export default function EnhancedCalendar({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-lg text-gray-600">Loading calendar...</div>
+        <div className="text-lg text-gray-600">{t.loading}</div>
       </div>
     )
   }
@@ -266,15 +270,15 @@ export default function EnhancedCalendar({
       <div className="mt-4 flex flex-wrap gap-4 text-sm">
         <div className="flex items-center">
           <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
-          <span>Confirmed</span>
+          <span>{t.legendConfirmed}</span>
         </div>
         <div className="flex items-center">
           <div className="w-3 h-3 bg-yellow-500 rounded mr-2"></div>
-          <span>Pending</span>
+          <span>{t.legendPending}</span>
         </div>
         <div className="flex items-center">
           <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
-          <span>Cancelled</span>
+          <span>{t.legendCancelled}</span>
         </div>
       </div>
     </div>

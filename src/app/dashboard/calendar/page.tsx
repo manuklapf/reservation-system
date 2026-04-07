@@ -6,9 +6,12 @@ import Link from 'next/link'
 import EnhancedCalendar from '@/components/EnhancedCalendar'
 import ReservationModal from '@/components/ReservationModal'
 import { Reservation } from '@/types/reservation'
+import { useI18n } from '@/contexts/I18nContext'
 
 export default function CalendarPage() {
   const { user } = useAuth()
+  const { messages } = useI18n()
+  const t = messages.calendarPage
   const [selectedReservation, setSelectedReservation] =
     useState<Reservation | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<{
@@ -49,7 +52,7 @@ export default function CalendarPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Please log in to view the calendar.</div>
+        <div className="text-xl">{t.loginRequired}</div>
       </div>
     )
   }
@@ -64,7 +67,7 @@ export default function CalendarPage() {
                 href="/dashboard"
                 className="text-xl font-semibold text-gray-900 hover:text-blue-600"
               >
-                ← Back to Dashboard
+                ← {t.backToDashboard}
               </Link>
             </div>
           </div>
@@ -74,14 +77,8 @@ export default function CalendarPage() {
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Reservations Calendar
-            </h2>
-            <p className="text-gray-600">
-              View and manage reservations in calendar format. Click on a
-              reservation to edit, or click on an empty slot to create a new
-              reservation.
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.title}</h2>
+            <p className="text-gray-600">{t.description}</p>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
