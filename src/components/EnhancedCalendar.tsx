@@ -30,6 +30,8 @@ interface EnhancedCalendarProps {
   onSelectSlot?: (slotInfo: { start: Date; end: Date }) => void
   selectedDate?: Date
   refreshKey?: number
+  /** When provided, skips Supabase fetch and uses these reservations directly (demo mode) */
+  demoReservations?: Reservation[]
 }
 
 export default function EnhancedCalendar({
@@ -37,6 +39,7 @@ export default function EnhancedCalendar({
   onSelectSlot,
   selectedDate = new Date(),
   refreshKey = 0,
+  demoReservations,
 }: EnhancedCalendarProps) {
   const { tenantId } = useAuth()
   const { messages } = useI18n()
@@ -46,8 +49,12 @@ export default function EnhancedCalendar({
   const [date, setDate] = useState(selectedDate)
   const calendarRef = useRef<HTMLDivElement>(null)
 
-  // Fetch reservations
-  const { reservations, loading } = useReservations(tenantId, refreshKey)
+  // Fetch reservations (skipped in demo mode)
+  const { reservations: fetchedReservations, loading } = useReservations(
+    demoReservations ? null : tenantId,
+    refreshKey
+  )
+  const reservations = demoReservations ?? fetchedReservations
 
   // Mobile touch handlers
   const { handleTouchStart, handleTouchEnd, handleClick } = useMobileTouch({

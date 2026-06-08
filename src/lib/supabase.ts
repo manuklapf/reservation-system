@@ -3,10 +3,52 @@ import { createBrowserClient } from '@supabase/ssr'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+// Intercept fetch calls made by GoTrueClient.
+// Token-refresh requests are short-circuited and never reach the network —
+// this is the only reliable way to prevent `net::ERR_NAME_NOT_RESOLVED`
+// console spam when the Supabase project URL is unreachable, because the
+// browser logs DNS failures before any JavaScript catch block can run.
+// All other requests fall through to the real fetch with a caught fallback.
+const safeFetch: typeof fetch = async (input, init) => {
+  const url =
+    typeof input === 'string'
+      ? input
+      : input instanceof URL
+        ? input.href
+        : (input as Request).url
+
+  // Block refresh-token requests from hitting the network entirely.
+  // GoTrueClient receives a 401 and signs the user out gracefully.
+  if (url.includes('grant_type=refresh_token')) {
+    return new Response(
+      JSON.stringify({
+        error: 'invalid_grant',
+        error_description: 'Token refresh not available',
+      }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+
+  try {
+    return await fetch(input, init)
+  } catch {
+    return new Response(
+      JSON.stringify({
+        error: 'network_failure',
+        error_description: 'Network request failed',
+      }),
+      { status: 503, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+}
+
 // Only create client if environment variables are provided
 export const supabase =
   supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http')
-    ? createBrowserClient(supabaseUrl, supabaseAnonKey)
+    ? createBrowserClient(supabaseUrl, supabaseAnonKey, {
+        global: { fetch: safeFetch },
+        auth: { autoRefreshToken: false },
+      })
     : null
 
 export type Database = {
