@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Check } from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
 import TableManagementPanel from '@/components/TableManagementPanel'
+import { useTheme, Theme } from '@/contexts/ThemeContext'
 
 type Table = {
   id: string
@@ -21,6 +22,7 @@ export default function SettingsPage() {
   const { messages } = useI18n()
   const t = messages.setupPage
   const st = messages.settingsPage
+  const { theme, setTheme } = useTheme()
 
   const [tables, setTables] = useState<Table[]>([])
   const [loading, setLoading] = useState(true)
@@ -215,6 +217,107 @@ export default function SettingsPage() {
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="space-y-3">
+          <AccordionItem
+            title="Appearance"
+            description="Choose a visual theme for the application"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(
+                [
+                  {
+                    id: 'default' as Theme,
+                    name: 'Default',
+                    description: 'Clean and modern with blue accents',
+                    preview: (
+                      <div className="flex gap-2 mb-3">
+                        <div className="h-5 w-5 rounded bg-blue-600" />
+                        <div className="h-5 w-5 rounded bg-gray-100 border border-gray-300" />
+                        <div className="h-5 w-5 rounded bg-white border border-gray-200" />
+                      </div>
+                    ),
+                    fontStyle: undefined,
+                  },
+                  {
+                    id: 'brutalist' as Theme,
+                    name: 'Brutalist',
+                    description:
+                      'Neo-brutalist — coral, teal, yellow & hard shadows',
+                    preview: (
+                      <div className="flex gap-2 mb-3">
+                        <div
+                          className="h-5 w-5 border-2"
+                          style={{
+                            backgroundColor: '#ff6b6b',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                        <div
+                          className="h-5 w-5 border-2"
+                          style={{
+                            backgroundColor: '#4ecdc4',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                        <div
+                          className="h-5 w-5 border-2"
+                          style={{
+                            backgroundColor: '#ffe66d',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                        <div
+                          className="h-5 w-5 border-2"
+                          style={{
+                            backgroundColor: '#ef476f',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                      </div>
+                    ),
+                    fontStyle: {
+                      fontFamily: 'Courier New, Courier, monospace',
+                    },
+                  },
+                ] satisfies {
+                  id: Theme
+                  name: string
+                  description: string
+                  preview: React.ReactNode
+                  fontStyle: React.CSSProperties | undefined
+                }[]
+              ).map(thm => (
+                <button
+                  key={thm.id}
+                  type="button"
+                  onClick={() => setTheme(thm.id)}
+                  className={`relative p-4 border-2 text-left transition-colors bg-white hover:bg-gray-50 ${
+                    theme === thm.id
+                      ? 'border-blue-600'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  {thm.preview}
+                  <p
+                    className="font-semibold text-gray-900 text-sm"
+                    style={thm.fontStyle}
+                  >
+                    {thm.name}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {thm.description}
+                  </p>
+                  {theme === thm.id && (
+                    <Check className="absolute top-3 right-3 h-4 w-4 text-blue-600" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </AccordionItem>
+
           <AccordionItem
             title={st.tableSectionTitle}
             description={st.tableSectionDesc}

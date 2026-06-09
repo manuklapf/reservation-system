@@ -295,3 +295,428 @@
     border-radius: 3px;
   }
 }
+
+/* ============================================================
+   THEME CSS VARIABLES
+   ============================================================ */
+
+:root {
+  /* Default theme */
+  --color-bg: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f9fafb;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-text: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-fg: #ffffff;
+  --color-accent-subtle: #eff6ff;
+  --color-accent-subtle-fg: #1d4ed8;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-fg: #ffffff;
+  --color-danger-subtle: #fef2f2;
+  --color-danger-subtle-fg: #dc2626;
+  --color-nav-bg: #ffffff;
+}
+
+[data-theme='brutalist'] {
+  /* Base */
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fffbe6;
+  --color-border: #000000;
+  --color-border-strong: #000000;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #333333;
+  --color-text-muted: #555555;
+  /* Primary action: BrutX coral */
+  --color-accent: #ff6b6b;
+  --color-accent-hover: #e85555;
+  --color-accent-fg: #ffffff;
+  --color-accent-subtle: #ffe8e8;
+  --color-accent-subtle-fg: #c94040;
+  /* Danger: BrutX destructive */
+  --color-danger: #ef476f;
+  --color-danger-hover: #d03660;
+  --color-danger-fg: #ffffff;
+  --color-danger-subtle: #ffeef3;
+  --color-danger-subtle-fg: #ef476f;
+  /* Nav: BrutX yellow */
+  --color-nav-bg: #ffe66d;
+  /* Table zebra stripes */
+  --color-stripe-a: #fffbe6;
+  --color-stripe-b: #e8fbfa;
+  /* BrutX extended palette */
+  --brutx-teal: #4ecdc4;
+  --brutx-yellow: #ffe66d;
+  --brutx-coral: #ff6b6b;
+  --brutx-green: #7fb069;
+  --brutx-pink: #e91e8c;
+  /* Signature hard offset shadow */
+  --brutx-shadow: 3px 3px 0 #000000;
+}
+
+/* ============================================================
+   BRUTALIST THEME — STRUCTURAL OVERRIDES
+   ============================================================ */
+
+/* Monospace font */
+html[data-theme='brutalist'] body {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+html[data-theme='brutalist'] * {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Remove all border-radius */
+html[data-theme='brutalist']
+  *:not(svg):not(path):not(circle):not(rect):not(polyline):not(line):not(g):not(
+    defs
+  ):not(clipPath) {
+  border-radius: 0 !important;
+}
+
+/* Swap soft shadows for BrutX hard offset shadow */
+html[data-theme='brutalist'] .shadow-sm,
+html[data-theme='brutalist'] .shadow,
+html[data-theme='brutalist'] .shadow-md,
+html[data-theme='brutalist'] .shadow-lg,
+html[data-theme='brutalist'] .shadow-xl,
+html[data-theme='brutalist'] .shadow-2xl {
+  box-shadow: var(--brutx-shadow) !important;
+  border: 2px solid var(--color-border) !important;
+}
+
+/* Remove backdrop blur */
+html[data-theme='brutalist'] .backdrop-blur-sm {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ============================================================
+   BRUTALIST THEME — COLOR OVERRIDES
+   ============================================================ */
+
+/* Backgrounds */
+html[data-theme='brutalist'] .bg-white {
+  background-color: var(--color-surface);
+}
+html[data-theme='brutalist'] .bg-gray-50 {
+  background-color: var(--color-surface-alt);
+}
+html[data-theme='brutalist'] .bg-gray-100 {
+  background-color: var(--color-bg);
+}
+html[data-theme='brutalist'] .bg-gray-200 {
+  background-color: var(--brutx-yellow);
+}
+
+/* Text */
+html[data-theme='brutalist'] .text-gray-900 {
+  color: var(--color-text);
+}
+html[data-theme='brutalist'] .text-gray-800 {
+  color: var(--color-text);
+}
+html[data-theme='brutalist'] .text-gray-700 {
+  color: var(--color-text-secondary);
+}
+html[data-theme='brutalist'] .text-gray-600 {
+  color: var(--color-text-secondary);
+}
+html[data-theme='brutalist'] .text-gray-500 {
+  color: var(--color-text-muted);
+}
+html[data-theme='brutalist'] .text-gray-400 {
+  color: var(--color-text-muted);
+}
+
+/* Borders */
+html[data-theme='brutalist'] .border-gray-200 {
+  border-color: var(--color-border);
+}
+html[data-theme='brutalist'] .border-gray-300 {
+  border-color: var(--color-border-strong);
+}
+html[data-theme='brutalist'] .divide-gray-200 > * + * {
+  border-color: var(--color-border);
+}
+
+/* Primary action: blue → BrutX coral */
+html[data-theme='brutalist'] .bg-blue-600 {
+  background-color: var(--brutx-coral);
+}
+html[data-theme='brutalist'] .hover\:bg-blue-700:hover {
+  background-color: var(--color-accent-hover);
+}
+html[data-theme='brutalist'] .text-blue-600 {
+  color: var(--brutx-coral);
+}
+html[data-theme='brutalist'] .hover\:text-blue-800:hover {
+  color: var(--color-accent-hover);
+}
+html[data-theme='brutalist'] .bg-blue-50 {
+  background-color: var(--color-accent-subtle);
+}
+html[data-theme='brutalist'] .bg-blue-100 {
+  background-color: var(--color-accent-subtle);
+}
+html[data-theme='brutalist'] .text-blue-700 {
+  color: var(--color-accent-subtle-fg);
+}
+html[data-theme='brutalist'] .text-blue-800 {
+  color: var(--color-accent-subtle-fg);
+}
+html[data-theme='brutalist'] .hover\:bg-blue-50:hover {
+  background-color: var(--color-accent-subtle);
+}
+html[data-theme='brutalist'] .hover\:bg-blue-100:hover {
+  background-color: var(--color-accent-subtle);
+}
+
+/* Focus rings */
+html[data-theme='brutalist'] .focus\:ring-blue-500:focus {
+  --tw-ring-color: var(--brutx-coral);
+}
+html[data-theme='brutalist'] .focus\:border-blue-500:focus {
+  border-color: var(--brutx-coral);
+}
+
+/* Danger: BrutX destructive pink-red */
+html[data-theme='brutalist'] .text-red-500 {
+  color: var(--color-danger);
+}
+html[data-theme='brutalist'] .text-red-600 {
+  color: var(--color-danger);
+}
+html[data-theme='brutalist'] .text-red-700 {
+  color: var(--color-danger);
+}
+html[data-theme='brutalist'] .bg-red-50 {
+  background-color: var(--color-danger-subtle);
+}
+html[data-theme='brutalist'] .bg-red-600 {
+  background-color: var(--color-danger);
+}
+html[data-theme='brutalist'] .border-red-200 {
+  border-color: var(--color-danger);
+}
+html[data-theme='brutalist'] .border-red-300 {
+  border-color: var(--color-danger);
+}
+html[data-theme='brutalist'] .hover\:bg-red-50:hover {
+  background-color: var(--color-danger-subtle);
+}
+html[data-theme='brutalist'] .hover\:text-red-700:hover {
+  color: var(--color-danger);
+}
+
+/* Success/active green → BrutX teal */
+html[data-theme='brutalist'] .bg-green-100 {
+  background-color: #e8fbfa;
+  color: #1a6b66;
+}
+html[data-theme='brutalist'] .text-green-800 {
+  color: #1a6b66;
+}
+html[data-theme='brutalist'] .text-green-600 {
+  color: var(--brutx-teal);
+}
+html[data-theme='brutalist'] .hover\:bg-green-50:hover {
+  background-color: #e8fbfa;
+}
+
+/* Hover states: yellow family */
+html[data-theme='brutalist'] .hover\:bg-gray-50:hover {
+  background-color: var(--brutx-yellow);
+}
+html[data-theme='brutalist'] .hover\:bg-gray-100:hover {
+  background-color: var(--brutx-yellow);
+}
+html[data-theme='brutalist'] .hover\:bg-gray-300:hover {
+  background-color: #f5d000;
+}
+html[data-theme='brutalist'] .hover\:text-gray-800:hover {
+  color: var(--color-text);
+}
+html[data-theme='brutalist'] .hover\:text-gray-600:hover {
+  color: var(--color-text-secondary);
+}
+
+/* Nav: BrutX yellow with hard bottom border */
+html[data-theme='brutalist'] nav {
+  background-color: var(--color-nav-bg) !important;
+  border-bottom: 2px solid var(--color-border) !important;
+  box-shadow: 0 2px 0 var(--color-border) !important;
+}
+
+/* Zebra-stripe table rows */
+html[data-theme='brutalist'] tbody tr:nth-child(odd) {
+  background-color: var(--color-stripe-a);
+}
+html[data-theme='brutalist'] tbody tr:nth-child(even) {
+  background-color: var(--color-stripe-b);
+}
+html[data-theme='brutalist'] thead tr {
+  background-color: var(--brutx-yellow) !important;
+}
+
+/* Cards/panels: hard offset shadow + teal left accent bar */
+html[data-theme='brutalist'] .bg-white {
+  border: 2px solid var(--color-border);
+  box-shadow: var(--brutx-shadow);
+  border-left: 4px solid var(--brutx-teal);
+}
+
+/* Form inputs */
+html[data-theme='brutalist'] input,
+html[data-theme='brutalist'] select,
+html[data-theme='brutalist'] textarea {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 2px solid var(--color-border) !important;
+  box-shadow: 2px 2px 0 #000 !important;
+}
+
+html[data-theme='brutalist'] input:focus,
+html[data-theme='brutalist'] select:focus,
+html[data-theme='brutalist'] textarea:focus {
+  box-shadow: 2px 2px 0 var(--brutx-coral) !important;
+  border-color: var(--brutx-coral) !important;
+  outline: none !important;
+}
+
+html[data-theme='brutalist'] input::placeholder,
+html[data-theme='brutalist'] textarea::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+/* ============================================================
+   BRUTALIST THEME — CALENDAR OVERRIDES
+   ============================================================ */
+
+html[data-theme='brutalist'] .rbc-calendar {
+  background-color: #ffffff;
+}
+
+html[data-theme='brutalist'] .rbc-month-view {
+  border: 2px solid var(--color-border);
+}
+
+html[data-theme='brutalist'] .rbc-header {
+  background-color: var(--brutx-yellow);
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-text);
+}
+
+html[data-theme='brutalist'] .rbc-today {
+  background-color: #e8fbfa;
+}
+
+html[data-theme='brutalist'] .rbc-off-range-bg {
+  background-color: #f9f9f9;
+}
+
+html[data-theme='brutalist'] .rbc-event {
+  box-shadow: 2px 2px 0 #000;
+}
+
+html[data-theme='brutalist'] .rbc-event:focus {
+  outline-color: var(--brutx-coral);
+}
+
+html[data-theme='brutalist'] .rbc-toolbar button {
+  background-color: #ffffff;
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  box-shadow: 2px 2px 0 #000;
+}
+
+html[data-theme='brutalist'] .rbc-toolbar button:hover {
+  background-color: var(--brutx-yellow);
+  border-color: var(--color-border);
+  box-shadow: 1px 1px 0 #000;
+  transform: translate(1px, 1px);
+}
+
+html[data-theme='brutalist'] .rbc-toolbar button.rbc-active {
+  background-color: var(--brutx-coral);
+  color: #ffffff;
+  border-color: var(--color-border);
+  box-shadow: 2px 2px 0 #000;
+}
+
+html[data-theme='brutalist'] .rbc-toolbar button:focus {
+  outline: 2px solid var(--brutx-coral);
+  outline-offset: 2px;
+}
+
+html[data-theme='brutalist'] .rbc-current-time-indicator {
+  background-color: var(--color-danger);
+  height: 3px;
+}
+
+html[data-theme='brutalist'] .rbc-slot-selection {
+  background-color: rgba(255, 107, 107, 0.15);
+  border: 2px dashed var(--brutx-coral);
+}
+
+html[data-theme='brutalist'] .rbc-date-cell a {
+  color: var(--color-text);
+}
+
+html[data-theme='brutalist'] .rbc-date-cell a:hover {
+  color: var(--brutx-coral);
+}
+
+html[data-theme='brutalist'] .rbc-date-cell:active,
+html[data-theme='brutalist'] .rbc-day-bg:active,
+html[data-theme='brutalist'] .rbc-time-slot:active {
+  background-color: rgba(255, 107, 107, 0.15) !important;
+}
+
+html[data-theme='brutalist'] .rbc-time-view .rbc-time-gutter {
+  background-color: #fffbe6;
+  border-right: 2px solid var(--color-border);
+}
+
+html[data-theme='brutalist'] .rbc-time-view .rbc-time-header-gutter {
+  background-color: #fffbe6;
+}
+
+html[data-theme='brutalist'] .rbc-day-slot .rbc-time-slot {
+  border-top-color: #e5e5e5;
+}
+
+html[data-theme='brutalist'] .rbc-agenda-view {
+  border: 2px solid var(--color-border);
+}
+
+html[data-theme='brutalist']
+  .rbc-agenda-view
+  .rbc-agenda-table
+  tbody
+  > tr
+  > td {
+  border-bottom-color: #e5e5e5;
+}
+
+html[data-theme='brutalist']
+  .rbc-agenda-view
+  .rbc-agenda-table
+  .rbc-agenda-time-cell {
+  background-color: var(--brutx-yellow);
+}
+
+html[data-theme='brutalist'] .rbc-time-header .rbc-header {
+  border-left: 2px solid var(--color-border);
+}
+
+html[data-theme='brutalist'] .rbc-time-content > * + * > * {
+  border-left: 2px solid #e5e5e5;
+}

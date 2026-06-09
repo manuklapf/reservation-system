@@ -59,9 +59,7 @@ export default function TenantReservationsContent({
       const { data: reservationsData, error: reservationsError } =
         await supabase
           .from('reservations')
-          .select(
-            'id, customer_name, table_number, date, time, party_size'
-          )
+          .select('id, customer_name, table_number, date, time, party_size')
           .eq('tenant_id', tenantData.id)
           .eq('date', selectedDate)
           .order('time', { ascending: true })
