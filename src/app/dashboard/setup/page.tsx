@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Pencil, Trash2 } from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
+import TableManagementPanel from '@/components/TableManagementPanel'
 
 type Table = {
   id: string
@@ -230,176 +230,27 @@ export default function TableSetupPage() {
           </Link>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
-          </div>
-        )}
-
-        {/* Add New Table Form */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">{t.addNewTable}</h2>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <input
-              type="text"
-              placeholder={t.tableIdentifierPlaceholder}
-              value={newTableIdentifier}
-              onChange={e => setNewTableIdentifier(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={saving}
-            />
-            <input
-              type="number"
-              placeholder={t.capacityPlaceholder}
-              value={newTableCapacity}
-              onChange={e => setNewTableCapacity(e.target.value)}
-              className="w-full sm:w-32 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={saving}
-              min="1"
-            />
-            <button
-              onClick={handleAddTable}
-              disabled={saving}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {saving ? t.adding : t.addTable}
-            </button>
-          </div>
-        </div>
-
-        {/* Tables List */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold">{t.yourTables}</h2>
-          </div>
-
-          {loading ? (
-            <div className="p-8 text-center text-gray-500">
-              {t.loadingTables}
-            </div>
-          ) : tables.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">{t.noTables}</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t.table}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t.capacity}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t.status}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t.actions}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {tables.map(table => (
-                    <tr key={table.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {editingId === table.id ? (
-                          <input
-                            type="text"
-                            value={editIdentifier}
-                            onChange={e => setEditIdentifier(e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            disabled={saving}
-                          />
-                        ) : (
-                          <span className="text-sm font-medium text-gray-900">
-                            {table.table_identifier}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {editingId === table.id ? (
-                          <input
-                            type="number"
-                            value={editCapacity}
-                            onChange={e => setEditCapacity(e.target.value)}
-                            className="w-20 px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            disabled={saving}
-                            min="1"
-                          />
-                        ) : (
-                          <span className="text-sm text-gray-900">
-                            {table.capacity} {t.people}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            table.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {table.is_active ? t.active : t.inactive}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {editingId === table.id ? (
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => handleUpdateTable(table.id)}
-                              disabled={saving}
-                              className="text-green-600 hover:text-green-900 disabled:text-gray-400"
-                            >
-                              {t.save}
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              disabled={saving}
-                              className="text-gray-600 hover:text-gray-900 disabled:text-gray-400"
-                            >
-                              {t.cancel}
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => startEdit(table)}
-                              disabled={saving}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-900 disabled:text-gray-400"
-                              aria-label={t.editTable}
-                              title={t.editTable}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleToggleActive(table.id, table.is_active)
-                              }
-                              disabled={saving}
-                              className="text-yellow-600 hover:text-yellow-900 disabled:text-gray-400"
-                            >
-                              {table.is_active ? t.deactivate : t.activate}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteTable(table.id)}
-                              disabled={saving}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-red-600 hover:bg-red-50 hover:text-red-900 disabled:text-gray-400"
-                              aria-label={t.deleteTable}
-                              title={t.deleteTable}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        <TableManagementPanel
+          tables={tables}
+          loading={loading}
+          saving={saving}
+          error={error}
+          newIdentifier={newTableIdentifier}
+          newCapacity={newTableCapacity}
+          editingId={editingId}
+          editIdentifier={editIdentifier}
+          editCapacity={editCapacity}
+          onNewIdentifierChange={setNewTableIdentifier}
+          onNewCapacityChange={setNewTableCapacity}
+          onAdd={handleAddTable}
+          onEdit={startEdit}
+          onEditIdentifierChange={setEditIdentifier}
+          onEditCapacityChange={setEditCapacity}
+          onSave={handleUpdateTable}
+          onCancel={cancelEdit}
+          onDelete={handleDeleteTable}
+          onToggleActive={handleToggleActive}
+        />
       </div>
     </div>
   )

@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Pencil } from 'lucide-react'
 import { useDemo } from '@/contexts/DemoContext'
 import { Reservation } from '@/types/reservation'
 import DemoReservationModal from '@/components/DemoReservationModal'
+import ReservationRow from '@/components/ReservationRow'
 import { useI18n, Language } from '@/contexts/I18nContext'
 
 export default function DemoDashboardPage() {
@@ -102,49 +102,12 @@ export default function DemoDashboardPage() {
             ) : (
               <ul className="divide-y divide-gray-200">
                 {reservations.map(reservation => (
-                  <li key={reservation.id}>
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {reservation.customer_name}
-                            </p>
-                          </div>
-                          <div className="mt-2 sm:flex sm:justify-between">
-                            <div className="sm:flex">
-                              <p className="flex items-center text-sm text-gray-500">
-                                {t.table}{' '}
-                                {reservation.tables?.table_identifier ||
-                                  reservation.table_number ||
-                                  common.notAvailable}{' '}
-                                • {reservation.party_size} {t.guests}
-                              </p>
-                              <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                                {reservation.date} {t.at} {reservation.time}
-                              </p>
-                            </div>
-                          </div>
-                          {reservation.notes && (
-                            <p className="mt-2 text-sm text-gray-600">
-                              {t.notes}: {reservation.notes}
-                            </p>
-                          )}
-                        </div>
-                        <div className="ml-4 flex-shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEditModal(reservation)}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-800"
-                            aria-label={t.editReservation}
-                            title={t.editReservation}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
+                  <ReservationRow
+                    key={reservation.id}
+                    reservation={reservation}
+                    onEdit={handleOpenEditModal}
+                    showDate
+                  />
                 ))}
               </ul>
             )}
