@@ -23,6 +23,16 @@ interface ReservationModalProps {
   selectedTime?: string
   onSave: (reservation: Reservation) => void
   onDelete?: (reservationId: string) => void
+  /** Demo mode: provide tables directly instead of fetching from Supabase */
+  demoTables?: Table[]
+  /** Demo mode: existing reservations for conflict checking */
+  demoReservations?: Reservation[]
+  /** Demo mode: called instead of Supabase on save; must return the saved Reservation */
+  onDemoSave?: (
+    data: Omit<Reservation, 'id' | 'created_at' | 'updated_at'>
+  ) => Reservation
+  /** Demo mode: called instead of Supabase on delete */
+  onDemoDelete?: (id: string) => void
 }
 
 export default function ReservationModal({
@@ -33,6 +43,10 @@ export default function ReservationModal({
   selectedTime,
   onSave,
   onDelete,
+  demoTables,
+  demoReservations,
+  onDemoSave,
+  onDemoDelete,
 }: ReservationModalProps) {
   const { user, tenantId } = useAuth()
   const { messages } = useI18n()
@@ -56,7 +70,9 @@ export default function ReservationModal({
     notes: '',
   })
 
-  const [width, setWidth] = useState<number>(window.innerWidth)
+  const [width, setWidth] = useState<number>(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  )
 
   function handleWindowSizeChange() {
     setWidth(window.innerWidth)
@@ -92,14 +108,36 @@ export default function ReservationModal({
     }
   }, [tenantId])
 
-  // Fetch all tables for the tenant
+  // In demo mode, use provided tables directly
   useEffect(() => {
-    if (isOpen && tenantId && supabase) {
+    if (isOpen && demoTables) {
+      setTables(demoTables.filter(t => t.is_active))
+      setLoadingTables(false)
+    }
+  }, [isOpen, demoTables])
+
+  // Fetch all tables for the tenant (non-demo)
+  useEffect(() => {
+    if (isOpen && tenantId && supabase && !demoTables) {
       fetchTables()
     }
-  }, [isOpen, tenantId, fetchTables])
+  }, [isOpen, tenantId, fetchTables, demoTables])
 
   const filterAvailableTables = React.useCallback(async () => {
+    // Demo mode: filter using demoReservations
+    if (demoReservations) {
+      const reservedTableIds = demoReservations
+        .filter(
+          r =>
+            r.date === formData.date &&
+            r.time === formData.time &&
+            (!reservation || r.id !== reservation.id)
+        )
+        .map(r => r.table_id)
+      setAvailableTables(tables.filter(t => !reservedTableIds.includes(t.id)))
+      return
+    }
+
     if (!supabase || !tenantId || !formData.date || !formData.time) return
 
     try {
@@ -129,7 +167,14 @@ export default function ReservationModal({
       console.error('Error filtering available tables:', err)
       setAvailableTables(tables) // Fallback to all tables if error
     }
-  }, [tenantId, formData.date, formData.time, tables, reservation])
+  }, [
+    tenantId,
+    formData.date,
+    formData.time,
+    tables,
+    reservation,
+    demoReservations,
+  ])
 
   // Filter available tables based on date, time, and existing reservations
   useEffect(() => {
@@ -176,27 +221,55 @@ export default function ReservationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!user) {
-      alert(t.errors.notAuthenticated)
-      return
-    }
-
-    if (!tenantId) {
-      alert(t.errors.noTenant)
-      return
-    }
-
-    if (!supabase) {
-      alert(t.errors.noDbConnection)
-      return
-    }
-
     if (!formData.table_id) {
       alert(t.errors.selectTable)
       return
     }
 
     setLoading(true)
+
+    // Demo mode: bypass Supabase entirely
+    if (onDemoSave) {
+      try {
+        const demoData: Omit<Reservation, 'id' | 'created_at' | 'updated_at'> =
+          {
+            customer_name: formData.customer_name,
+            customer_phone: formData.customer_phone,
+            table_id: formData.table_id,
+            table_number: null,
+            date: formData.date,
+            time: formData.time,
+            party_size: parseInt(formData.party_size),
+            notes: formData.notes,
+            tenant_id: 'demo-tenant',
+            created_by: 'demo',
+          }
+        const saved = onDemoSave(demoData)
+        onSave(saved)
+        onClose()
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
+    if (!user) {
+      setLoading(false)
+      alert(t.errors.notAuthenticated)
+      return
+    }
+
+    if (!tenantId) {
+      setLoading(false)
+      alert(t.errors.noTenant)
+      return
+    }
+
+    if (!supabase) {
+      setLoading(false)
+      alert(t.errors.noDbConnection)
+      return
+    }
 
     try {
       const reservationData = {
@@ -269,11 +342,24 @@ export default function ReservationModal({
   }
 
   const handleDelete = async () => {
-    if (!reservation || !supabase) return
-
+    if (!reservation) return
     if (!confirm(t.confirmDelete)) return
 
     setLoading(true)
+
+    // Demo mode
+    if (onDemoDelete) {
+      onDemoDelete(reservation.id)
+      onDelete?.(reservation.id)
+      setLoading(false)
+      onClose()
+      return
+    }
+
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
     try {
       const { error } = await supabase
         .from('reservations')

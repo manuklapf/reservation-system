@@ -2,133 +2,286 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { CalendarDays, List, Table2, Plus, ArrowLeft } from 'lucide-react'
 import { useDemo } from '@/contexts/DemoContext'
 import { Reservation } from '@/types/reservation'
-import DemoReservationModal from '@/components/DemoReservationModal'
+import ReservationModal from '@/components/ReservationModal'
 import ReservationRow from '@/components/ReservationRow'
-import { useI18n, Language } from '@/contexts/I18nContext'
+import EnhancedCalendar from '@/components/EnhancedCalendar'
+import TableManagementPanel from '@/components/TableManagementPanel'
+import { useI18n } from '@/contexts/I18nContext'
 
-export default function DemoDashboardPage() {
-  const { reservations } = useDemo()
+type Tab = 'list' | 'calendar' | 'tables'
+
+export default function DemoPage() {
+  const {
+    reservations,
+    tables,
+    addReservation,
+    updateReservation,
+    deleteReservation,
+    addTable,
+    updateTable,
+    deleteTable,
+  } = useDemo()
+  const { messages } = useI18n()
+  const t = messages.dashboard
+  const st = messages.setupPage
+
+  const [activeTab, setActiveTab] = useState<Tab>('list')
   const [selectedReservation, setSelectedReservation] =
     useState<Reservation | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<{
+    start: Date
+    end: Date
+  } | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { language, setLanguage, messages } = useI18n()
 
-  const t = messages.dashboard
-  const common = messages.common
+  // Table management state
+  const [newTableIdentifier, setNewTableIdentifier] = useState('')
+  const [newTableCapacity, setNewTableCapacity] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editIdentifier, setEditIdentifier] = useState('')
+  const [editCapacity, setEditCapacity] = useState('')
+  const [tableError, setTableError] = useState('')
 
-  const handleOpenEditModal = (reservation: Reservation) => {
-    setSelectedReservation(reservation)
-    setIsModalOpen(true)
-  }
-
-  const handleOpenNewModal = () => {
+  const openNew = () => {
     setSelectedReservation(null)
+    setSelectedSlot(null)
     setIsModalOpen(true)
   }
 
-  const handleCloseModal = () => {
+  const openEdit = (r: Reservation) => {
+    setSelectedReservation(r)
+    setSelectedSlot(null)
+    setIsModalOpen(true)
+  }
+
+  const openSlot = (slotInfo: { start: Date; end: Date }) => {
+    setSelectedReservation(null)
+    setSelectedSlot(slotInfo)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
     setIsModalOpen(false)
     setSelectedReservation(null)
+    setSelectedSlot(null)
   }
+
+  // Table handlers
+  const handleAddTable = () => {
+    if (!newTableIdentifier.trim() || !newTableCapacity) {
+      setTableError(st.errors.enterIdentifierAndCapacity)
+      return
+    }
+    const capacity = parseInt(newTableCapacity)
+    if (isNaN(capacity) || capacity <= 0) {
+      setTableError(st.errors.capacityPositive)
+      return
+    }
+    if (
+      tables.some(
+        tbl =>
+          tbl.table_identifier.toLowerCase() ===
+          newTableIdentifier.trim().toLowerCase()
+      )
+    ) {
+      setTableError(st.errors.duplicateIdentifier)
+      return
+    }
+    setTableError('')
+    addTable(newTableIdentifier.trim(), capacity)
+    setNewTableIdentifier('')
+    setNewTableCapacity('')
+  }
+
+  const handleUpdateTable = (id: string) => {
+    if (!editIdentifier.trim() || !editCapacity) {
+      setTableError(st.errors.enterIdentifierAndCapacity)
+      return
+    }
+    const capacity = parseInt(editCapacity)
+    if (isNaN(capacity) || capacity <= 0) {
+      setTableError(st.errors.capacityPositive)
+      return
+    }
+    setTableError('')
+    updateTable(id, { table_identifier: editIdentifier.trim(), capacity })
+    setEditingId(null)
+  }
+
+  const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: 'list', label: t.reservations, icon: <List className="h-4 w-4" /> },
+    {
+      id: 'calendar',
+      label: messages.calendarPage.title,
+      icon: <CalendarDays className="h-4 w-4" />,
+    },
+    {
+      id: 'tables',
+      label: st.title,
+      icon: <Table2 className="h-4 w-4" />,
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* Nav */}
       <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                aria-label="Back to home"
+                title="Back to home"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
               <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <label
-                  htmlFor="demo-language"
-                  className="text-sm text-gray-600"
-                >
-                  {common.language}
-                </label>
-                <select
-                  id="demo-language"
-                  value={language}
-                  onChange={e => setLanguage(e.target.value as Language)}
-                  className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  aria-label={common.language}
-                >
-                  <option value="en">{common.english}</option>
-                  <option value="de">{common.german}</option>
-                </select>
-              </div>
-              <span className="text-sm text-gray-400 italic">Demo user</span>
-            </div>
+            <button
+              onClick={openNew}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              {t.newReservation}
+            </button>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {t.reservations}
-            </h2>
-            <div className="space-x-2">
-              <Link
-                href="/demo/setup"
-                className="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      {/* Tabs */}
+      <div className="bg-white border-b">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-1">
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                {t.setupTables}
-              </Link>
-              <Link
-                href="/demo/calendar"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                {t.calendarView}
-              </Link>
-            </div>
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
           </div>
+        </div>
+      </div>
 
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
+      <main className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {/* LIST TAB */}
+        {activeTab === 'list' && (
+          <div>
             {reservations.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500">{t.noReservations}</p>
+              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                <p className="text-gray-500 mb-3">{t.noReservations}</p>
                 <button
-                  onClick={handleOpenNewModal}
-                  className="mt-2 inline-block text-blue-600 hover:text-blue-800"
+                  onClick={openNew}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                 >
                   {t.createFirstReservation}
                 </button>
               </div>
             ) : (
-              <ul className="divide-y divide-gray-200">
-                {reservations.map(reservation => (
-                  <ReservationRow
-                    key={reservation.id}
-                    reservation={reservation}
-                    onEdit={handleOpenEditModal}
-                    showDate
-                  />
-                ))}
-              </ul>
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <ul className="divide-y divide-gray-200">
+                  {reservations.map(r => (
+                    <ReservationRow
+                      key={r.id}
+                      reservation={r}
+                      onEdit={openEdit}
+                      showDate
+                    />
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
+        )}
 
-          {/* Add new reservation button */}
-          <div className="mt-4 text-center">
-            <button
-              onClick={handleOpenNewModal}
-              className="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              + New Reservation
-            </button>
+        {/* CALENDAR TAB */}
+        {activeTab === 'calendar' && (
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <EnhancedCalendar
+              demoReservations={reservations}
+              onSelectEvent={r => openEdit(r)}
+              onSelectSlot={openSlot}
+            />
           </div>
-        </div>
+        )}
+
+        {/* TABLES TAB */}
+        {activeTab === 'tables' && (
+          <TableManagementPanel
+            tables={tables}
+            saving={false}
+            error={tableError}
+            newIdentifier={newTableIdentifier}
+            newCapacity={newTableCapacity}
+            editingId={editingId}
+            editIdentifier={editIdentifier}
+            editCapacity={editCapacity}
+            onNewIdentifierChange={setNewTableIdentifier}
+            onNewCapacityChange={setNewTableCapacity}
+            onAdd={handleAddTable}
+            onEdit={table => {
+              setEditingId(table.id)
+              setEditIdentifier(table.table_identifier)
+              setEditCapacity(table.capacity.toString())
+              setTableError('')
+            }}
+            onEditIdentifierChange={setEditIdentifier}
+            onEditCapacityChange={setEditCapacity}
+            onSave={handleUpdateTable}
+            onCancel={() => {
+              setEditingId(null)
+              setEditIdentifier('')
+              setEditCapacity('')
+              setTableError('')
+            }}
+            onDelete={id => {
+              if (!confirm(st.confirmDelete)) return
+              deleteTable(id)
+            }}
+            onToggleActive={(id, isActive) =>
+              updateTable(id, { is_active: !isActive })
+            }
+          />
+        )}
       </main>
 
-      <DemoReservationModal
+      <ReservationModal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={closeModal}
         reservation={selectedReservation}
+        selectedDate={selectedSlot?.start}
+        selectedTime={
+          selectedSlot
+            ? `${String(selectedSlot.start.getHours()).padStart(2, '0')}:${String(selectedSlot.start.getMinutes()).padStart(2, '0')}`
+            : undefined
+        }
+        onSave={saved => {
+          if (selectedReservation) {
+            updateReservation(selectedReservation.id, saved)
+          }
+        }}
+        onDelete={id => deleteReservation(id)}
+        demoTables={tables}
+        demoReservations={reservations}
+        onDemoSave={data => {
+          if (selectedReservation) {
+            return updateReservation(selectedReservation.id, data)
+          }
+          return addReservation(data)
+        }}
+        onDemoDelete={id => deleteReservation(id)}
       />
     </div>
   )
