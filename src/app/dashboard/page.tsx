@@ -11,6 +11,7 @@ import {
   CalendarDays,
   LogOut,
   SlidersHorizontal,
+  Plus,
 } from 'lucide-react'
 import ReservationModal from '@/components/ReservationModal'
 import ReservationRow from '@/components/ReservationRow'
@@ -84,6 +85,11 @@ export default function DashboardPage() {
 
   const handleOpenEditModal = (reservation: Reservation) => {
     setSelectedReservation(reservation)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenNewModal = () => {
+    setSelectedReservation(null)
     setIsModalOpen(true)
   }
 
@@ -331,6 +337,16 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
+        <button
+          onClick={handleOpenNewModal}
+          className="inline-flex items-center gap-2 px-12 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <Plus className="h-4 w-4" />
+          {t.newReservation}
+        </button>
+      </div>
 
       <ReservationModal
         isOpen={isModalOpen}
