@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import Picker from 'react-mobile-picker'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Check, ChevronDown } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
 
@@ -45,6 +45,7 @@ export default function ReservationModal({
   const [tables, setTables] = useState<Table[]>([])
   const [availableTables, setAvailableTables] = useState<Table[]>([])
   const [loadingTables, setLoadingTables] = useState(false)
+  const [showAdditional, setShowAdditional] = useState(false)
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
@@ -53,7 +54,6 @@ export default function ReservationModal({
     time: '',
     party_size: '',
     notes: '',
-    status: 'confirmed',
   })
 
   const [width, setWidth] = useState<number>(window.innerWidth)
@@ -151,7 +151,6 @@ export default function ReservationModal({
           time: reservation.time,
           party_size: reservation.party_size.toString(),
           notes: reservation.notes || '',
-          status: reservation.status,
         })
       } else {
         // Creating new reservation
@@ -169,7 +168,6 @@ export default function ReservationModal({
           time: defaultTime,
           party_size: '2',
           notes: '',
-          status: 'confirmed',
         })
       }
     }
@@ -209,7 +207,6 @@ export default function ReservationModal({
         time: formData.time,
         party_size: parseInt(formData.party_size),
         notes: formData.notes,
-        status: formData.status,
         tenant_id: tenantId,
         created_by: user.id,
       }
@@ -317,9 +314,6 @@ export default function ReservationModal({
               <h2 className="text-2xl font-bold text-gray-900">
                 {reservation ? t.editReservation : t.newReservation}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {reservation ? t.updateDetails : t.createNew}
-              </p>
             </div>
             <button
               onClick={onClose}
@@ -347,25 +341,6 @@ export default function ReservationModal({
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   placeholder={t.customerNamePlaceholder}
                   value={formData.customer_name}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="customer_phone"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  {t.phoneNumber}
-                </label>
-                <input
-                  type="tel"
-                  name="customer_phone"
-                  id="customer_phone"
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder={t.phonePlaceholder}
-                  value={formData.customer_phone}
                   onChange={handleChange}
                 />
               </div>
@@ -501,26 +476,6 @@ export default function ReservationModal({
 
               <div className="md:col-span-2">
                 <label
-                  htmlFor="status"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  {t.status}
-                </label>
-                <select
-                  name="status"
-                  id="status"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
-                  value={formData.status}
-                  onChange={handleChange}
-                >
-                  <option value="pending">🟡 {common.pending}</option>
-                  <option value="confirmed">🟢 {common.confirmed}</option>
-                  <option value="cancelled">🔴 {common.cancelled}</option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <label
                   htmlFor="notes"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
@@ -538,92 +493,89 @@ export default function ReservationModal({
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-gray-200">
+            <div className="md:col-span-2">
+              <button
+                type="button"
+                onClick={() => setShowAdditional(prev => !prev)}
+                className="flex w-full items-center justify-between py-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
+              >
+                <span>{t.additionalInfo}</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-gray-400 transition-transform ${
+                    showAdditional ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              {showAdditional && (
+                <div className="mt-3">
+                  <label
+                    htmlFor="customer_phone"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    {t.phoneNumber}
+                  </label>
+                  <input
+                    type="tel"
+                    name="customer_phone"
+                    id="customer_phone"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder={t.phonePlaceholder}
+                    value={formData.customer_phone}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-6 border-t border-gray-200">
               <div>
                 {reservation && onDelete && (
                   <button
                     type="button"
                     onClick={handleDelete}
                     disabled={loading}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     aria-label={t.deleteReservation}
                     title={t.deleteReservation}
                   >
-                    {loading ? (
-                      <>
-                        <svg
-                          className="h-4 w-4 animate-spin text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        <span className="sr-only">{t.deletingReservation}</span>
-                      </>
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 )}
               </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
-                >
-                  {common.cancel}
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-                >
-                  {loading ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      {reservation ? t.updating : t.creating}
-                    </>
-                  ) : (
-                    <>
-                      {reservation ? t.updateReservation : t.createReservation}
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label={
+                  reservation ? t.updateReservation : t.createReservation
+                }
+                title={reservation ? t.updateReservation : t.createReservation}
+              >
+                {loading ? (
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                ) : (
+                  <Check className="h-4 w-4" />
+                )}
+              </button>
             </div>
           </form>
         </div>

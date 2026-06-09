@@ -18,13 +18,6 @@ export default function DemoDashboardPage() {
   const t = messages.dashboard
   const common = messages.common
 
-  const getStatusLabel = (status: string) => {
-    if (status === 'confirmed') return common.confirmed
-    if (status === 'cancelled') return common.cancelled
-    if (status === 'pending') return common.pending
-    return status
-  }
-
   const handleOpenEditModal = (reservation: Reservation) => {
     setSelectedReservation(reservation)
     setIsModalOpen(true)
@@ -117,19 +110,6 @@ export default function DemoDashboardPage() {
                             <p className="text-sm font-medium text-gray-900 truncate">
                               {reservation.customer_name}
                             </p>
-                            <div className="ml-2 flex-shrink-0 flex">
-                              <p
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                  reservation.status === 'confirmed'
-                                    ? 'bg-green-100 text-green-800'
-                                    : reservation.status === 'cancelled'
-                                      ? 'bg-red-100 text-red-800'
-                                      : 'bg-yellow-100 text-yellow-800'
-                                }`}
-                              >
-                                {getStatusLabel(reservation.status)}
-                              </p>
-                            </div>
                           </div>
                           <div className="mt-2 sm:flex sm:justify-between">
                             <div className="sm:flex">

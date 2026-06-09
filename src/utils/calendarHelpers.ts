@@ -277,28 +277,12 @@ export function findTimeSlotFromTouch(
 }
 
 /**
- * Get event style based on reservation status
+ * Get event style for calendar events
  */
-export function getEventStyle(status: string) {
-  let backgroundColor = '#3174ad'
-
-  switch (status) {
-    case 'confirmed':
-      backgroundColor = '#10b981' // green
-      break
-    case 'pending':
-      backgroundColor = '#f59e0b' // yellow
-      break
-    case 'cancelled':
-      backgroundColor = '#ef4444' // red
-      break
-    default:
-      backgroundColor = '#6b7280' // gray
-  }
-
+export function getEventStyle(_event?: unknown) {
   return {
     style: {
-      backgroundColor,
+      backgroundColor: '#3174ad',
       borderRadius: '4px',
       opacity: 0.8,
       color: 'white',

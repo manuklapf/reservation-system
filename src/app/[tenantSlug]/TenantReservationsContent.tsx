@@ -11,7 +11,6 @@ interface Reservation {
   date: string
   time: string
   party_size: number
-  status: string
 }
 
 interface Tenant {
@@ -61,11 +60,10 @@ export default function TenantReservationsContent({
         await supabase
           .from('reservations')
           .select(
-            'id, customer_name, table_number, date, time, party_size, status'
+            'id, customer_name, table_number, date, time, party_size'
           )
           .eq('tenant_id', tenantData.id)
           .eq('date', selectedDate)
-          .eq('status', 'confirmed')
           .order('time', { ascending: true })
 
       if (reservationsError) throw reservationsError
@@ -168,9 +166,6 @@ export default function TenantReservationsContent({
                         <h3 className="text-lg font-medium text-gray-900">
                           {reservation.customer_name}
                         </h3>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {messages.common.confirmed}
-                        </span>
                       </div>
                       <div className="mt-2 flex flex-wrap items-center text-sm text-gray-600 space-x-4">
                         <div className="flex items-center">

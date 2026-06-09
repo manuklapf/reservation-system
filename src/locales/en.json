@@ -54,7 +54,7 @@
     "restartDevServer": "Restart the development server"
   },
   "dashboard": {
-    "title": "Reservation Dashboard",
+    "title": "Dashboard",
     "welcome": "Welcome",
     "signOut": "Sign Out",
     "reservations": "Reservations",
@@ -67,13 +67,18 @@
     "guests": "guests",
     "at": "at",
     "notes": "Notes",
-    "editReservation": "Edit reservation"
+    "editReservation": "Edit reservation",
+    "filter": "Filter reservations",
+    "filterGuestName": "Guest name",
+    "filterDate": "Date",
+    "clearFilters": "Clear filters",
+    "settings": "Settings"
   },
   "calendarPage": {
     "loginRequired": "Please log in to view the calendar.",
     "backToDashboard": "Back to Dashboard",
     "title": "Reservations Calendar",
-    "description": "View and manage reservations in calendar format. Click on a reservation to edit, or click on an empty slot to create a new reservation."
+    "description": "View and manage your reservations in calendar view"
   },
   "setupPage": {
     "loginRequired": "Please log in to access this page.",
@@ -130,11 +135,11 @@
   "reservationModal": {
     "editReservation": "Edit Reservation",
     "newReservation": "New Reservation",
-    "updateDetails": "Update reservation details",
     "createNew": "Create a new table reservation",
     "closeModal": "Close modal",
     "customerName": "Customer Name",
     "customerNamePlaceholder": "Enter customer name",
+    "additionalInfo": "Additional Information",
     "phoneNumber": "Phone Number",
     "phonePlaceholder": "(555) 123-4567",
     "table": "Table",
@@ -180,5 +185,11 @@
     "legendConfirmed": "Confirmed",
     "legendPending": "Pending",
     "legendCancelled": "Cancelled"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "backToDashboard": "Back to Dashboard",
+    "tableSectionTitle": "Table Setup",
+    "tableSectionDesc": "Add, edit, and manage your restaurant tables"
   }
 }

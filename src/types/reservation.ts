@@ -8,7 +8,6 @@ export interface Reservation {
   date: string
   time: string
   party_size: number
-  status: string
   notes: string | null
   created_at: string
   updated_at: string

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Check, ChevronDown } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 import { useDemo, DEMO_TENANT_ID } from '@/contexts/DemoContext'
 import { useI18n } from '@/contexts/I18nContext'
@@ -34,6 +34,8 @@ export default function DemoReservationModal({
 
   const activeTables = useMemo(() => tables.filter(t => t.is_active), [tables])
 
+  const [showAdditional, setShowAdditional] = useState(false)
+
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
@@ -42,7 +44,6 @@ export default function DemoReservationModal({
     time: '',
     party_size: '2',
     notes: '',
-    status: 'confirmed',
   })
 
   // Available tables: exclude those booked at the same date+time (except current reservation)
@@ -72,7 +73,6 @@ export default function DemoReservationModal({
         time: reservation.time,
         party_size: reservation.party_size.toString(),
         notes: reservation.notes || '',
-        status: reservation.status,
       })
     } else {
       const defaultDate = selectedDate
@@ -86,7 +86,6 @@ export default function DemoReservationModal({
         time: selectedTime || '18:00',
         party_size: '2',
         notes: '',
-        status: 'confirmed',
       })
     }
   }, [isOpen, reservation, selectedDate, selectedTime])
@@ -116,7 +115,6 @@ export default function DemoReservationModal({
       time: formData.time,
       party_size: parseInt(formData.party_size),
       notes: formData.notes,
-      status: formData.status,
       tenant_id: DEMO_TENANT_ID,
       created_by: 'demo',
     }
@@ -148,16 +146,13 @@ export default function DemoReservationModal({
               <h2 className="text-2xl font-bold text-gray-900">
                 {reservation ? t.editReservation : t.newReservation}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                {reservation ? t.updateDetails : t.createNew}
-              </p>
             </div>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light hover:bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center"
               aria-label={t.closeModal}
             >
-              ×
+              x
             </button>
           </div>
 
@@ -183,22 +178,37 @@ export default function DemoReservationModal({
               </div>
 
               <div className="md:col-span-2">
-                <label
-                  htmlFor="customer_phone"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
+                <button
+                  type="button"
+                  onClick={() => setShowAdditional(prev => !prev)}
+                  className="flex w-full items-center justify-between py-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
                 >
-                  {t.phoneNumber}
-                </label>
-                <input
-                  type="tel"
-                  name="customer_phone"
-                  id="customer_phone"
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder={t.phonePlaceholder}
-                  value={formData.customer_phone}
-                  onChange={handleChange}
-                />
+                  <span>{t.additionalInfo}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 text-gray-400 transition-transform ${
+                      showAdditional ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                {showAdditional && (
+                  <div className="mt-3">
+                    <label
+                      htmlFor="customer_phone"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      {t.phoneNumber}
+                    </label>
+                    <input
+                      type="tel"
+                      name="customer_phone"
+                      id="customer_phone"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder={t.phonePlaceholder}
+                      value={formData.customer_phone}
+                      onChange={handleChange}
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
@@ -293,26 +303,6 @@ export default function DemoReservationModal({
 
               <div className="md:col-span-2">
                 <label
-                  htmlFor="status"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  {t.status}
-                </label>
-                <select
-                  name="status"
-                  id="status"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={formData.status}
-                  onChange={handleChange}
-                >
-                  <option value="confirmed">{common.confirmed}</option>
-                  <option value="pending">{common.pending}</option>
-                  <option value="cancelled">{common.cancelled}</option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <label
                   htmlFor="notes"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
@@ -330,13 +320,13 @@ export default function DemoReservationModal({
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-gray-200">
+            <div className="flex justify-end gap-2 pt-6 border-t border-gray-200">
               <div>
                 {reservation && (
                   <button
                     type="button"
                     onClick={handleDelete}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
                     aria-label={t.deleteReservation}
                     title={t.deleteReservation}
                   >
@@ -344,21 +334,16 @@ export default function DemoReservationModal({
                   </button>
                 )}
               </div>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
-                >
-                  {common.cancel}
-                </button>
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
-                >
-                  {reservation ? t.updateReservation : t.createReservation}
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-800 transition-colors"
+                aria-label={
+                  reservation ? t.updateReservation : t.createReservation
+                }
+                title={reservation ? t.updateReservation : t.createReservation}
+              >
+                <Check className="h-4 w-4" />
+              </button>
             </div>
           </form>
         </div>

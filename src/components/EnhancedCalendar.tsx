@@ -160,9 +160,9 @@ export default function EnhancedCalendar({
     [view]
   )
 
-  // Event style based on status
+  // Event style
   const eventStyleGetter = useCallback(
-    (event: CalendarEvent) => getEventStyle(event.resource.status),
+    (_event: CalendarEvent) => getEventStyle(),
     []
   )
 

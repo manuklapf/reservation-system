@@ -54,7 +54,7 @@
     "restartDevServer": "Starte den Entwicklungsserver neu"
   },
   "dashboard": {
-    "title": "Reservierungs-Dashboard",
+    "title": "Dashboard",
     "welcome": "Willkommen",
     "signOut": "Abmelden",
     "reservations": "Reservierungen",
@@ -67,7 +67,12 @@
     "guests": "Gäste",
     "at": "um",
     "notes": "Notizen",
-    "editReservation": "Reservierung bearbeiten"
+    "editReservation": "Reservierung bearbeiten",
+    "filter": "Reservierungen filtern",
+    "filterGuestName": "Gastname",
+    "filterDate": "Datum",
+    "clearFilters": "Filter zurücksetzen",
+    "settings": "Einstellungen"
   },
   "calendarPage": {
     "loginRequired": "Bitte melde dich an, um den Kalender anzuzeigen.",
@@ -130,11 +135,11 @@
   "reservationModal": {
     "editReservation": "Reservierung bearbeiten",
     "newReservation": "Neue Reservierung",
-    "updateDetails": "Reservierungsdetails aktualisieren",
     "createNew": "Neue Tischreservierung erstellen",
     "closeModal": "Modal schließen",
     "customerName": "Kundenname",
     "customerNamePlaceholder": "Kundennamen eingeben",
+    "additionalInfo": "Zusätzliche Informationen",
     "phoneNumber": "Telefonnummer",
     "phonePlaceholder": "(555) 123-4567",
     "table": "Tisch",
@@ -180,5 +185,11 @@
     "legendConfirmed": "Bestätigt",
     "legendPending": "Ausstehend",
     "legendCancelled": "Storniert"
+  },
+  "settingsPage": {
+    "title": "Einstellungen",
+    "backToDashboard": "Zurück zum Dashboard",
+    "tableSectionTitle": "Tische einrichten",
+    "tableSectionDesc": "Restauranttische hinzufügen, bearbeiten und verwalten"
   }
 }
