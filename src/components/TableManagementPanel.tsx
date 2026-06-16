@@ -121,7 +121,10 @@ export default function TableManagementPanel({
 
       {/* Tables List */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-200">
+        <div
+          id="tables-list-header"
+          className="px-5 py-3 border-b border-gray-200"
+        >
           <h3 className="text-base font-semibold text-gray-800">
             {t.yourTables}
           </h3>

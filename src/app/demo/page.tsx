@@ -128,7 +128,7 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Nav */}
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="bg-white shadow-sm border-b m-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center gap-3">

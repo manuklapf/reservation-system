@@ -381,6 +381,16 @@ html[data-theme='brutalist']
   border-radius: 0 !important;
 }
 
+/* Soft Brutalist: same Brutalist palette/shadows, but rounded corners */
+html[data-theme='brutalist'][data-subtheme='soft-brutalist']
+  *:not(svg):not(path):not(circle):not(rect):not(polyline):not(line):not(g):not(
+    defs
+  ):not(clipPath):not(li):not(p):not(thead):not(td):not(tr):not(th):not(
+    #tables-list-header
+  ):not(table):not(thead) {
+  border-radius: 10px !important;
+}
+
 /* Swap soft shadows for BrutX hard offset shadow */
 html[data-theme='brutalist'] .shadow-sm,
 html[data-theme='brutalist'] .shadow,

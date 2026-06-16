@@ -22,6 +22,7 @@ export default function AccordionItem({
     <div className="border border-gray-200 rounded-lg overflow-hidden">
       <button
         type="button"
+        id="accordion-button"
         onClick={() => setOpen(prev => !prev)}
         className="w-full flex items-center justify-between px-6 py-4 bg-white hover:bg-gray-50 text-left transition-colors"
         aria-expanded={open}

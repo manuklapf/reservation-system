@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from 'react'
 
-export type Theme = 'default' | 'brutalist'
+export type Theme = 'default' | 'brutalist' | 'soft-brutalist'
 
 interface ThemeContextType {
   theme: Theme
@@ -22,15 +22,29 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('default')
 
+  const applyThemeAttributes = (nextTheme: Theme) => {
+    const html = document.documentElement
+    const baseTheme = nextTheme === 'soft-brutalist' ? 'brutalist' : nextTheme
+    html.setAttribute('data-theme', baseTheme)
+
+    if (nextTheme === 'soft-brutalist') {
+      html.setAttribute('data-subtheme', 'soft-brutalist')
+    } else {
+      html.removeAttribute('data-subtheme')
+    }
+  }
+
   useEffect(() => {
     const saved =
       typeof window !== 'undefined'
         ? (window.localStorage.getItem(THEME_STORAGE_KEY) as Theme | null)
         : null
     const resolved: Theme =
-      saved === 'default' || saved === 'brutalist' ? saved : 'default'
+      saved === 'default' || saved === 'brutalist' || saved === 'soft-brutalist'
+        ? saved
+        : 'default'
     setThemeState(resolved)
-    document.documentElement.setAttribute('data-theme', resolved)
+    applyThemeAttributes(resolved)
   }, [])
 
   const setTheme = (nextTheme: Theme) => {
@@ -38,7 +52,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme)
     }
-    document.documentElement.setAttribute('data-theme', nextTheme)
+    applyThemeAttributes(nextTheme)
   }
 
   return (

@@ -203,7 +203,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
+      <nav className="bg-white shadow-sm border-b sticky top-0 z-10 m-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <Link
@@ -274,6 +274,51 @@ export default function SettingsPage() {
                         />
                         <div
                           className="h-5 w-5 border-2"
+                          style={{
+                            backgroundColor: '#ef476f',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                      </div>
+                    ),
+                    fontStyle: {
+                      fontFamily: 'Courier New, Courier, monospace',
+                    },
+                  },
+                  {
+                    id: 'soft-brutalist' as Theme,
+                    name: 'Soft Brutalist',
+                    description:
+                      'Brutalist palette and hard shadows with rounded corners',
+                    preview: (
+                      <div className="flex gap-2 mb-3">
+                        <div
+                          className="h-5 w-5 border-2 rounded-md"
+                          style={{
+                            backgroundColor: '#ff6b6b',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                        <div
+                          className="h-5 w-5 border-2 rounded-md"
+                          style={{
+                            backgroundColor: '#4ecdc4',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                        <div
+                          className="h-5 w-5 border-2 rounded-md"
+                          style={{
+                            backgroundColor: '#ffe66d',
+                            borderColor: '#000',
+                            boxShadow: '2px 2px 0 #000',
+                          }}
+                        />
+                        <div
+                          className="h-5 w-5 border-2 rounded-md"
                           style={{
                             backgroundColor: '#ef476f',
                             borderColor: '#000',
