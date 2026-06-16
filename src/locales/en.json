@@ -142,7 +142,7 @@
     "customerNamePlaceholder": "Enter customer name",
     "additionalInfo": "Additional Information",
     "phoneNumber": "Phone Number",
-    "phonePlaceholder": "(555) 123-4567",
+    "phonePlaceholder": "+49 123 4567890",
     "table": "Table",
     "loadingTables": "Loading tables...",
     "noTablesForSlot": "No tables available for this time slot",
@@ -167,6 +167,14 @@
     "done": "Done",
     "orEnterNumber": "Or enter a number",
     "enterPartySize": "Enter party size",
+    "steps": {
+      "date": "Date",
+      "time": "Time",
+      "dateTime": "Date & Time",
+      "persons": "Persons",
+      "name": "Name",
+      "additionalInfo": "Additional Information"
+    },
     "errors": {
       "notAuthenticated": "Error: Not authenticated. Please log in.",
       "noTenant": "Error: No tenant selected. Please contact support.",

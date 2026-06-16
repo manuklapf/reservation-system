@@ -142,7 +142,7 @@
     "customerNamePlaceholder": "Kundennamen eingeben",
     "additionalInfo": "Zusätzliche Informationen",
     "phoneNumber": "Telefonnummer",
-    "phonePlaceholder": "(555) 123-4567",
+    "phonePlaceholder": "+49 123 4567890",
     "table": "Tisch",
     "loadingTables": "Tische werden geladen...",
     "noTablesForSlot": "Keine Tische für diesen Zeitraum verfügbar",
@@ -167,6 +167,14 @@
     "done": "Fertig",
     "orEnterNumber": "Oder eine Zahl eingeben",
     "enterPartySize": "Personenzahl eingeben",
+    "steps": {
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "dateTime": "Datum & Uhrzeit",
+      "persons": "Personen",
+      "name": "Name",
+      "additionalInfo": "Weitere Informationen"
+    },
     "errors": {
       "notAuthenticated": "Fehler: Nicht authentifiziert. Bitte melde dich an.",
       "noTenant": "Fehler: Kein Mandant ausgewählt. Bitte den Support kontaktieren.",

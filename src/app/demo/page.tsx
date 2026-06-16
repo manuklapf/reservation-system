@@ -144,7 +144,7 @@ export default function DemoPage() {
             </div>
             <button
               onClick={openNew}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="inline-flex whitespace-nowrap items-center gap-1.5 h-8 px-3 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
             >
               <Plus className="h-4 w-4" />
               {t.newReservation}
