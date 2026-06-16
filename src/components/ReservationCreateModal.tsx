@@ -1,0 +1,492 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  ClipboardList,
+} from 'lucide-react'
+import { Reservation } from '@/types/reservation'
+import { useI18n } from '@/contexts/I18nContext'
+import StepDate from './StepDate'
+import StepTime from './StepTime'
+import StepPersons from './StepPersons'
+
+interface Table {
+  id: string
+  table_identifier: string
+  capacity: number
+  is_active: boolean
+}
+
+interface ReservationCreateModalProps {
+  isOpen: boolean
+  onClose: () => void
+  selectedDate?: Date
+  selectedTime?: string
+  onSave: (reservation: Reservation) => void
+  demoTables?: Table[]
+  demoReservations?: Reservation[]
+  onDemoSave?: (
+    data: Omit<Reservation, 'id' | 'created_at' | 'updated_at'>
+  ) => Reservation
+}
+
+export default function ReservationCreateModal({
+  isOpen,
+  onClose,
+  selectedDate,
+  selectedTime,
+  onSave,
+  demoTables,
+  demoReservations,
+  onDemoSave,
+}: ReservationCreateModalProps) {
+  const { user, tenantId } = useAuth()
+  const { messages } = useI18n()
+  const t = messages.reservationModal
+  const common = messages.common
+  const [loading, setLoading] = useState(false)
+  const [tables, setTables] = useState<Table[]>([])
+  const [availableTables, setAvailableTables] = useState<Table[]>([])
+  const [loadingTables, setLoadingTables] = useState(false)
+  const [step, setStep] = useState(0)
+  const [formData, setFormData] = useState({
+    customer_name: '',
+    customer_phone: '',
+    table_id: '',
+    date: '',
+    time: '',
+    party_size: '',
+    notes: '',
+  })
+
+  const fetchTables = React.useCallback(async () => {
+    if (!supabase || !tenantId) return
+    try {
+      setLoadingTables(true)
+      const { data, error } = await supabase
+        .from('tables')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .eq('is_active', true)
+        .order('table_identifier')
+      if (error) throw error
+      setTables(data || [])
+    } catch (err) {
+      console.error('Error fetching tables:', err)
+    } finally {
+      setLoadingTables(false)
+    }
+  }, [tenantId])
+
+  useEffect(() => {
+    if (isOpen && demoTables) {
+      setTables(demoTables.filter(t => t.is_active))
+      setLoadingTables(false)
+    }
+  }, [isOpen, demoTables])
+
+  useEffect(() => {
+    if (isOpen && tenantId && supabase && !demoTables) {
+      fetchTables()
+    }
+  }, [isOpen, tenantId, fetchTables, demoTables])
+
+  const filterAvailableTables = React.useCallback(async () => {
+    if (demoReservations) {
+      const reservedTableIds = demoReservations
+        .filter(r => r.date === formData.date && r.time === formData.time)
+        .map(r => r.table_id)
+      setAvailableTables(tables.filter(t => !reservedTableIds.includes(t.id)))
+      return
+    }
+
+    if (!supabase || !tenantId || !formData.date || !formData.time) return
+
+    try {
+      const { data: reservations, error } = await supabase
+        .from('reservations')
+        .select('table_id')
+        .eq('tenant_id', tenantId)
+        .eq('date', formData.date)
+        .eq('time', formData.time)
+        .not('table_id', 'is', null)
+      if (error) throw error
+      const reservedTableIds = (reservations || []).map(r => r.table_id)
+      setAvailableTables(
+        tables.filter(table => !reservedTableIds.includes(table.id))
+      )
+    } catch (err) {
+      console.error('Error filtering available tables:', err)
+      setAvailableTables(tables)
+    }
+  }, [tenantId, formData.date, formData.time, tables, demoReservations])
+
+  useEffect(() => {
+    if (isOpen && tables.length > 0 && formData.date && formData.time) {
+      filterAvailableTables()
+    }
+  }, [isOpen, tables, formData.date, formData.time, filterAvailableTables])
+
+  useEffect(() => {
+    if (isOpen) {
+      setStep(0)
+      const defaultDate = selectedDate
+        ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+        : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`
+      const defaultTime = selectedTime || '18:00'
+      setFormData({
+        customer_name: '',
+        customer_phone: '',
+        table_id: '',
+        date: defaultDate,
+        time: defaultTime,
+        party_size: '2',
+        notes: '',
+      })
+    }
+  }, [isOpen, selectedDate, selectedTime])
+
+  // ── Wizard helpers ──────────────────────────────────────────────────────────
+  const TOTAL_STEPS = 5
+
+  const validateStep = (s: number): boolean => {
+    switch (s) {
+      case 0:
+        return !!formData.date
+      case 1:
+        return !!formData.time
+      case 2:
+        return !!formData.party_size
+      case 3:
+        return !!formData.customer_name.trim()
+      case 4:
+        return true
+      default:
+        return true
+    }
+  }
+
+  const handleNext = () => {
+    if (validateStep(step) && step < TOTAL_STEPS - 1) setStep(prev => prev + 1)
+  }
+
+  const handlePrev = () => {
+    if (step > 0) setStep(prev => prev - 1)
+  }
+
+  const submitReservation = async () => {
+    setLoading(true)
+
+    if (onDemoSave) {
+      try {
+        const demoData: Omit<Reservation, 'id' | 'created_at' | 'updated_at'> =
+          {
+            customer_name: formData.customer_name,
+            customer_phone: formData.customer_phone,
+            table_id: formData.table_id || null,
+            table_number: null,
+            date: formData.date,
+            time: formData.time,
+            party_size: parseInt(formData.party_size),
+            notes: formData.notes,
+            tenant_id: 'demo-tenant',
+            created_by: 'demo',
+          }
+        const saved = onDemoSave(demoData)
+        onSave(saved)
+        onClose()
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
+    if (!user) {
+      setLoading(false)
+      alert(t.errors.notAuthenticated)
+      return
+    }
+    if (!tenantId) {
+      setLoading(false)
+      alert(t.errors.noTenant)
+      return
+    }
+    if (!supabase) {
+      setLoading(false)
+      alert(t.errors.noDbConnection)
+      return
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('reservations')
+        .insert([
+          {
+            customer_name: formData.customer_name,
+            customer_phone: formData.customer_phone,
+            table_id: formData.table_id || null,
+            date: formData.date,
+            time: formData.time,
+            party_size: parseInt(formData.party_size),
+            notes: formData.notes,
+            tenant_id: tenantId,
+            created_by: user.id,
+          },
+        ])
+        .select()
+        .single()
+
+      if (error) throw error
+      onSave(data)
+      onClose()
+    } catch (error: any) {
+      console.error('Error saving reservation:', error)
+      let errorMessage = t.errors.saveFailed
+      if (error?.message) errorMessage += ': ' + error.message
+      if (error?.hint)
+        errorMessage += `\n\n${t.errors.hintPrefix}: ` + error.hint
+      if (
+        error?.message?.includes('column "table_id" of relation "reservations"')
+      )
+        errorMessage = t.errors.dbSetupRequired
+      if (
+        error?.message?.includes('null value in column "table_number"') ||
+        (error?.message?.includes('table_number') &&
+          error?.message?.includes('not-null'))
+      )
+        errorMessage = t.errors.dbMigrationRequired
+      alert(errorMessage)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  if (!isOpen) return null
+
+  const stepTitles = [
+    t.steps.date,
+    t.steps.time,
+    t.steps.persons,
+    t.steps.name,
+    t.steps.additionalInfo,
+  ]
+  const isLastStep = step === TOTAL_STEPS - 1
+  const canProceed = validateStep(step)
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+      {/* Mobile: header + close button inline in one row */}
+      <div className="sm:hidden absolute top-2 left-0 right-0 flex justify-center px-4">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg flex items-center px-4 py-3">
+          <div className="w-10 shrink-0" />
+          <h2 className="flex-1 text-center text-xl font-bold text-gray-900 truncate">
+            {t.newReservation}
+          </h2>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors text-3xl font-light"
+            aria-label={t.closeModal}
+          >
+            ×
+          </button>
+        </div>
+      </div>
+
+      {/* Tablet/Desktop: separate fixed close button */}
+      <button
+        onClick={onClose}
+        className="hidden sm:flex fixed top-4 right-4 z-[60] bg-white text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light hover:bg-gray-100 rounded-full w-10 h-10 items-center justify-center shadow-lg"
+        aria-label={t.closeModal}
+      >
+        ×
+      </button>
+
+      {/* Tablet/Desktop: centered header box */}
+      <div className="hidden sm:flex absolute top-2 left-0 right-0 justify-center">
+        <div className="bg-white rounded-xl shadow-2xl px-10 py-4">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {t.newReservation}
+          </h2>
+        </div>
+      </div>
+
+      {/* Content — centered in full page */}
+      <div className="relative w-full max-w-lg p-6 sm:p-4">
+        {/* Left arrow */}
+        {step > 0 && (
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            aria-label={common.previous}
+          >
+            <ChevronLeft className="h-5 w-5 text-gray-600" />
+          </button>
+        )}
+
+        {/* Right arrow / submit */}
+        <button
+          type="button"
+          onClick={isLastStep ? submitReservation : handleNext}
+          disabled={loading || !canProceed}
+          className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 rounded-full shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
+            loading || !canProceed
+              ? 'bg-white text-gray-300 shadow-sm cursor-not-allowed'
+              : isLastStep
+                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-white hover:bg-gray-50 text-gray-600'
+          }`}
+          aria-label={isLastStep ? t.createReservation : common.next}
+        >
+          {loading ? (
+            <svg
+              className="h-4 w-4 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          ) : isLastStep ? (
+            <Check className="h-5 w-5" />
+          ) : (
+            <ChevronRight className="h-5 w-5" />
+          )}
+        </button>
+
+        {/* Content box */}
+        <div className="bg-white rounded-xl shadow-2xl w-full overflow-y-auto transform transition-all">
+          <div className="p-8">
+            {/* Wizard slides */}
+            <div className="overflow-hidden">
+              <div
+                className="flex transition-transform duration-300 ease-in-out"
+                style={{ transform: `translateX(-${step * 100}%)` }}
+              >
+                <StepDate
+                  title={stepTitles[0]}
+                  value={formData.date}
+                  onChange={date => setFormData(fd => ({ ...fd, date }))}
+                />
+
+                <StepTime
+                  title={stepTitles[1]}
+                  value={formData.time}
+                  onChange={time => setFormData(fd => ({ ...fd, time }))}
+                  minuteStep={5}
+                />
+
+                <StepPersons
+                  title={stepTitles[2]}
+                  value={formData.party_size}
+                  onChange={v => setFormData(fd => ({ ...fd, party_size: v }))}
+                />
+
+                {/* Step 2: Name */}
+                <div className="min-w-full space-y-1/2 px-1">
+                  <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
+                    <User className="h-5 w-5 text-blue-500" />
+                    {stepTitles[3]}
+                  </p>
+                  <input
+                    type="text"
+                    name="customer_name"
+                    id="wiz_customer_name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder={t.customerNamePlaceholder}
+                    value={formData.customer_name}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                {/* Step 3: Additional Information */}
+                <div className="min-w-full space-y-6 min-h-[260px] px-1">
+                  <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
+                    <ClipboardList className="h-5 w-5 text-blue-500" />
+                    {stepTitles[4]}
+                  </p>
+                  <div>
+                    <label
+                      htmlFor="wiz_notes"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      {t.specialNotes}
+                    </label>
+                    <textarea
+                      name="notes"
+                      id="wiz_notes"
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none text-ellipsis"
+                      value={formData.notes}
+                      onChange={handleChange}
+                      placeholder={t.specialNotesPlaceholder}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="wiz_customer_phone"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      {t.phoneNumber}
+                    </label>
+                    <input
+                      type="tel"
+                      name="customer_phone"
+                      id="wiz_customer_phone"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-ellipsis"
+                      placeholder={t.phonePlaceholder}
+                      value={formData.customer_phone}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Progress dots */}
+            <div className="flex gap-1.5 items-center justify-center mt-6">
+              {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === step
+                      ? 'w-5 h-2 bg-blue-500'
+                      : i < step
+                        ? 'w-2 h-2 bg-blue-300'
+                        : 'w-2 h-2 bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
