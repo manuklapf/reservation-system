@@ -3,6 +3,7 @@
 import { Pencil } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
+import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 interface ReservationRowProps {
   reservation: Reservation
@@ -18,36 +19,46 @@ export default function ReservationRow({
 }: ReservationRowProps) {
   const { messages } = useI18n()
   const t = messages.dashboard
-  const common = messages.common
+  const { prefs } = useDisplayPrefs()
+
+  const tableLabel =
+    reservation.tables?.table_identifier ||
+    (reservation.table_number ? String(reservation.table_number) : null)
 
   return (
     <li>
-      <div className="px-4 py-4 sm:px-6">
+      <div className="px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {reservation.customer_name}
-              </p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-gray-900 truncate">
+              {reservation.customer_name}
+            </p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {prefs.showTime && (
+                <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-700">
+                  {showDate ? `${reservation.date} · ` : ''}
+                  {reservation.time?.slice(0, 5)}
+                </span>
+              )}
+              {prefs.showPartySize && (
+                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600">
+                  {reservation.party_size} {t.guests}
+                </span>
+              )}
+              {prefs.showTable && tableLabel && (
+                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                  {t.table} {tableLabel}
+                </span>
+              )}
+              {prefs.showPhone && reservation.customer_phone && (
+                <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                  {reservation.customer_phone}
+                </span>
+              )}
             </div>
-            <div className="mt-2 sm:flex sm:justify-between">
-              <div className="sm:flex">
-                <p className="flex items-center text-sm text-gray-500">
-                  {t.table}{' '}
-                  {reservation.tables?.table_identifier ||
-                    reservation.table_number ||
-                    common.notAvailable}{' '}
-                  • {reservation.party_size} {t.guests}
-                </p>
-                <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                  {showDate ? `${reservation.date} ` : ''}
-                  {t.at} {reservation.time}
-                </p>
-              </div>
-            </div>
-            {reservation.notes && (
-              <p className="mt-2 text-sm text-gray-600">
-                {t.notes}: {reservation.notes}
+            {prefs.showNotes && reservation.notes && (
+              <p className="mt-1.5 text-xs text-gray-500 truncate">
+                {reservation.notes}
               </p>
             )}
           </div>

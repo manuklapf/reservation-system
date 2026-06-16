@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { ArrowLeft, Check } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Check, LogOut } from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
 import TableManagementPanel from '@/components/TableManagementPanel'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
+import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 type Table = {
   id: string
@@ -18,11 +20,13 @@ type Table = {
 }
 
 export default function SettingsPage() {
-  const { user, tenantId } = useAuth()
+  const { user, tenantId, signOut } = useAuth()
+  const router = useRouter()
   const { messages } = useI18n()
   const t = messages.setupPage
   const st = messages.settingsPage
   const { theme, setTheme } = useTheme()
+  const { prefs, setPrefs } = useDisplayPrefs()
 
   const [tables, setTables] = useState<Table[]>([])
   const [loading, setLoading] = useState(true)
@@ -199,7 +203,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <Link
@@ -345,7 +349,83 @@ export default function SettingsPage() {
               onToggleActive={handleToggleActive}
             />
           </AccordionItem>
+
+          <AccordionItem
+            title="Dashboard Display"
+            description="Choose which details appear on each reservation row"
+          >
+            <div className="space-y-3">
+              {(
+                [
+                  {
+                    key: 'showTime',
+                    label: 'Time',
+                    color: 'bg-violet-100 text-violet-700',
+                  },
+                  {
+                    key: 'showPartySize',
+                    label: 'Guest count',
+                    color: 'bg-blue-50 text-blue-600',
+                  },
+                  {
+                    key: 'showTable',
+                    label: 'Table',
+                    color: 'bg-emerald-50 text-emerald-700',
+                  },
+                  {
+                    key: 'showPhone',
+                    label: 'Phone number',
+                    color: 'bg-amber-50 text-amber-700',
+                  },
+                  {
+                    key: 'showNotes',
+                    label: 'Notes',
+                    color: 'bg-gray-100 text-gray-600',
+                  },
+                ] as { key: keyof typeof prefs; label: string; color: string }[]
+              ).map(({ key, label, color }) => (
+                <label
+                  key={key}
+                  className="flex items-center justify-between gap-3 cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${color}`}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={prefs[key]}
+                    onClick={() => setPrefs({ ...prefs, [key]: !prefs[key] })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      prefs[key] ? 'bg-blue-600' : 'bg-gray-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                        prefs[key] ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </label>
+              ))}
+            </div>
+          </AccordionItem>
         </div>
+
+        <button
+          onClick={async () => {
+            await signOut()
+            router.push('/')
+          }}
+          className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors text-sm font-medium"
+        >
+          <LogOut className="h-4 w-4" />
+          {st.signOut}
+        </button>
       </main>
     </div>
   )

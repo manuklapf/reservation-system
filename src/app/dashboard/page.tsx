@@ -9,7 +9,6 @@ import {
   Settings,
   Globe,
   CalendarDays,
-  LogOut,
   SlidersHorizontal,
   Plus,
 } from 'lucide-react'
@@ -20,7 +19,7 @@ import { Reservation } from '@/types/reservation'
 import { useI18n, Language } from '@/contexts/I18nContext'
 
 export default function DashboardPage() {
-  const { user, loading, signOut, tenantId } = useAuth()
+  const { user, loading, tenantId } = useAuth()
   const router = useRouter()
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
@@ -76,11 +75,6 @@ export default function DashboardPage() {
     } finally {
       setLoadingReservations(false)
     }
-  }
-
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/')
   }
 
   const handleOpenEditModal = (reservation: Reservation) => {
@@ -159,7 +153,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="bg-white shadow-sm border-b sticky top-0 z-10 m-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -186,14 +180,6 @@ export default function DashboardPage() {
               >
                 <Settings className="h-5 w-5" />
               </Link>
-              <button
-                onClick={handleSignOut}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-red-500 hover:bg-red-50 hover:text-red-700"
-                aria-label={t.signOut}
-                title={t.signOut}
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
             </div>
           </div>
         </div>
