@@ -9,12 +9,14 @@ import {
   ChevronRight,
   User,
   ClipboardList,
+  UtensilsCrossed,
 } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
 import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
+import FloorPlanPickerModal from './FloorPlanPickerModal'
 
 interface Table {
   id: string
@@ -54,11 +56,14 @@ export default function ReservationCreateModal({
   const [tables, setTables] = useState<Table[]>([])
   const [availableTables, setAvailableTables] = useState<Table[]>([])
   const [loadingTables, setLoadingTables] = useState(false)
+  const [showFloorPicker, setShowFloorPicker] = useState(false)
   const [step, setStep] = useState(0)
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
     table_id: '',
+    table_ids: [] as string[],
+    table_identifiers: [] as string[],
     date: '',
     time: '',
     party_size: '',
@@ -144,6 +149,8 @@ export default function ReservationCreateModal({
         customer_name: '',
         customer_phone: '',
         table_id: '',
+        table_ids: [],
+        table_identifiers: [],
         date: defaultDate,
         time: defaultTime,
         party_size: '2',
@@ -173,11 +180,15 @@ export default function ReservationCreateModal({
   }
 
   const handleNext = () => {
-    if (validateStep(step) && step < TOTAL_STEPS - 1) setStep(prev => prev + 1)
+    if (validateStep(step) && step < TOTAL_STEPS - 1) {
+      setStep(prev => prev + 1)
+    }
   }
 
   const handlePrev = () => {
-    if (step > 0) setStep(prev => prev - 1)
+    if (step > 0) {
+      setStep(prev => prev - 1)
+    }
   }
 
   const submitReservation = async () => {
@@ -189,7 +200,9 @@ export default function ReservationCreateModal({
           {
             customer_name: formData.customer_name,
             customer_phone: formData.customer_phone,
-            table_id: formData.table_id || null,
+            table_id: formData.table_ids[0] ?? formData.table_id ?? null,
+            table_ids: formData.table_ids,
+            table_identifiers: formData.table_identifiers,
             table_number: null,
             date: formData.date,
             time: formData.time,
@@ -230,7 +243,9 @@ export default function ReservationCreateModal({
           {
             customer_name: formData.customer_name,
             customer_phone: formData.customer_phone,
-            table_id: formData.table_id || null,
+            table_id: formData.table_ids[0] ?? formData.table_id ?? null,
+            table_ids: formData.table_ids,
+            table_identifiers: formData.table_identifiers,
             date: formData.date,
             time: formData.time,
             party_size: parseInt(formData.party_size),
@@ -288,205 +303,250 @@ export default function ReservationCreateModal({
   const canProceed = validateStep(step)
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-      {/* Mobile: header + close button inline in one row */}
-      <div className="sm:hidden absolute top-2 left-0 right-0 flex justify-center px-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg flex items-center px-4 py-3">
-          <div className="w-10 shrink-0" />
-          <h2 className="flex-1 text-center text-xl font-bold text-gray-900 truncate">
-            {t.newReservation}
-          </h2>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors text-3xl font-light"
-            aria-label={t.closeModal}
-          >
-            ×
-          </button>
-        </div>
-      </div>
-
-      {/* Tablet/Desktop: separate fixed close button */}
-      <button
-        onClick={onClose}
-        className="hidden sm:flex fixed top-4 right-4 z-[60] bg-white text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light hover:bg-gray-100 rounded-full w-10 h-10 items-center justify-center shadow-lg"
-        aria-label={t.closeModal}
-      >
-        ×
-      </button>
-
-      {/* Tablet/Desktop: centered header box */}
-      <div className="hidden sm:flex absolute top-2 left-0 right-0 justify-center">
-        <div className="bg-white rounded-xl shadow-2xl px-10 py-4">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {t.newReservation}
-          </h2>
-        </div>
-      </div>
-
-      {/* Content — centered in full page */}
-      <div className="relative w-full max-w-lg p-6 sm:p-4">
-        {/* Left arrow */}
-        {step > 0 && (
-          <button
-            type="button"
-            onClick={handlePrev}
-            className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
-            aria-label={common.previous}
-          >
-            <ChevronLeft className="h-5 w-5 text-gray-600" />
-          </button>
-        )}
-
-        {/* Right arrow / submit */}
-        <button
-          type="button"
-          onClick={isLastStep ? submitReservation : handleNext}
-          disabled={loading || !canProceed}
-          className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 rounded-full shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
-            loading || !canProceed
-              ? 'bg-white text-gray-300 shadow-sm cursor-not-allowed'
-              : isLastStep
-                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                : 'bg-white hover:bg-gray-50 text-gray-600'
-          }`}
-          aria-label={isLastStep ? t.createReservation : common.next}
-        >
-          {loading ? (
-            <svg
-              className="h-4 w-4 animate-spin"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+        {/* Mobile: header + close button inline in one row */}
+        <div className="sm:hidden absolute top-2 left-0 right-0 flex justify-center px-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg flex items-center px-4 py-3">
+            <div className="w-10 shrink-0" />
+            <h2 className="flex-1 text-center text-xl font-bold text-gray-900 truncate">
+              {t.newReservation}
+            </h2>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors text-3xl font-light"
+              aria-label={t.closeModal}
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          ) : isLastStep ? (
-            <Check className="h-5 w-5" />
-          ) : (
-            <ChevronRight className="h-5 w-5" />
-          )}
+              ×
+            </button>
+          </div>
+        </div>
+
+        {/* Tablet/Desktop: separate fixed close button */}
+        <button
+          onClick={onClose}
+          className="hidden sm:flex fixed top-4 right-4 z-[60] bg-white text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light hover:bg-gray-100 rounded-full w-10 h-10 items-center justify-center shadow-lg"
+          aria-label={t.closeModal}
+        >
+          ×
         </button>
 
-        {/* Content box */}
-        <div className="bg-white rounded-xl shadow-2xl w-full overflow-y-auto transform transition-all">
-          <div className="p-8">
-            {/* Wizard slides */}
-            <div className="overflow-hidden">
-              <div
-                className="flex transition-transform duration-300 ease-in-out"
-                style={{ transform: `translateX(-${step * 100}%)` }}
+        {/* Tablet/Desktop: centered header box */}
+        <div className="hidden sm:flex absolute top-2 left-0 right-0 justify-center">
+          <div className="bg-white rounded-xl shadow-2xl px-10 py-4">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t.newReservation}
+            </h2>
+          </div>
+        </div>
+
+        {/* Content — centered in full page */}
+        <div className="relative w-full max-w-lg p-6 sm:p-4">
+          {/* Left arrow */}
+          {step > 0 && (
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
+              aria-label={common.previous}
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-600" />
+            </button>
+          )}
+
+          {/* Right arrow / submit */}
+          <button
+            type="button"
+            onClick={isLastStep ? submitReservation : handleNext}
+            disabled={loading || !canProceed}
+            className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 rounded-full shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
+              loading || !canProceed
+                ? 'bg-white text-gray-300 shadow-sm cursor-not-allowed'
+                : isLastStep
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                  : 'bg-white hover:bg-gray-50 text-gray-600'
+            }`}
+            aria-label={isLastStep ? t.createReservation : common.next}
+          >
+            {loading ? (
+              <svg
+                className="h-4 w-4 animate-spin"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
               >
-                <StepDate
-                  title={stepTitles[0]}
-                  value={formData.date}
-                  onChange={date => setFormData(fd => ({ ...fd, date }))}
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
                 />
-
-                <StepTime
-                  title={stepTitles[1]}
-                  value={formData.time}
-                  onChange={time => setFormData(fd => ({ ...fd, time }))}
-                  minuteStep={5}
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
+              </svg>
+            ) : isLastStep ? (
+              <Check className="h-5 w-5" />
+            ) : (
+              <ChevronRight className="h-5 w-5" />
+            )}
+          </button>
 
-                <StepPersons
-                  title={stepTitles[2]}
-                  value={formData.party_size}
-                  onChange={v => setFormData(fd => ({ ...fd, party_size: v }))}
-                />
-
-                {/* Step 2: Name */}
-                <div className="min-w-full space-y-1/2 px-1">
-                  <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                    <User className="h-5 w-5 text-blue-500" />
-                    {stepTitles[3]}
-                  </p>
-                  <input
-                    type="text"
-                    name="customer_name"
-                    id="wiz_customer_name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder={t.customerNamePlaceholder}
-                    value={formData.customer_name}
-                    onChange={handleChange}
+          {/* Content box */}
+          <div className="bg-white rounded-xl shadow-2xl w-full overflow-y-auto transform transition-all">
+            <div className="p-8">
+              {/* Wizard slides */}
+              {/* Wizard step — only the active step is rendered */}
+              <div>
+                {step === 0 && (
+                  <StepDate
+                    title={stepTitles[0]}
+                    value={formData.date}
+                    onChange={date => setFormData(fd => ({ ...fd, date }))}
                   />
-                </div>
-
-                {/* Step 3: Additional Information */}
-                <div className="min-w-full space-y-6 min-h-[260px] px-1">
-                  <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                    <ClipboardList className="h-5 w-5 text-blue-500" />
-                    {stepTitles[4]}
-                  </p>
-                  <div>
-                    <label
-                      htmlFor="wiz_notes"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                      {t.specialNotes}
-                    </label>
-                    <textarea
-                      name="notes"
-                      id="wiz_notes"
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none text-ellipsis"
-                      value={formData.notes}
-                      onChange={handleChange}
-                      placeholder={t.specialNotesPlaceholder}
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="wiz_customer_phone"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                      {t.phoneNumber}
-                    </label>
+                )}
+                {step === 1 && (
+                  <StepTime
+                    title={stepTitles[1]}
+                    value={formData.time}
+                    onChange={time => setFormData(fd => ({ ...fd, time }))}
+                    minuteStep={5}
+                  />
+                )}
+                {step === 2 && (
+                  <StepPersons
+                    title={stepTitles[2]}
+                    value={formData.party_size}
+                    onChange={v =>
+                      setFormData(fd => ({ ...fd, party_size: v }))
+                    }
+                  />
+                )}
+                {step === 3 && (
+                  <div className="space-y-1/2 px-1">
+                    <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
+                      <User className="h-5 w-5 text-blue-500" />
+                      {stepTitles[3]}
+                    </p>
                     <input
-                      type="tel"
-                      name="customer_phone"
-                      id="wiz_customer_phone"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-ellipsis"
-                      placeholder={t.phonePlaceholder}
-                      value={formData.customer_phone}
+                      type="text"
+                      name="customer_name"
+                      id="wiz_customer_name"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      placeholder={t.customerNamePlaceholder}
+                      value={formData.customer_name}
                       onChange={handleChange}
                     />
                   </div>
-                </div>
+                )}
+                {step === 4 && (
+                  <div className="space-y-6 px-1">
+                    <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
+                      <ClipboardList className="h-5 w-5 text-blue-500" />
+                      {stepTitles[4]}
+                    </p>
+                    <div>
+                      <label
+                        htmlFor="wiz_notes"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        {t.specialNotes}
+                      </label>
+                      <textarea
+                        name="notes"
+                        id="wiz_notes"
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                        value={formData.notes}
+                        onChange={handleChange}
+                        placeholder={t.specialNotesPlaceholder}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        {t.table}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowFloorPicker(true)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-colors text-sm font-medium ${
+                          formData.table_ids.length > 0
+                            ? 'border-emerald-400 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                            : 'border-dashed border-gray-300 text-gray-400 hover:border-emerald-300 hover:text-emerald-500 hover:bg-emerald-50'
+                        }`}
+                      >
+                        <UtensilsCrossed className="h-4 w-4 shrink-0" />
+                        <span className="truncate">
+                          {formData.table_ids.length > 0
+                            ? formData.table_identifiers.join(', ')
+                            : t.selectTable}
+                        </span>
+                      </button>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="wiz_customer_phone"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        {t.phoneNumber}
+                      </label>
+                      <input
+                        type="tel"
+                        name="customer_phone"
+                        id="wiz_customer_phone"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder={t.phonePlaceholder}
+                        value={formData.customer_phone}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
 
-            {/* Progress dots */}
-            <div className="flex gap-1.5 items-center justify-center mt-6">
-              {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`rounded-full transition-all duration-300 ${
-                    i === step
-                      ? 'w-5 h-2 bg-blue-500'
-                      : i < step
-                        ? 'w-2 h-2 bg-blue-300'
-                        : 'w-2 h-2 bg-gray-200'
-                  }`}
-                />
-              ))}
+              {/* Progress dots */}
+              <div className="flex gap-1.5 items-center justify-center mt-6">
+                {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`rounded-full transition-all duration-300 ${
+                      i === step
+                        ? 'w-5 h-2 bg-blue-500'
+                        : i < step
+                          ? 'w-2 h-2 bg-blue-300'
+                          : 'w-2 h-2 bg-gray-200'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <FloorPlanPickerModal
+        isOpen={showFloorPicker}
+        onClose={() => setShowFloorPicker(false)}
+        tenantId={tenantId ?? ''}
+        availableTableIds={new Set(availableTables.map(t => t.id))}
+        allTables={tables}
+        selectedIds={formData.table_ids}
+        onConfirm={ids => {
+          const identifiers = ids
+            .map(id => tables.find(tb => tb.id === id)?.table_identifier)
+            .filter(Boolean) as string[]
+          setFormData(fd => ({
+            ...fd,
+            table_ids: ids,
+            table_id: ids[0] ?? '',
+            table_identifiers: identifiers,
+          }))
+        }}
+      />
+    </>
   )
 }
