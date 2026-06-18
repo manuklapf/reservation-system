@@ -5,10 +5,17 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check, LogOut } from 'lucide-react'
+import {
+  ArrowLeft,
+  Check,
+  LogOut,
+  LayoutDashboard,
+  Plus,
+  Trash2,
+  Users,
+} from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
-import TableManagementPanel from '@/components/TableManagementPanel'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
@@ -17,6 +24,58 @@ type Table = {
   table_identifier: string
   capacity: number
   is_active: boolean
+}
+
+function AddTableRow({
+  saving,
+  onAdd,
+}: {
+  saving: boolean
+  onAdd: (identifier: string, capacity: number) => Promise<void>
+}) {
+  const [id, setId] = useState('')
+  const [cap, setCap] = useState('2')
+
+  const submit = async () => {
+    const identifier = id.trim()
+    const capacity = parseInt(cap)
+    if (!identifier || isNaN(capacity) || capacity <= 0) return
+    await onAdd(identifier, capacity)
+    setId('')
+    setCap('2')
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50">
+      <input
+        type="text"
+        placeholder="Name"
+        value={id}
+        onChange={e => setId(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && submit()}
+        maxLength={20}
+        className="flex-1 min-w-0 px-2 py-1 text-sm border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+      />
+      <input
+        type="number"
+        placeholder="Seats"
+        min={1}
+        max={99}
+        value={cap}
+        onChange={e => setCap(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && submit()}
+        className="w-16 px-2 py-1 text-sm border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+      />
+      <button
+        type="button"
+        disabled={saving || !id.trim()}
+        onClick={submit}
+        className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors shrink-0"
+      >
+        <Plus className="h-3 w-3" /> Add
+      </button>
+    </div>
+  )
 }
 
 export default function SettingsPage() {
@@ -31,11 +90,6 @@ export default function SettingsPage() {
   const [tables, setTables] = useState<Table[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [newTableIdentifier, setNewTableIdentifier] = useState('')
-  const [newTableCapacity, setNewTableCapacity] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editIdentifier, setEditIdentifier] = useState('')
-  const [editCapacity, setEditCapacity] = useState('')
   const [error, setError] = useState('')
 
   const fetchTables = useCallback(async () => {
@@ -74,29 +128,18 @@ export default function SettingsPage() {
     }
   }, [user, tenantId, fetchTables])
 
-  const handleAddTable = async () => {
+  const handleAddTable = async (identifier: string, capacity: number) => {
     if (!supabase) return
-    if (!newTableIdentifier.trim() || !newTableCapacity) {
-      setError(t.errors.enterIdentifierAndCapacity)
-      return
-    }
-    const capacity = parseInt(newTableCapacity)
-    if (isNaN(capacity) || capacity <= 0) {
-      setError(t.errors.capacityPositive)
-      return
-    }
     try {
       setSaving(true)
       setError('')
       const { error } = await supabase.from('tables').insert({
         tenant_id: tenantId,
-        table_identifier: newTableIdentifier.trim(),
+        table_identifier: identifier,
         capacity,
         is_active: true,
       })
       if (error) throw error
-      setNewTableIdentifier('')
-      setNewTableCapacity('')
       await fetchTables()
     } catch (err: any) {
       console.error('Error adding table:', err)
@@ -110,62 +153,8 @@ export default function SettingsPage() {
     }
   }
 
-  const handleUpdateTable = async (id: string) => {
-    if (!supabase) return
-    if (!editIdentifier.trim() || !editCapacity) {
-      setError(t.errors.enterIdentifierAndCapacity)
-      return
-    }
-    const capacity = parseInt(editCapacity)
-    if (isNaN(capacity) || capacity <= 0) {
-      setError(t.errors.capacityPositive)
-      return
-    }
-    try {
-      setSaving(true)
-      setError('')
-      const { error } = await supabase
-        .from('tables')
-        .update({ table_identifier: editIdentifier.trim(), capacity })
-        .eq('id', id)
-      if (error) throw error
-      setEditingId(null)
-      setEditIdentifier('')
-      setEditCapacity('')
-      await fetchTables()
-    } catch (err: any) {
-      console.error('Error updating table:', err)
-      setError(
-        err.message?.includes('duplicate')
-          ? t.errors.duplicateIdentifier
-          : t.errors.failedUpdate
-      )
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleToggleActive = async (id: string, currentStatus: boolean) => {
-    if (!supabase) return
-    try {
-      setSaving(true)
-      setError('')
-      const { error } = await supabase
-        .from('tables')
-        .update({ is_active: !currentStatus })
-        .eq('id', id)
-      if (error) throw error
-      await fetchTables()
-    } catch {
-      setError(t.errors.failedStatusUpdate)
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const handleDeleteTable = async (id: string) => {
     if (!supabase) return
-    if (!confirm(t.confirmDelete)) return
     try {
       setSaving(true)
       setError('')
@@ -177,20 +166,6 @@ export default function SettingsPage() {
     } finally {
       setSaving(false)
     }
-  }
-
-  const startEdit = (table: Table) => {
-    setEditingId(table.id)
-    setEditIdentifier(table.table_identifier)
-    setEditCapacity(table.capacity.toString())
-    setError('')
-  }
-
-  const cancelEdit = () => {
-    setEditingId(null)
-    setEditIdentifier('')
-    setEditCapacity('')
-    setError('')
   }
 
   if (!user) {
@@ -327,27 +302,65 @@ export default function SettingsPage() {
             description={st.tableSectionDesc}
             defaultOpen
           >
-            <TableManagementPanel
-              tables={tables}
-              loading={loading}
-              saving={saving}
-              error={error}
-              newIdentifier={newTableIdentifier}
-              newCapacity={newTableCapacity}
-              editingId={editingId}
-              editIdentifier={editIdentifier}
-              editCapacity={editCapacity}
-              onNewIdentifierChange={setNewTableIdentifier}
-              onNewCapacityChange={setNewTableCapacity}
-              onAdd={handleAddTable}
-              onEdit={startEdit}
-              onEditIdentifierChange={setEditIdentifier}
-              onEditCapacityChange={setEditCapacity}
-              onSave={handleUpdateTable}
-              onCancel={cancelEdit}
-              onDelete={handleDeleteTable}
-              onToggleActive={handleToggleActive}
-            />
+            {/* Open floor plan editor */}
+            <Link
+              href="/dashboard/settings/floor-plan"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold mb-4"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Open Floor Plan Editor
+            </Link>
+
+            {/* Table list */}
+            {loading ? (
+              <p className="text-sm text-gray-400">Loading tables…</p>
+            ) : error ? (
+              <p className="text-sm text-red-500">{error}</p>
+            ) : (
+              <div className="space-y-2">
+                {tables.map(table => (
+                  <div
+                    key={table.id}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white border border-gray-200"
+                  >
+                    <span className="flex-1 text-sm font-medium text-gray-800 truncate">
+                      {table.table_identifier}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-gray-500">
+                      <Users className="h-3 w-3" />
+                      {table.capacity}
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        table.is_active
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-gray-100 text-gray-500'
+                      }`}
+                    >
+                      {table.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={async () => {
+                        if (
+                          !confirm('Delete this table? This cannot be undone.')
+                        )
+                          return
+                        await handleDeleteTable(table.id)
+                      }}
+                      className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+                      title="Delete table"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Add new table row */}
+                <AddTableRow saving={saving} onAdd={handleAddTable} />
+              </div>
+            )}
           </AccordionItem>
 
           <AccordionItem

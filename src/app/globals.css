@@ -377,7 +377,7 @@ html[data-theme='brutalist'] * {
 html[data-theme='brutalist']
   *:not(svg):not(path):not(circle):not(rect):not(polyline):not(line):not(g):not(
     defs
-  ):not(clipPath) {
+  ):not(clipPath):not(.not-square) {
   border-radius: 0 !important;
 }
 
