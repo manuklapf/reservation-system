@@ -5,6 +5,8 @@ export interface Reservation {
   customer_phone: string
   table_number: number | null
   table_id: string | null
+  table_ids: string[] | null
+  table_identifiers: string[] | null
   date: string
   time: string
   party_size: number

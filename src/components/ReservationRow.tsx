@@ -21,9 +21,17 @@ export default function ReservationRow({
   const t = messages.dashboard
   const { prefs } = useDisplayPrefs()
 
-  const tableLabel =
-    reservation.tables?.table_identifier ||
-    (reservation.table_number ? String(reservation.table_number) : null)
+  const tableLabel = (() => {
+    // Prefer stored identifiers array (multi-table support)
+    if (reservation.table_identifiers?.length) {
+      return reservation.table_identifiers.join(', ')
+    }
+    // Fall back to the joined single-table relation or legacy table_number
+    return (
+      reservation.tables?.table_identifier ||
+      (reservation.table_number ? String(reservation.table_number) : null)
+    )
+  })()
 
   return (
     <li>
