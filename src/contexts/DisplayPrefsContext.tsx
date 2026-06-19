@@ -14,6 +14,8 @@ export interface DisplayPrefs {
   showTable: boolean
   showNotes: boolean
   showPhone: boolean
+  showTableCapacity: boolean
+  reservationLengthEnabled: boolean
 }
 
 const DEFAULT_PREFS: DisplayPrefs = {
@@ -22,6 +24,8 @@ const DEFAULT_PREFS: DisplayPrefs = {
   showTable: false,
   showNotes: false,
   showPhone: false,
+  showTableCapacity: false,
+  reservationLengthEnabled: false,
 }
 
 const STORAGE_KEY = 'reservationDisplayPrefs'

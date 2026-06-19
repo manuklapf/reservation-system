@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, Check, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 interface DBTable {
   id: string
@@ -69,6 +70,7 @@ export default function FloorPlanPickerModal({
   const [loadingFloors, setLoadingFloors] = useState(false)
   const [activeIdx, setActiveIdx] = useState(0)
   const [draft, setDraft] = useState<string[]>([])
+  const { prefs } = useDisplayPrefs()
 
   // Reset draft and tab when opening
   useEffect(() => {
@@ -117,7 +119,6 @@ export default function FloorPlanPickerModal({
   }, [isOpen, tenantId])
 
   const toggleTable = (tableId: string) => {
-    if (!availableTableIds.has(tableId)) return
     setDraft(prev =>
       prev.includes(tableId)
         ? prev.filter(id => id !== tableId)
@@ -278,18 +279,19 @@ export default function FloorPlanPickerModal({
                         top: p.y,
                         width: p.w,
                         height: p.h,
-                        backgroundColor: isAvailable ? p.color : '#d1d5db',
+                        backgroundColor: p.color,
+                        backgroundImage: !isAvailable
+                          ? 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px)'
+                          : 'none',
                         borderRadius: p.shape === 'round' ? '50%' : 4,
                         border: isSelected
                           ? '3px solid #059669'
-                          : isAvailable
-                            ? '2px solid rgba(0,0,0,0.15)'
-                            : '2px solid #9ca3af',
+                          : '2px solid rgba(0,0,0,0.15)',
                         boxShadow: isSelected
                           ? '0 0 0 4px rgba(5,150,105,0.3), 2px 3px 8px rgba(0,0,0,0.12)'
                           : '2px 3px 8px rgba(0,0,0,0.10)',
-                        cursor: isAvailable ? 'pointer' : 'not-allowed',
-                        opacity: isAvailable ? 1 : 0.45,
+                        cursor: 'pointer',
+                        opacity: 1,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -333,19 +335,21 @@ export default function FloorPlanPickerModal({
                       >
                         {db.table_identifier}
                       </span>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          color: 'rgba(255,255,255,0.85)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 2,
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        <Users style={{ width: 9, height: 9 }} />
-                        {db.capacity}
-                      </span>
+                      {prefs.showTableCapacity && (
+                        <span
+                          style={{
+                            fontSize: 10,
+                            color: 'rgba(255,255,255,0.85)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            pointerEvents: 'none',
+                          }}
+                        >
+                          <Users style={{ width: 9, height: 9 }} />
+                          {db.capacity}
+                        </span>
+                      )}
                     </div>
                   )
                 })}
@@ -362,8 +366,14 @@ export default function FloorPlanPickerModal({
               Available
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-sm bg-gray-300 opacity-50" />
-              Unavailable
+              <span
+                className="inline-block h-3 w-3 rounded-sm bg-[#4ecdc4]"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(45deg, transparent, transparent 1.5px, rgba(0,0,0,0.2) 1.5px, rgba(0,0,0,0.2) 3px)',
+                }}
+              />
+              Reserved
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-3 w-3 rounded-sm border-2 border-emerald-600 bg-[#4ecdc4]" />

@@ -9,6 +9,7 @@ export interface Reservation {
   table_identifiers: string[] | null
   date: string
   time: string
+  end_time?: string | null
   party_size: number
   notes: string | null
   created_at: string

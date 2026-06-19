@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
+import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
@@ -55,6 +56,8 @@ export default function ReservationEditModal({
   const { messages } = useI18n()
   const t = messages.reservationModal
   const common = messages.common
+  const { prefs } = useDisplayPrefs()
+  const { reservationLengthEnabled } = prefs
   const [loading, setLoading] = useState(false)
   const [tables, setTables] = useState<Table[]>([])
   const [availableTables, setAvailableTables] = useState<Table[]>([])
@@ -62,7 +65,7 @@ export default function ReservationEditModal({
   const [showAdditional, setShowAdditional] = useState(false)
   const [showFloorPicker, setShowFloorPicker] = useState(false)
   const [activeStep, setActiveStep] = useState<
-    'date' | 'time' | 'persons' | null
+    'date' | 'time' | 'end_time' | 'persons' | null
   >(null)
   const [formData, setFormData] = useState({
     customer_name: '',
@@ -70,6 +73,7 @@ export default function ReservationEditModal({
     table_ids: [] as string[],
     date: '',
     time: '',
+    end_time: '',
     party_size: '',
     notes: '',
   })
@@ -180,6 +184,7 @@ export default function ReservationEditModal({
             : [],
         date: reservation.date,
         time: reservation.time,
+        end_time: reservation.end_time ?? '',
         party_size: reservation.party_size.toString(),
         notes: reservation.notes || '',
       })
@@ -210,6 +215,7 @@ export default function ReservationEditModal({
             table_number: null,
             date: formData.date,
             time: formData.time,
+            end_time: formData.end_time || null,
             party_size: parseInt(formData.party_size),
             notes: formData.notes,
             tenant_id: 'demo-tenant',
@@ -251,6 +257,7 @@ export default function ReservationEditModal({
           .filter(Boolean),
         date: formData.date,
         time: formData.time,
+        end_time: formData.end_time || null,
         party_size: parseInt(formData.party_size),
         notes: formData.notes,
         tenant_id: tenantId,
@@ -473,12 +480,39 @@ export default function ReservationEditModal({
                   >
                     <span className="text-xs font-medium opacity-70 mb-0.5 flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />
-                      {t.time}
+                      {reservationLengthEnabled ? t.steps.startTime : t.time}
                     </span>
                     <span className="text-sm font-semibold">
                       {formData.time?.slice(0, 5)}
                     </span>
                   </button>
+
+                  {/* End Time chip — only when reservation length is enabled */}
+                  {reservationLengthEnabled && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveStep(prev =>
+                          prev === 'end_time' ? null : 'end_time'
+                        )
+                      }
+                      className={`flex flex-col items-start rounded-xl px-4 py-3 text-left transition-colors ${
+                        activeStep === 'end_time'
+                          ? 'bg-violet-500 text-white'
+                          : formData.end_time
+                            ? 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                      }`}
+                    >
+                      <span className="text-xs font-medium opacity-70 mb-0.5 flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        {t.steps.endTime}
+                      </span>
+                      <span className="text-sm font-semibold">
+                        {formData.end_time?.slice(0, 5) || '—'}
+                      </span>
+                    </button>
+                  )}
 
                   {/* Party size chip */}
                   <button
@@ -558,10 +592,25 @@ export default function ReservationEditModal({
                 {activeStep === 'time' && (
                   <div className="rounded-xl bg-violet-100 p-4">
                     <StepTime
-                      title={t.time}
+                      title={
+                        reservationLengthEnabled ? t.steps.startTime : t.time
+                      }
                       value={formData.time}
                       transparentBackground
                       onChange={time => setFormData(fd => ({ ...fd, time }))}
+                      minuteStep={5}
+                    />
+                  </div>
+                )}
+                {activeStep === 'end_time' && (
+                  <div className="rounded-xl bg-violet-100 p-4">
+                    <StepTime
+                      title={t.steps.endTime}
+                      value={formData.end_time || formData.time}
+                      transparentBackground
+                      onChange={end_time =>
+                        setFormData(fd => ({ ...fd, end_time }))
+                      }
                       minuteStep={5}
                     />
                   </div>

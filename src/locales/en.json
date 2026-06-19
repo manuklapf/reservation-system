@@ -170,6 +170,8 @@
     "steps": {
       "date": "Date",
       "time": "Time",
+      "startTime": "Start Time",
+      "endTime": "End Time",
       "dateTime": "Date & Time",
       "persons": "Persons",
       "name": "Name",

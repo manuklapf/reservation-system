@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Trash2, Users, Pencil, X, Square } from 'lucide-react'
+import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 interface DBTable {
   id: string
@@ -52,6 +53,8 @@ interface Props {
   addError?: string
   onAddTable: (identifier: string, capacity: number) => Promise<void>
   onDeleteTable: (id: string) => Promise<void>
+  /** IDs of tables currently occupied by an active reservation */
+  activeTableIds?: Set<string>
 }
 
 const CANVAS_W = 832
@@ -103,7 +106,9 @@ export default function FloorPlanEditor({
   addError,
   onAddTable,
   onDeleteTable,
+  activeTableIds,
 }: Props) {
+  const { prefs } = useDisplayPrefs()
   const storageKey = `floorplan_v1_${tenantId}_${floorId}`
   const obstacleKey = `floorplan_obs_v1_${tenantId}_${floorId}`
 
@@ -446,7 +451,7 @@ export default function FloorPlanEditor({
                 <Plus className="h-3 w-3" />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
               {unplaced.length === 0 ? (
                 <p className="text-xs text-gray-400 italic">All placed ✓</p>
               ) : (
@@ -463,10 +468,12 @@ export default function FloorPlanEditor({
                       style={{ backgroundColor: color }}
                     >
                       <span className="truncate">{t.table_identifier}</span>
-                      <span className="flex items-center gap-0.5 shrink-0 opacity-80">
-                        <Users className="h-2.5 w-2.5" />
-                        {t.capacity}
-                      </span>
+                      {prefs.showTableCapacity && (
+                        <span className="flex items-center gap-0.5 shrink-0 opacity-80">
+                          <Users className="h-2.5 w-2.5" />
+                          {t.capacity}
+                        </span>
+                      )}
                     </button>
                   )
                 })
@@ -663,6 +670,7 @@ export default function FloorPlanEditor({
               const db = tables.find(t => t.id === p.id)
               if (!db) return null
               const isSel = selected === p.id
+              const isActive = activeTableIds?.has(p.id) ?? false
 
               return (
                 <div
@@ -679,10 +687,14 @@ export default function FloorPlanEditor({
                     borderRadius: p.shape === 'round' ? '50%' : '0',
                     border: isSel
                       ? '2px solid #1d4ed8'
-                      : '2px solid rgba(0,0,0,0.22)',
+                      : isActive
+                        ? '2px solid #ef4444'
+                        : '2px solid rgba(0,0,0,0.22)',
                     boxShadow: isSel
                       ? '0 0 0 3px rgba(59,130,246,0.35), 2px 3px 8px rgba(0,0,0,0.14)'
-                      : '2px 3px 8px rgba(0,0,0,0.12)',
+                      : isActive
+                        ? '0 0 0 3px rgba(239,68,68,0.30), 2px 3px 8px rgba(0,0,0,0.12)'
+                        : '2px 3px 8px rgba(0,0,0,0.12)',
                     cursor: 'grab',
                     touchAction: 'none',
                     display: 'flex',
@@ -812,13 +824,15 @@ export default function FloorPlanEditor({
                   >
                     {db.table_identifier}
                   </span>
-                  <span
-                    className="flex items-center gap-0.5 text-white/80 leading-none"
-                    style={{ fontSize: 10 }}
-                  >
-                    <Users style={{ width: 9, height: 9 }} />
-                    {db.capacity}
-                  </span>
+                  {prefs.showTableCapacity && (
+                    <span
+                      className="flex items-center gap-0.5 text-white/80 leading-none"
+                      style={{ fontSize: 10 }}
+                    >
+                      <Users style={{ width: 9, height: 9 }} />
+                      {db.capacity}
+                    </span>
+                  )}
                 </div>
               )
             })}
@@ -887,7 +901,9 @@ export default function FloorPlanEditor({
             <p className="text-xs font-bold text-gray-800">
               {selDb.table_identifier}
             </p>
-            <p className="text-xs text-gray-400">{selDb.capacity} seats</p>
+            {prefs.showTableCapacity && (
+              <p className="text-xs text-gray-400">{selDb.capacity} seats</p>
+            )}
           </div>
 
           <div className="w-px self-stretch bg-gray-100 shrink-0" />

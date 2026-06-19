@@ -189,7 +189,20 @@ export default function SettingsPage() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-xl font-semibold text-gray-900">{st.title}</h1>
+            <div className="flex items-center gap-4">
+              <h1 className="text-xl font-semibold text-gray-900">
+                {st.title}
+              </h1>
+              <button
+                onClick={async () => {
+                  await signOut()
+                  router.push('/')
+                }}
+                className="text-red-700"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -300,8 +313,31 @@ export default function SettingsPage() {
           <AccordionItem
             title={st.tableSectionTitle}
             description={st.tableSectionDesc}
-            defaultOpen
           >
+            {/* Capacity toggle */}
+            <label className="flex items-center justify-between gap-3 cursor-pointer select-none mb-4">
+              <span className="text-sm text-gray-700">Show table capacity</span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={prefs.showTableCapacity}
+                onClick={() =>
+                  setPrefs({
+                    ...prefs,
+                    showTableCapacity: !prefs.showTableCapacity,
+                  })
+                }
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  prefs.showTableCapacity ? 'bg-blue-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    prefs.showTableCapacity ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </label>
             {/* Open floor plan editor */}
             <Link
               href="/dashboard/settings/floor-plan"
@@ -326,10 +362,12 @@ export default function SettingsPage() {
                     <span className="flex-1 text-sm font-medium text-gray-800 truncate">
                       {table.table_identifier}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-gray-500">
-                      <Users className="h-3 w-3" />
-                      {table.capacity}
-                    </span>
+                    {prefs.showTableCapacity && (
+                      <span className="flex items-center gap-1 text-xs text-gray-500">
+                        <Users className="h-3 w-3" />
+                        {table.capacity}
+                      </span>
+                    )}
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         table.is_active
@@ -427,18 +465,45 @@ export default function SettingsPage() {
               ))}
             </div>
           </AccordionItem>
-        </div>
 
-        <button
-          onClick={async () => {
-            await signOut()
-            router.push('/')
-          }}
-          className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors text-sm font-medium"
-        >
-          <LogOut className="h-4 w-4" />
-          {st.signOut}
-        </button>
+          <AccordionItem
+            title="Reservation Settings"
+            description="Configure how reservations are created and displayed"
+          >
+            <label className="flex items-center justify-between gap-3 cursor-pointer select-none">
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  Reservation length
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Adds an end time step when creating or editing a reservation
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={prefs.reservationLengthEnabled}
+                onClick={() =>
+                  setPrefs({
+                    ...prefs,
+                    reservationLengthEnabled: !prefs.reservationLengthEnabled,
+                  })
+                }
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  prefs.reservationLengthEnabled ? 'bg-blue-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    prefs.reservationLengthEnabled
+                      ? 'translate-x-6'
+                      : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </label>
+          </AccordionItem>
+        </div>
       </main>
     </div>
   )

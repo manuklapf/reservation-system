@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
+import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
@@ -52,6 +53,8 @@ export default function ReservationCreateModal({
   const { messages } = useI18n()
   const t = messages.reservationModal
   const common = messages.common
+  const { prefs } = useDisplayPrefs()
+  const { reservationLengthEnabled } = prefs
   const [loading, setLoading] = useState(false)
   const [tables, setTables] = useState<Table[]>([])
   const [availableTables, setAvailableTables] = useState<Table[]>([])
@@ -66,6 +69,7 @@ export default function ReservationCreateModal({
     table_identifiers: [] as string[],
     date: '',
     time: '',
+    end_time: '',
     party_size: '',
     notes: '',
   })
@@ -153,6 +157,7 @@ export default function ReservationCreateModal({
         table_identifiers: [],
         date: defaultDate,
         time: defaultTime,
+        end_time: '',
         party_size: '2',
         notes: '',
       })
@@ -160,9 +165,27 @@ export default function ReservationCreateModal({
   }, [isOpen, selectedDate, selectedTime])
 
   // ── Wizard helpers ──────────────────────────────────────────────────────────
-  const TOTAL_STEPS = 5
+  const TOTAL_STEPS = reservationLengthEnabled ? 6 : 5
 
   const validateStep = (s: number): boolean => {
+    if (reservationLengthEnabled) {
+      switch (s) {
+        case 0:
+          return !!formData.date
+        case 1:
+          return !!formData.time
+        case 2:
+          return !!formData.end_time
+        case 3:
+          return !!formData.party_size
+        case 4:
+          return !!formData.customer_name.trim()
+        case 5:
+          return true
+        default:
+          return true
+      }
+    }
     switch (s) {
       case 0:
         return !!formData.date
@@ -206,6 +229,7 @@ export default function ReservationCreateModal({
             table_number: null,
             date: formData.date,
             time: formData.time,
+            end_time: formData.end_time || null,
             party_size: parseInt(formData.party_size),
             notes: formData.notes,
             tenant_id: 'demo-tenant',
@@ -248,6 +272,7 @@ export default function ReservationCreateModal({
             table_identifiers: formData.table_identifiers,
             date: formData.date,
             time: formData.time,
+            end_time: formData.end_time || null,
             party_size: parseInt(formData.party_size),
             notes: formData.notes,
             tenant_id: tenantId,
@@ -292,13 +317,22 @@ export default function ReservationCreateModal({
 
   if (!isOpen) return null
 
-  const stepTitles = [
-    t.steps.date,
-    t.steps.time,
-    t.steps.persons,
-    t.steps.name,
-    t.steps.additionalInfo,
-  ]
+  const stepTitles = reservationLengthEnabled
+    ? [
+        t.steps.date,
+        t.steps.startTime,
+        t.steps.endTime,
+        t.steps.persons,
+        t.steps.name,
+        t.steps.additionalInfo,
+      ]
+    : [
+        t.steps.date,
+        t.steps.time,
+        t.steps.persons,
+        t.steps.name,
+        t.steps.additionalInfo,
+      ]
   const isLastStep = step === TOTAL_STEPS - 1
   const canProceed = validateStep(step)
 
@@ -417,20 +451,30 @@ export default function ReservationCreateModal({
                     minuteStep={5}
                   />
                 )}
-                {step === 2 && (
-                  <StepPersons
+                {reservationLengthEnabled && step === 2 && (
+                  <StepTime
                     title={stepTitles[2]}
+                    value={formData.end_time}
+                    onChange={end_time =>
+                      setFormData(fd => ({ ...fd, end_time }))
+                    }
+                    minuteStep={5}
+                  />
+                )}
+                {step === (reservationLengthEnabled ? 3 : 2) && (
+                  <StepPersons
+                    title={stepTitles[reservationLengthEnabled ? 3 : 2]}
                     value={formData.party_size}
                     onChange={v =>
                       setFormData(fd => ({ ...fd, party_size: v }))
                     }
                   />
                 )}
-                {step === 3 && (
+                {step === (reservationLengthEnabled ? 4 : 3) && (
                   <div className="space-y-1/2 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
                       <User className="h-5 w-5 text-blue-500" />
-                      {stepTitles[3]}
+                      {stepTitles[reservationLengthEnabled ? 4 : 3]}
                     </p>
                     <input
                       type="text"
@@ -443,11 +487,11 @@ export default function ReservationCreateModal({
                     />
                   </div>
                 )}
-                {step === 4 && (
+                {step === (reservationLengthEnabled ? 5 : 4) && (
                   <div className="space-y-6 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
                       <ClipboardList className="h-5 w-5 text-blue-500" />
-                      {stepTitles[4]}
+                      {stepTitles[reservationLengthEnabled ? 5 : 4]}
                     </p>
                     <div>
                       <label

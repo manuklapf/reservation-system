@@ -46,6 +46,9 @@ export default function ReservationRow({
                 <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-700">
                   {showDate ? `${reservation.date} · ` : ''}
                   {reservation.time?.slice(0, 5)}
+                  {reservation.end_time
+                    ? ` – ${reservation.end_time.slice(0, 5)}`
+                    : ''}
                 </span>
               )}
               {prefs.showPartySize && (

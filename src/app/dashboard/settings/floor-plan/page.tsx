@@ -52,6 +52,7 @@ export default function FloorPlanPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [floorsLoaded, setFloorsLoaded] = useState(false)
+  const [activeTableIds, setActiveTableIds] = useState<Set<string>>(new Set())
 
   const [floors, setFloors] = useState<Floor[]>([])
 
@@ -199,6 +200,44 @@ export default function FloorPlanPage() {
     if (user && tenantId) fetchTables()
   }, [user, tenantId, fetchTables])
 
+  // Fetch today's reservations and compute which tables are currently occupied
+  const fetchActiveTableIds = useCallback(async () => {
+    if (!supabase || !tenantId) return
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes()
+      const { data } = await supabase
+        .from('reservations')
+        .select('table_ids, time, end_time')
+        .eq('tenant_id', tenantId)
+        .eq('date', today)
+        .not('end_time', 'is', null)
+      if (!data) return
+      const ids = new Set<string>()
+      for (const r of data) {
+        if (!r.end_time) continue
+        const [sh, sm] = r.time.split(':').map(Number)
+        const [eh, em] = r.end_time.split(':').map(Number)
+        const startMin = sh * 60 + sm
+        const endMin = eh * 60 + em
+        if (nowMinutes >= startMin && nowMinutes < endMin) {
+          ;(r.table_ids ?? []).forEach((id: string) => ids.add(id))
+        }
+      }
+      setActiveTableIds(ids)
+    } catch (err) {
+      console.error('Error fetching active reservations:', err)
+    }
+  }, [tenantId])
+
+  useEffect(() => {
+    if (user && tenantId) {
+      fetchActiveTableIds()
+      const interval = setInterval(fetchActiveTableIds, 60_000)
+      return () => clearInterval(interval)
+    }
+  }, [user, tenantId, fetchActiveTableIds])
+
   const handleAddTable = async (identifier: string, capacity: number) => {
     if (!supabase) return
     try {
@@ -304,6 +343,7 @@ export default function FloorPlanPage() {
                       addError={error || undefined}
                       onAddTable={handleAddTable}
                       onDeleteTable={handleDeleteTable}
+                      activeTableIds={activeTableIds}
                     />
                   </div>
                 )
