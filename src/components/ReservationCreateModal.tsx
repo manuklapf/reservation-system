@@ -14,6 +14,7 @@ import {
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
+import { timesOverlap, withinOneHour } from '@/utils/reservationConflictChecker'
 import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
@@ -109,8 +110,25 @@ export default function ReservationCreateModal({
   const filterAvailableTables = React.useCallback(async () => {
     if (demoReservations) {
       const reservedTableIds = demoReservations
-        .filter(r => r.date === formData.date && r.time === formData.time)
-        .map(r => r.table_id)
+        .filter(r => {
+          if (r.date !== formData.date) return false
+
+          if (reservationLengthEnabled) {
+            // Check if time ranges overlap
+            return timesOverlap(
+              formData.time,
+              formData.end_time || undefined,
+              r.time,
+              r.end_time
+            )
+          } else {
+            // Check if within ±1 hour
+            return withinOneHour(formData.time, r.time)
+          }
+        })
+        .flatMap(r =>
+          r.table_ids?.length ? r.table_ids : r.table_id ? [r.table_id] : []
+        )
       setAvailableTables(tables.filter(t => !reservedTableIds.includes(t.id)))
       return
     }
@@ -120,13 +138,32 @@ export default function ReservationCreateModal({
     try {
       const { data: reservations, error } = await supabase
         .from('reservations')
-        .select('table_id')
+        .select('table_id, table_ids, time, end_time')
         .eq('tenant_id', tenantId)
         .eq('date', formData.date)
-        .eq('time', formData.time)
         .not('table_id', 'is', null)
+
       if (error) throw error
-      const reservedTableIds = (reservations || []).map(r => r.table_id)
+
+      const reservedTableIds = (reservations || [])
+        .filter(r => {
+          if (reservationLengthEnabled) {
+            // Check if time ranges overlap
+            return timesOverlap(
+              formData.time,
+              formData.end_time || undefined,
+              r.time,
+              r.end_time
+            )
+          } else {
+            // Check if within ±1 hour
+            return withinOneHour(formData.time, r.time)
+          }
+        })
+        .flatMap(r =>
+          r.table_ids?.length ? r.table_ids : r.table_id ? [r.table_id] : []
+        )
+
       setAvailableTables(
         tables.filter(table => !reservedTableIds.includes(table.id))
       )
@@ -134,13 +171,29 @@ export default function ReservationCreateModal({
       console.error('Error filtering available tables:', err)
       setAvailableTables(tables)
     }
-  }, [tenantId, formData.date, formData.time, tables, demoReservations])
+  }, [
+    tenantId,
+    formData.date,
+    formData.time,
+    formData.end_time,
+    reservationLengthEnabled,
+    tables,
+    demoReservations,
+  ])
 
   useEffect(() => {
     if (isOpen && tables.length > 0 && formData.date && formData.time) {
       filterAvailableTables()
     }
-  }, [isOpen, tables, formData.date, formData.time, filterAvailableTables])
+  }, [
+    isOpen,
+    tables,
+    formData.date,
+    formData.time,
+    formData.end_time,
+    reservationLengthEnabled,
+    filterAvailableTables,
+  ])
 
   useEffect(() => {
     if (isOpen) {

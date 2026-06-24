@@ -34,7 +34,10 @@ export default function ReservationRow({
   })()
 
   return (
-    <li>
+    <li
+      onClick={() => onEdit(reservation)}
+      className="cursor-pointer hover:bg-blue-100"
+    >
       <div className="px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
@@ -72,17 +75,6 @@ export default function ReservationRow({
                 {reservation.notes}
               </p>
             )}
-          </div>
-          <div className="ml-4 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => onEdit(reservation)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-800"
-              aria-label={t.editReservation}
-              title={t.editReservation}
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
           </div>
         </div>
       </div>
