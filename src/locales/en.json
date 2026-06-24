@@ -202,6 +202,98 @@
     "backToDashboard": "Back to Dashboard",
     "tableSectionTitle": "Table Setup",
     "tableSectionDesc": "Add, edit, and manage your restaurant tables",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "openFloorPlanEditor": "Open Floor Plan Editor",
+    "appearance": "Appearance",
+    "appearanceDesc": "Choose a visual theme for the application",
+    "themeDefault": "Default",
+    "themeDefaultDesc": "Clean and modern with blue accents",
+    "themeBrutalist": "Brutalist",
+    "themeBrutalistDesc": "Neo-brutalist — coral, teal, yellow & hard shadows",
+    "dashboardDisplay": "Dashboard Display",
+    "dashboardDisplayDesc": "Choose which details appear on each reservation row",
+    "showTableCapacity": "Show table capacity",
+    "reservationSettings": "Reservation Settings",
+    "reservationSettingsDesc": "Configure how reservations are created and displayed",
+    "reservationLength": "Reservation length",
+    "reservationLengthDesc": "Adds an end time step when creating or editing a reservation"
+  },
+  "floorPlanEditor": {
+    "clickToRename": "Click to rename floor",
+    "editLayout": "Edit floor layout (add obstacles)",
+    "deleteFloor": "Delete floor",
+    "deleteFloorConfirm": "Delete this floor and all its table placements? This cannot be undone.",
+    "editLayoutMode": "Edit layout:",
+    "addBlock": "Add Block",
+    "doneEditing": "Done editing",
+    "unplacedTables": "Tables",
+    "addNewTable": "Add new table",
+    "allPlaced": "All placed ✓",
+    "newTableModal": "New table",
+    "tableNamePlaceholder": "Name (e.g. T1)",
+    "numberOfSeatsPlaceholder": "Number of seats",
+    "cancel": "Cancel",
+    "addTableButton": "Add table",
+    "seatsLabel": "seats",
+    "shapeLabel": "Shape",
+    "colorLabel": "Color",
+    "deleteTableConfirm": "Delete this table? This cannot be undone.",
+    "deleteFloor": "Delete floor",
+    "deleteFloorConfirm": "Delete this floor and all its table placements? This cannot be undone.",
+    "removeFromPlan": "Remove from plan",
+    "deleteTable": "Delete table",
+    "none": "(none)",
+    "label": "Label",
+    "style": "Style",
+    "filled": "Filled",
+    "outlined": "Outlined",
+    "remove": "Remove"
+  },
+  "floorPlanPickerModal": {
+    "tapTablesToSelect": "Tap tables to select",
+    "loadingFloorPlans": "Loading floor plans…",
+    "noFloorPlans": "No floor plans configured. Set them up in Settings → Floor Plan.",
+    "selectTables": "Select Table(s)",
+    "available": "Available",
+    "reserved": "Reserved",
+    "selected": "Selected",
+    "unavailable": "(unavailable)",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "tableManagement": {
+    "namePlaceholder": "Name",
+    "seatsPlaceholder": "Seats",
+    "loadingTables": "Loading tables…",
+    "noTablesYet": "No tables yet. Add one above!",
+    "notPlaced": "Not Placed",
+    "deleteTableConfirm": "Delete this table? This cannot be undone.",
+    "deleteTableTooltip": "Delete table"
+  },
+  "floorPlanSettings": {
+    "backToSettings": "Back to Settings",
+    "title": "Floor Plan Editor",
+    "showCapacity": "Show capacity",
+    "addFloor": "Add floor",
+    "loading": "Loading…",
+    "groundFloor": "Ground Floor"
+  },
+  "stepTable": {
+    "noTablesAvailable": "No tables available",
+    "loading": "…"
+  },
+  "tableManagementPanel": {
+    "actions": "Actions"
+  },
+  "tenantContent": {
+    "pm": "PM",
+    "am": "AM"
+  },
+  "dashboardDisplayLabels": {
+    "time": "Time",
+    "guestCount": "Guest count",
+    "table": "Table",
+    "phoneNumber": "Phone number",
+    "notes": "Notes"
   }
 }

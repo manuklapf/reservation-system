@@ -26,6 +26,7 @@ export default function TenantReservationsContent({
 }) {
   const { messages, language } = useI18n()
   const t = messages.tenant
+  const tc = messages.tenantContent
   const [tenant, setTenant] = useState<Tenant | null>(null)
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,7 +77,7 @@ export default function TenantReservationsContent({
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':')
     const hour = parseInt(hours)
-    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const ampm = hour >= 12 ? tc.pm : tc.am
     const displayHour = hour % 12 || 12
     return `${displayHour}:${minutes} ${ampm}`
   }

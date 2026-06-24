@@ -202,6 +202,96 @@
     "backToDashboard": "Zurück zum Dashboard",
     "tableSectionTitle": "Tische einrichten",
     "tableSectionDesc": "Restauranttische hinzufügen, bearbeiten und verwalten",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "openFloorPlanEditor": "Sitzplan Editor öffnen",
+    "appearance": "Erscheinungsbild",
+    "appearanceDesc": "Wähle ein visuelles Design für die Anwendung",
+    "themeDefault": "Standard",
+    "themeDefaultDesc": "Sauberes, modernes Design mit blauen Akzenten",
+    "themeBrutalist": "Brutalist",
+    "themeBrutalistDesc": "Neo-brutalistisch — Koralle, Blaugrün, Gelb & harte Schatten",
+    "dashboardDisplay": "Dashboard-Anzeige",
+    "dashboardDisplayDesc": "Wähle, welche Details in jeder Reservierungszeile angezeigt werden",
+    "showTableCapacity": "Tischkapazität anzeigen",
+    "reservationSettings": "Reservierungseinstellungen",
+    "reservationSettingsDesc": "Konfiguriere, wie Reservierungen erstellt und angezeigt werden",
+    "reservationLength": "Reservierungsdauer",
+    "reservationLengthDesc": "Fügt einen Endzeit-Schritt beim Erstellen oder Bearbeiten einer Reservierung hinzu"
+  },
+  "floorPlanEditor": {
+    "clickToRename": "Zum Umbenennen anklicken",
+    "editLayout": "Grundriss bearbeiten (Hindernisse hinzufügen)",
+    "deleteFloor": "Grundriss löschen",
+    "deleteFloorConfirm": "Diesen Grundriss und alle seine Tischplatzierungen löschen? Dies kann nicht rückgängig gemacht werden.",
+    "editLayoutMode": "Layout bearbeiten:",
+    "addBlock": "Block hinzufügen",
+    "doneEditing": "Bearbeitung abgeschlossen",
+    "unplacedTables": "Tische",
+    "addNewTable": "Neuen Tisch hinzufügen",
+    "allPlaced": "Alle platziert ✓",
+    "newTableModal": "Neuer Tisch",
+    "tableNamePlaceholder": "Name (z. B. T1)",
+    "numberOfSeatsPlaceholder": "Anzahl der Plätze",
+    "cancel": "Abbrechen",
+    "addTableButton": "Tisch hinzufügen",
+    "seatsLabel": "Plätze",
+    "shapeLabel": "Form",
+    "colorLabel": "Farbe",
+    "deleteTableConfirm": "Diesen Tisch löschen? Dies kann nicht rückgängig gemacht werden.",
+    "removeFromPlan": "Aus dem Plan entfernen",
+    "deleteTable": "Tisch löschen",
+    "none": "(keine)",
+    "label": "Beschriftung",
+    "style": "Stil",
+    "filled": "Ausgefüllt",
+    "outlined": "Umrissen",
+    "remove": "Entfernen"
+  },
+  "floorPlanPickerModal": {
+    "tapTablesToSelect": "Tippe auf Tische, um sie auszuwählen",
+    "loadingFloorPlans": "Grundrisse werden geladen…",
+    "noFloorPlans": "Keine Grundrisse konfiguriert. Richte sie unter Einstellungen → Grundriss ein.",
+    "selectTables": "Tisch(e) auswählen",
+    "available": "Verfügbar",
+    "reserved": "Reserviert",
+    "selected": "Ausgewählt",
+    "unavailable": "(nicht verfügbar)",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen"
+  },
+  "tableManagement": {
+    "namePlaceholder": "Name",
+    "seatsPlaceholder": "Plätze",
+    "loadingTables": "Tische werden geladen…",
+    "noTablesYet": "Noch keine Tische. Fügen Sie oben einen hinzu!",
+    "notPlaced": "Nicht platziert",
+    "deleteTableConfirm": "Diesen Tisch löschen? Dies kann nicht rückgängig gemacht werden.",
+    "deleteTableTooltip": "Tisch löschen"
+  },
+  "floorPlanSettings": {
+    "backToSettings": "Zurück zu Einstellungen",
+    "title": "Sitzplan Editor",
+    "showCapacity": "Tisch-Kapazität anzeigen",
+    "addFloor": "Sitzplan hinzufügen",
+    "loading": "Wird geladen…",
+    "groundFloor": "Erdgeschoss"
+  },
+  "stepTable": {
+    "noTablesAvailable": "Keine Tische verfügbar",
+    "loading": "…"
+  },
+  "tableManagementPanel": {
+    "actions": "Aktionen"
+  },
+  "tenantContent": {
+    "pm": "PM",
+    "am": "AM"
+  },
+  "dashboardDisplayLabels": {
+    "time": "Uhrzeit",
+    "guestCount": "Gästeanzahl",
+    "table": "Tisch",
+    "phoneNumber": "Telefonnummer",
+    "notes": "Notizen"
   }
 }

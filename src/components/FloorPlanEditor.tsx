@@ -3,12 +3,16 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Trash2, Users, Pencil, X, Square } from 'lucide-react'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
+import { useI18n } from '@/contexts/I18nContext'
+import { supabase } from '@/lib/supabase'
+import TableChip from './TableChip'
 
 interface DBTable {
   id: string
   table_identifier: string
   capacity: number
   is_active: boolean
+  color?: string | null
 }
 
 interface PlacedTable {
@@ -64,7 +68,7 @@ const GRID = 10
 const TABLE_COLORS = [
   '#4ecdc4',
   '#ff6b6b',
-  '#ffe66d',
+  '#DAA520',
   '#7fb069',
   '#ef476f',
   '#a8dadc',
@@ -109,6 +113,8 @@ export default function FloorPlanEditor({
   activeTableIds,
 }: Props) {
   const { prefs } = useDisplayPrefs()
+  const { messages } = useI18n()
+  const t = messages.floorPlanEditor
   const storageKey = `floorplan_v1_${tenantId}_${floorId}`
   const obstacleKey = `floorplan_obs_v1_${tenantId}_${floorId}`
 
@@ -125,6 +131,18 @@ export default function FloorPlanEditor({
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingName, setEditingName] = useState(false)
   const [draftName, setDraftName] = useState(floorName)
+  // Local tracking of color changes so they update live in the UI
+  const [colorOverrides, setColorOverrides] = useState<Map<string, string>>(
+    new Map()
+  )
+  // Track dragging table for drag and drop
+  const [draggedTableId, setDraggedTableId] = useState<string | null>(null)
+  // Track the position of the drag preview over the canvas
+  const [dragPreviewPos, setDragPreviewPos] = useState<{
+    x: number
+    y: number
+  } | null>(null)
+  const canvasRef = useRef<HTMLDivElement>(null)
 
   const [obstacles, setObstacles] = useState<Obstacle[]>(() => {
     try {
@@ -263,6 +281,7 @@ export default function FloorPlanEditor({
 
   const addToCanvas = (t: DBTable) => {
     const size = defaultSize('square')
+    const color = getTableColor(t)
     setPlaced(prev => [
       ...prev,
       {
@@ -271,7 +290,7 @@ export default function FloorPlanEditor({
         y: snapG(Math.min(60, CANVAS_H - size.h - GRID)),
         ...size,
         shape: 'square',
-        color: TABLE_COLORS[allTables.indexOf(t) % TABLE_COLORS.length],
+        color,
       },
     ])
   }
@@ -292,13 +311,42 @@ export default function FloorPlanEditor({
   }
 
   const handleDeleteTable = async (id: string) => {
-    if (!confirm('Delete this table? This cannot be undone.')) return
+    if (!confirm(t.deleteTableConfirm)) return
     await onDeleteTable(id)
     // canvas entry will be pruned automatically via the tables useEffect
   }
 
   const updatePlaced = (id: string, patch: Partial<PlacedTable>) => {
     setPlaced(prev => prev.map(p => (p.id === id ? { ...p, ...patch } : p)))
+  }
+
+  // Get the effective color for a table, checking overrides first
+  const getTableColor = (table: DBTable): string => {
+    // Check local color overrides first
+    const overrideColor = colorOverrides.get(table.id)
+    if (overrideColor) return overrideColor
+    // Then check stored color on table
+    if (table.color) return table.color
+    // Fall back to index-based default
+    return TABLE_COLORS[allTables.indexOf(table) % TABLE_COLORS.length]
+  }
+
+  // Save table color to database when it's changed in the editor
+  const saveTableColor = async (tableId: string, color: string) => {
+    if (!supabase) return
+    try {
+      const { error } = await supabase
+        .from('tables')
+        .update({ color })
+        .eq('id', tableId)
+      if (error) console.error('Error saving table color:', error)
+      else {
+        // Update local color overrides so unplaced chips and other views reflect the change live
+        setColorOverrides(prev => new Map(prev).set(tableId, color))
+      }
+    } catch (err) {
+      console.error('Error saving table color:', err)
+    }
   }
 
   const updateObstacle = (id: string, patch: Partial<Obstacle>) => {
@@ -369,7 +417,7 @@ export default function FloorPlanEditor({
           <>
             <h2
               className="text-xl font-bold text-gray-900 leading-tight cursor-pointer hover:text-blue-600 transition-colors"
-              title="Click to rename floor"
+              title={t.clickToRename}
               onClick={() => {
                 setDraftName(floorName)
                 setEditingName(true)
@@ -388,7 +436,7 @@ export default function FloorPlanEditor({
                   ? 'text-blue-600 bg-blue-100 hover:bg-blue-200'
                   : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
               }`}
-              title="Edit floor layout (add obstacles)"
+              title={t.editLayout}
             >
               <Pencil className="h-4 w-4" />
             </button>
@@ -397,9 +445,13 @@ export default function FloorPlanEditor({
         {onDeleteFloor && (
           <button
             type="button"
-            onClick={onDeleteFloor}
+            onClick={() => {
+              if (confirm(t.deleteFloorConfirm)) {
+                onDeleteFloor()
+              }
+            }}
             className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0 ml-auto"
-            title="Delete floor"
+            title={t.deleteFloor}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -410,14 +462,14 @@ export default function FloorPlanEditor({
       {obstacleMode && (
         <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-xl flex-wrap">
           <p className="text-xs font-semibold text-blue-700 mr-1">
-            Edit layout:
+            {t.editLayoutMode}
           </p>
           <button
             type="button"
             onClick={addBlock}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-300 hover:border-blue-400 transition-colors"
           >
-            <Plus className="h-4 w-4" /> Add Block
+            <Plus className="h-4 w-4" /> {t.addBlock}
           </button>
           <button
             type="button"
@@ -426,7 +478,7 @@ export default function FloorPlanEditor({
               setSelectedObstacle(null)
             }}
             className="ml-auto p-1 rounded text-blue-400 hover:text-blue-700 hover:bg-blue-100 transition-colors"
-            title="Done editing"
+            title={t.doneEditing}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -439,42 +491,47 @@ export default function FloorPlanEditor({
           {/* Unplaced */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                Tables
+              <p className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+                {t.unplacedTables}
               </p>
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="h-5 w-5 flex items-center justify-center rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                title="Add new table"
+                className="h-6 w-6 flex items-center justify-center rounded bg-green-500 shadow-sm text-white hover:bg-green-600 transition-colors"
+                title={t.addNewTable}
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="h-4 w-4" />
               </button>
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
               {unplaced.length === 0 ? (
-                <p className="text-xs text-gray-400 italic">All placed ✓</p>
+                <p className="text-xs text-gray-400 italic">{t.allPlaced}</p>
               ) : (
                 unplaced.map(t => {
-                  const color =
-                    TABLE_COLORS[allTables.indexOf(t) % TABLE_COLORS.length]
+                  const color = getTableColor(t)
                   return (
-                    <button
+                    <div
                       key={t.id}
-                      type="button"
-                      title={`Place ${t.table_identifier} on canvas`}
-                      onClick={() => addToCanvas(t)}
-                      className="flex items-center justify-between gap-1 pl-2 pr-1.5 py-1 rounded-full text-white text-xs font-semibold shadow-sm hover:brightness-110 transition-all active:scale-95 w-full"
-                      style={{ backgroundColor: color }}
+                      draggable
+                      onDragStart={e => {
+                        setDraggedTableId(t.id)
+                        setDragPreviewPos(null)
+                      }}
+                      onDragEnd={() => {
+                        setDraggedTableId(null)
+                        setDragPreviewPos(null)
+                      }}
+                      className="cursor-grab active:cursor-grabbing"
                     >
-                      <span className="truncate">{t.table_identifier}</span>
-                      {prefs.showTableCapacity && (
-                        <span className="flex items-center gap-0.5 shrink-0 opacity-80">
-                          <Users className="h-2.5 w-2.5" />
-                          {t.capacity}
-                        </span>
-                      )}
-                    </button>
+                      <TableChip
+                        id={t.id}
+                        identifier={t.table_identifier}
+                        capacity={t.capacity}
+                        color={color}
+                        showCapacity={prefs.showTableCapacity}
+                        onClick={() => addToCanvas(t)}
+                      />
+                    </div>
                   )
                 })
               )}
@@ -485,6 +542,7 @@ export default function FloorPlanEditor({
         {/* Canvas */}
         <div className="flex-1 min-w-0 overflow-hidden">
           <div
+            ref={canvasRef}
             className="relative border-2 border-gray-300 rounded-xl select-none"
             style={{
               width: CANVAS_W,
@@ -500,6 +558,52 @@ export default function FloorPlanEditor({
               backgroundColor: '#f9fafb',
             }}
             onClick={handleCanvasClick}
+            onDragOver={e => {
+              e.preventDefault()
+              e.stopPropagation()
+              // Update drag preview position while over canvas
+              if (draggedTableId) {
+                const rect = e.currentTarget.getBoundingClientRect()
+                setDragPreviewPos({
+                  x: snapG(
+                    Math.max(0, Math.min(CANVAS_W - 80, e.clientX - rect.left))
+                  ),
+                  y: snapG(
+                    Math.max(0, Math.min(CANVAS_H - 80, e.clientY - rect.top))
+                  ),
+                })
+              }
+            }}
+            onDragLeave={e => {
+              // Only hide preview if leaving the canvas entirely
+              if (e.currentTarget === e.target) {
+                setDragPreviewPos(null)
+              }
+            }}
+            onDrop={e => {
+              e.preventDefault()
+              e.stopPropagation()
+              if (!draggedTableId || !dragPreviewPos) return
+              // Find the table and place it at the drop position
+              const table = tables.find(t => t.id === draggedTableId)
+              if (table) {
+                const color = getTableColor(table)
+                setPlaced(prev => [
+                  ...prev,
+                  {
+                    id: table.id,
+                    x: dragPreviewPos.x,
+                    y: dragPreviewPos.y,
+                    w: 80,
+                    h: 80,
+                    shape: 'square',
+                    color,
+                  },
+                ])
+              }
+              setDragPreviewPos(null)
+              setDraggedTableId(null)
+            }}
           >
             {/* Blocks (rendered below tables) */}
             {obstacles.map(o => {
@@ -665,6 +769,45 @@ export default function FloorPlanEditor({
                 </div>
               )
             })}
+
+            {/* Drag preview - shows table being dragged on canvas */}
+            {draggedTableId && dragPreviewPos && (
+              <div
+                key="drag-preview"
+                style={{
+                  position: 'absolute',
+                  left: dragPreviewPos.x,
+                  top: dragPreviewPos.y,
+                  width: 80,
+                  height: 80,
+                  backgroundColor: (() => {
+                    const table = tables.find(t => t.id === draggedTableId)
+                    return table ? getTableColor(table) : '#gray'
+                  })(),
+                  borderRadius: '0',
+                  border: '2px dashed #1d4ed8',
+                  boxShadow:
+                    '0 0 0 3px rgba(59,130,246,0.35), 2px 3px 8px rgba(0,0,0,0.14)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 2,
+                  zIndex: 5,
+                  opacity: 0.7,
+                  pointerEvents: 'none',
+                }}
+              >
+                <span
+                  style={{
+                    color: 'white',
+                    fontSize: '10px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {tables.find(t => t.id === draggedTableId)?.table_identifier}
+                </span>
+              </div>
+            )}
 
             {placed.map(p => {
               const db = tables.find(t => t.id === p.id)
@@ -850,10 +993,12 @@ export default function FloorPlanEditor({
             className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-5 w-72 space-y-3"
             onClick={e => e.stopPropagation()}
           >
-            <p className="text-sm font-semibold text-gray-800">New table</p>
+            <p className="text-sm font-semibold text-gray-800">
+              {t.newTableModal}
+            </p>
             <input
               type="text"
-              placeholder="Name (e.g. T1)"
+              placeholder={t.tableNamePlaceholder}
               value={newId}
               autoFocus
               onChange={e => setNewId(e.target.value)}
@@ -863,7 +1008,7 @@ export default function FloorPlanEditor({
             />
             <input
               type="number"
-              placeholder="Number of seats"
+              placeholder={t.numberOfSeatsPlaceholder}
               min={1}
               max={99}
               value={newCap}
@@ -878,7 +1023,7 @@ export default function FloorPlanEditor({
                 onClick={() => setShowAddModal(false)}
                 className="flex-1 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 type="button"
@@ -886,7 +1031,7 @@ export default function FloorPlanEditor({
                 onClick={handleAddTable}
                 className="flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
               >
-                Add table
+                {t.addTableButton}
               </button>
             </div>
           </div>
@@ -902,7 +1047,9 @@ export default function FloorPlanEditor({
               {selDb.table_identifier}
             </p>
             {prefs.showTableCapacity && (
-              <p className="text-xs text-gray-400">{selDb.capacity} seats</p>
+              <p className="text-xs text-gray-400">
+                {selDb.capacity} {t.seatsLabel}
+              </p>
             )}
           </div>
 
@@ -910,7 +1057,9 @@ export default function FloorPlanEditor({
 
           {/* Shape */}
           <div className="shrink-0">
-            <p className="text-xs font-semibold text-gray-500 mb-1">Shape</p>
+            <p className="text-xs font-semibold text-gray-500 mb-1">
+              {t.shapeLabel}
+            </p>
             <div className="flex gap-1.5">
               {(['square', 'round'] as const).map(s => (
                 <button
@@ -941,13 +1090,18 @@ export default function FloorPlanEditor({
 
           {/* Color */}
           <div className="shrink-0">
-            <p className="text-xs font-semibold text-gray-500 mb-1">Color</p>
+            <p className="text-xs font-semibold text-gray-500 mb-1">
+              {t.colorLabel}
+            </p>
             <div className="flex gap-1 flex-wrap" style={{ maxWidth: 148 }}>
               {TABLE_COLORS.map(c => (
                 <button
                   key={c}
                   type="button"
-                  onClick={() => updatePlaced(selected!, { color: c })}
+                  onClick={() => {
+                    updatePlaced(selected!, { color: c })
+                    saveTableColor(selected!, c)
+                  }}
                   className="h-5 w-5 rounded-full border-2 transition-all"
                   style={{
                     backgroundColor: c,
@@ -969,14 +1123,14 @@ export default function FloorPlanEditor({
               onClick={() => removeFromCanvas(selected!)}
               className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
             >
-              Remove from plan
+              {t.removeFromPlan}
             </button>
             <button
               type="button"
               onClick={() => handleDeleteTable(selected!)}
               className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
             >
-              <Trash2 className="h-3 w-3" /> Delete table
+              <Trash2 className="h-3 w-3" /> {t.deleteTable}
             </button>
           </div>
         </div>
@@ -987,11 +1141,13 @@ export default function FloorPlanEditor({
         <div className="flex items-start gap-4 px-4 py-3 border border-gray-200 rounded-xl bg-white flex-wrap">
           {/* Name */}
           <div className="shrink-0 self-center">
-            <p className="text-xs font-semibold text-gray-500 mb-1">Label</p>
+            <p className="text-xs font-semibold text-gray-500 mb-1">
+              {t.label}
+            </p>
             <input
               type="text"
               value={selObs.label}
-              placeholder="(none)"
+              placeholder={t.none}
               onChange={e =>
                 updateObstacle(selObs.id, { label: e.target.value })
               }
@@ -1004,7 +1160,9 @@ export default function FloorPlanEditor({
 
           {/* Style: filled vs outlined */}
           <div className="shrink-0 self-center">
-            <p className="text-xs font-semibold text-gray-500 mb-1">Style</p>
+            <p className="text-xs font-semibold text-gray-500 mb-1">
+              {t.style}
+            </p>
             <div className="flex gap-1.5">
               <button
                 type="button"
@@ -1014,7 +1172,7 @@ export default function FloorPlanEditor({
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-blue-300'
                 }`}
-                title="Filled"
+                title={t.filled}
               >
                 <div
                   className="h-5 w-5 rounded-sm"
@@ -1029,7 +1187,7 @@ export default function FloorPlanEditor({
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-blue-300'
                 }`}
-                title="Outlined"
+                title={t.outlined}
               >
                 <div
                   className="h-5 w-5 rounded-sm"
@@ -1051,7 +1209,7 @@ export default function FloorPlanEditor({
               onClick={() => removeObstacle(selObs.id)}
               className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
             >
-              <Trash2 className="h-3 w-3" /> Remove
+              <Trash2 className="h-3 w-3" /> {t.remove}
             </button>
           </div>
         </div>

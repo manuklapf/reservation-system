@@ -27,6 +27,7 @@ export default function DemoPage() {
   const { messages } = useI18n()
   const t = messages.dashboard
   const st = messages.setupPage
+  const dt = messages.demo
 
   const [activeTab, setActiveTab] = useState<Tab>('list')
   const [selectedReservation, setSelectedReservation] =
@@ -135,8 +136,8 @@ export default function DemoPage() {
               <Link
                 href="/"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                aria-label="Back to home"
-                title="Back to home"
+                aria-label={dt.backToHome}
+                title={dt.backToHome}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Link>

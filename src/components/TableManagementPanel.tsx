@@ -64,6 +64,8 @@ export default function TableManagementPanel({
   onToggleActive,
 }: TableManagementPanelProps) {
   const { messages } = useI18n()
+  const tmp = messages.tableManagementPanel
+  const { messages } = useI18n()
   const t = messages.setupPage
   const { prefs } = useDisplayPrefs()
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
@@ -247,7 +249,7 @@ export default function TableManagementPanel({
                             }}
                             disabled={saving}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 disabled:text-gray-400"
-                            aria-label="Actions"
+                            aria-label={tmp.actions}
                           >
                             <MoreVertical className="h-4 w-4" />
                           </button>

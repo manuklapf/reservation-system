@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { X, Check, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
+import { useI18n } from '@/contexts/I18nContext'
 
 interface DBTable {
   id: string
@@ -71,6 +72,8 @@ export default function FloorPlanPickerModal({
   const [activeIdx, setActiveIdx] = useState(0)
   const [draft, setDraft] = useState<string[]>([])
   const { prefs } = useDisplayPrefs()
+  const { messages } = useI18n()
+  const t = messages.floorPlanPickerModal
 
   // Reset draft and tab when opening
   useEffect(() => {
@@ -144,12 +147,12 @@ export default function FloorPlanPickerModal({
         <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-6 py-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
-              Select Table(s)
+              {t.selectTables}
             </h3>
             <p className="mt-0.5 text-sm text-gray-400">
               {draft.length === 0
-                ? 'Tap tables to select'
-                : `Selected: ${selectedNames}`}
+                ? t.tapTablesToSelect
+                : `${t.selected}: ${selectedNames}`}
             </p>
           </div>
           <button
@@ -185,11 +188,11 @@ export default function FloorPlanPickerModal({
         <div className="flex min-h-0 flex-1 items-start justify-center overflow-auto p-4">
           {loadingFloors ? (
             <div className="flex h-40 items-center justify-center text-sm text-gray-400">
-              Loading floor plans…
+              {t.loadingFloorPlans}
             </div>
           ) : floors.length === 0 ? (
             <div className="flex h-40 items-center justify-center text-sm text-gray-400">
-              No floor plans configured. Set them up in Settings → Floor Plan.
+              {t.noFloorPlans}
             </div>
           ) : (
             // Wrapper sized to the scaled canvas so the flex container collapses correctly
@@ -271,7 +274,7 @@ export default function FloorPlanPickerModal({
                       title={
                         isAvailable
                           ? db.table_identifier
-                          : `${db.table_identifier} (unavailable)`
+                          : `${db.table_identifier} ${t.unavailable}`
                       }
                       style={{
                         position: 'absolute',
@@ -363,7 +366,7 @@ export default function FloorPlanPickerModal({
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-3 w-3 rounded-sm bg-[#4ecdc4]" />
-              Available
+              {t.available}
             </span>
             <span className="flex items-center gap-1.5">
               <span
@@ -373,11 +376,11 @@ export default function FloorPlanPickerModal({
                     'repeating-linear-gradient(45deg, transparent, transparent 1.5px, rgba(0,0,0,0.2) 1.5px, rgba(0,0,0,0.2) 3px)',
                 }}
               />
-              Reserved
+              {t.reserved}
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-3 w-3 rounded-sm border-2 border-emerald-600 bg-[#4ecdc4]" />
-              Selected
+              {t.selected}
             </span>
           </div>
           <div className="flex gap-2">
@@ -386,7 +389,7 @@ export default function FloorPlanPickerModal({
               onClick={onClose}
               className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
             >
-              Cancel
+              {t.cancel}
             </button>
             <button
               type="button"
@@ -398,7 +401,8 @@ export default function FloorPlanPickerModal({
               className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Check className="h-4 w-4" />
-              Confirm{draft.length > 0 ? ` (${draft.length})` : ''}
+              {t.confirm}
+              {draft.length > 0 ? ` (${draft.length})` : ''}
             </button>
           </div>
         </div>

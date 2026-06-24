@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { ArrowLeft, Plus } from 'lucide-react'
 import FloorPlanEditor from '@/components/FloorPlanEditor'
 import { useI18n } from '@/contexts/I18nContext'
+import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 type Table = {
   id: string
@@ -47,6 +48,8 @@ export default function FloorPlanPage() {
   const { user, tenantId } = useAuth()
   const { messages } = useI18n()
   const t = messages.setupPage
+  const fps = messages.floorPlanSettings
+  const { prefs, setPrefs } = useDisplayPrefs()
 
   const [tables, setTables] = useState<Table[]>([])
   const [saving, setSaving] = useState(false)
@@ -78,7 +81,7 @@ export default function FloorPlanPage() {
         )
       } else {
         // No floors in DB yet — create a default one
-        await insertFloor('Ground Floor', 0)
+        await insertFloor(fps.groundFloor, 0)
       }
     } catch (err: any) {
       console.error('Error fetching floors:', err?.message ?? err?.code ?? err)
@@ -86,7 +89,7 @@ export default function FloorPlanPage() {
       setFloors([
         {
           id: `local_${Date.now()}`,
-          name: 'Ground Floor',
+          name: fps.groundFloor,
           sort_order: 0,
           layout: [],
           obstacles: [],
@@ -293,12 +296,12 @@ export default function FloorPlanPage() {
             <Link
               href="/dashboard/settings"
               className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-              aria-label="Back to Settings"
+              aria-label={fps.backToSettings}
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <h1 className="text-xl font-semibold text-gray-900">
-              Floor Plan Editor
+              {fps.title}
             </h1>
           </div>
         </div>
@@ -306,6 +309,33 @@ export default function FloorPlanPage() {
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          {/* Show capacity toggle */}
+          <div className="mb-8 flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200">
+            <span className="text-sm font-medium text-gray-700">
+              {fps.showCapacity}
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={prefs.showTableCapacity}
+              onClick={() =>
+                setPrefs({
+                  ...prefs,
+                  showTableCapacity: !prefs.showTableCapacity,
+                })
+              }
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                prefs.showTableCapacity ? 'bg-blue-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                  prefs.showTableCapacity ? 'translate-x-5' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
           {tenantId && floorsLoaded && floors.length > 0 ? (
             <div className="space-y-10">
               {floors.map(floor => {
@@ -354,11 +384,11 @@ export default function FloorPlanPage() {
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-colors text-sm font-medium"
               >
                 <Plus className="h-4 w-4" />
-                Add floor
+                {fps.addFloor}
               </button>
             </div>
           ) : (
-            <p className="text-sm text-gray-400">Loading…</p>
+            <p className="text-sm text-gray-400">{fps.loading}</p>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { UtensilsCrossed } from 'lucide-react'
+import { useI18n } from '@/contexts/I18nContext'
 
 interface Table {
   id: string
@@ -28,6 +29,8 @@ export default function StepTable({
   noTablesMessage,
   seatsLabel = 'seats',
 }: StepTableProps) {
+  const { messages } = useI18n()
+  const st = messages.stepTable
   return (
     <div className="min-w-full">
       <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
@@ -36,10 +39,12 @@ export default function StepTable({
       </p>
 
       {loading ? (
-        <div className="text-center py-4 text-sm text-gray-400">…</div>
+        <div className="text-center py-4 text-sm text-gray-400">
+          {st.loading}
+        </div>
       ) : tables.length === 0 ? (
         <div className="text-center py-4 text-sm text-gray-400">
-          {noTablesMessage ?? 'No tables available'}
+          {noTablesMessage ?? st.noTablesAvailable}
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2">
