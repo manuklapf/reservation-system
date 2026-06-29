@@ -64,7 +64,6 @@ export default function TableManagementPanel({
 }: TableManagementPanelProps) {
   const { messages } = useI18n()
   const tmp = messages.tableManagementPanel
-  const { messages } = useI18n()
   const t = messages.setupPage
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [menuAbove, setMenuAbove] = useState(false)
