@@ -11,10 +11,12 @@ import {
   CalendarDays,
   SlidersHorizontal,
   Plus,
+  LayoutGrid,
 } from 'lucide-react'
 import ReservationModal from '@/components/ReservationModal'
 import ReservationRow from '@/components/ReservationRow'
 import RangePicker from '@/components/RangePicker'
+import DayPlanModal from '@/components/DayPlanModal'
 import { Reservation } from '@/types/reservation'
 import { useI18n, Language } from '@/contexts/I18nContext'
 
@@ -30,6 +32,7 @@ export default function DashboardPage() {
   const [filterDateFrom, setFilterDateFrom] = useState('')
   const [filterDateTo, setFilterDateTo] = useState('')
   const [filterOpen, setFilterOpen] = useState(false)
+  const [dayPlanDate, setDayPlanDate] = useState<string | null>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const { language, setLanguage, messages } = useI18n()
 
@@ -298,17 +301,26 @@ export default function DashboardPage() {
               ) : (
                 visibleDays.map(day => (
                   <div key={day}>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2 px-1">
-                      {new Date(day + 'T00:00:00').toLocaleDateString(
-                        language === 'de' ? 'de-DE' : 'en-US',
-                        {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        }
-                      )}
-                    </h3>
+                    <div className="flex items-center justify-between mb-2 px-1">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                        {new Date(day + 'T00:00:00').toLocaleDateString(
+                          language === 'de' ? 'de-DE' : 'en-US',
+                          {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          }
+                        )}
+                      </h3>
+                      <button
+                        onClick={() => setDayPlanDate(day)}
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                        title="Edit day plan"
+                      >
+                        <LayoutGrid className="h-4 w-4" />
+                      </button>
+                    </div>
                     <div className="bg-white shadow overflow-hidden sm:rounded-md">
                       <ul className="divide-y divide-gray-200">
                         {groupedByDay[day].map(reservation => (
@@ -345,6 +357,17 @@ export default function DashboardPage() {
         onSave={handleSaveReservation}
         onDelete={handleDeleteReservation}
       />
+
+      {dayPlanDate && (
+        <DayPlanModal
+          isOpen={!!dayPlanDate}
+          onClose={() => setDayPlanDate(null)}
+          date={dayPlanDate}
+          reservations={groupedByDay[dayPlanDate] ?? []}
+          tenantId={tenantId ?? ''}
+          onSave={fetchReservations}
+        />
+      )}
     </div>
   )
 }
