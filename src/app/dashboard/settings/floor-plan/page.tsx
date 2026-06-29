@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Plus, Info } from 'lucide-react'
 import FloorPlanEditor from '@/components/FloorPlanEditor'
 import { useI18n } from '@/contexts/I18nContext'
-import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 type Table = {
   id: string
@@ -49,7 +48,6 @@ export default function FloorPlanPage() {
   const { messages } = useI18n()
   const t = messages.setupPage
   const fps = messages.floorPlanSettings
-  const { prefs, setPrefs } = useDisplayPrefs()
 
   const [tables, setTables] = useState<Table[]>([])
   const [saving, setSaving] = useState(false)
@@ -58,6 +56,8 @@ export default function FloorPlanPage() {
   const [activeTableIds, setActiveTableIds] = useState<Set<string>>(new Set())
 
   const [floors, setFloors] = useState<Floor[]>([])
+  const [capacityPopoverOpen, setCapacityPopoverOpen] = useState(false)
+  const capacityPopoverRef = useRef<HTMLDivElement>(null)
 
   // Load floors from database
   const fetchFloors = useCallback(async () => {
@@ -280,6 +280,36 @@ export default function FloorPlanPage() {
     }
   }
 
+  useEffect(() => {
+    if (!capacityPopoverOpen) return
+    const handler = (e: MouseEvent) => {
+      if (
+        capacityPopoverRef.current &&
+        !capacityPopoverRef.current.contains(e.target as Node)
+      ) {
+        setCapacityPopoverOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [capacityPopoverOpen])
+
+  const capacityByFloor = floors.reduce<Record<string, number>>(
+    (acc, floor) => {
+      const ids = placedByFloor[floor.id] ?? []
+      acc[floor.id] = ids.reduce((sum, id) => {
+        const table = tables.find(t => t.id === id)
+        return sum + (table?.capacity ?? 0)
+      }, 0)
+      return acc
+    },
+    {}
+  )
+  const totalCapacity = Object.values(capacityByFloor).reduce(
+    (a, b) => a + b,
+    0
+  )
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -300,40 +330,48 @@ export default function FloorPlanPage() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-xl font-semibold text-gray-900">
-              {fps.title}
-            </h1>
+            <h1 className="text-xl font-semibold text-gray-900">{fps.title}</h1>
           </div>
         </div>
       </nav>
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          {/* Show capacity toggle */}
-          <div className="mb-8 flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200">
+          {/* Total capacity header */}
+          <div className="mb-8 flex gap-2 p-4 bg-white rounded-lg border border-gray-200">
             <span className="text-sm font-medium text-gray-700">
-              {fps.showCapacity}
+              {fps.totalCapacity}:
             </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={prefs.showTableCapacity}
-              onClick={() =>
-                setPrefs({
-                  ...prefs,
-                  showTableCapacity: !prefs.showTableCapacity,
-                })
-              }
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                prefs.showTableCapacity ? 'bg-blue-600' : 'bg-gray-300'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                  prefs.showTableCapacity ? 'translate-x-5' : 'translate-x-1'
-                }`}
-              />
-            </button>
+            <span className="text-sm font-bold text-gray-900">
+              {totalCapacity}
+            </span>
+            <div className="relative" ref={capacityPopoverRef}>
+              <button
+                type="button"
+                onClick={() => setCapacityPopoverOpen(v => !v)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Capacity per floor"
+              >
+                <Info className="h-4 w-4" />
+              </button>
+              {capacityPopoverOpen && floors.length > 0 && (
+                <div className="absolute left-0 top-6 z-30 min-w-[180px] rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+                  {floors.map(floor => (
+                    <div
+                      key={floor.id}
+                      className="flex items-center justify-between gap-6 py-1"
+                    >
+                      <span className="text-sm text-gray-600">
+                        {floor.name}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {capacityByFloor[floor.id] ?? 0}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {tenantId && floorsLoaded && floors.length > 0 ? (

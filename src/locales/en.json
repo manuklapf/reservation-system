@@ -15,7 +15,9 @@
     "confirmed": "Confirmed",
     "pending": "Pending",
     "cancelled": "Cancelled",
-    "notAvailable": "N/A"
+    "notAvailable": "N/A",
+    "delete": "Delete",
+    "confirm": "Confirm"
   },
   "home": {
     "title": "Restaurant Reservation System",
@@ -118,7 +120,8 @@
       "failedStatusUpdate": "Failed to update table status",
       "failedDelete": "Failed to delete table"
     },
-    "confirmDelete": "Are you sure you want to delete this table?"
+    "confirmDelete": "This cannot be undone.",
+    "confirmDeleteTitle": "Delete table?"
   },
   "tenant": {
     "loading": "Loading...",
@@ -188,7 +191,8 @@
       "dbSetupRequired": "Database setup required! Please run supabase-tables-schema.sql in your Supabase SQL Editor.",
       "dbMigrationRequired": "Database migration required! The table_number column must be nullable. Please run the updated supabase-tables-schema.sql in your Supabase SQL Editor."
     },
-    "confirmDelete": "Are you sure you want to delete this reservation?"
+    "confirmDelete": "This cannot be undone.",
+    "confirmDeleteTitle": "Delete reservation?"
   },
   "calendar": {
     "loading": "Loading calendar...",
@@ -222,7 +226,7 @@
     "clickToRename": "Click to rename floor",
     "editLayout": "Edit floor layout (add obstacles)",
     "deleteFloor": "Delete floor",
-    "deleteFloorConfirm": "Delete this floor and all its table placements? This cannot be undone.",
+    "deleteFloorConfirm": "All table placements will also be removed. This cannot be undone.",
     "editLayoutMode": "Edit layout:",
     "addBlock": "Add Block",
     "doneEditing": "Done editing",
@@ -237,9 +241,7 @@
     "seatsLabel": "seats",
     "shapeLabel": "Shape",
     "colorLabel": "Color",
-    "deleteTableConfirm": "Delete this table? This cannot be undone.",
-    "deleteFloor": "Delete floor",
-    "deleteFloorConfirm": "Delete this floor and all its table placements? This cannot be undone.",
+    "deleteTableConfirm": "This cannot be undone.",
     "removeFromPlan": "Remove from plan",
     "deleteTable": "Delete table",
     "none": "(none)",
@@ -247,7 +249,9 @@
     "style": "Style",
     "filled": "Filled",
     "outlined": "Outlined",
-    "remove": "Remove"
+    "remove": "Remove",
+    "deleteTableTitle": "Delete table?",
+    "deleteFloorTitle": "Delete floor?"
   },
   "floorPlanPickerModal": {
     "tapTablesToSelect": "Tap tables to select",
@@ -267,13 +271,14 @@
     "loadingTables": "Loading tables…",
     "noTablesYet": "No tables yet. Add one above!",
     "notPlaced": "Not Placed",
-    "deleteTableConfirm": "Delete this table? This cannot be undone.",
-    "deleteTableTooltip": "Delete table"
+    "deleteTableConfirm": "This cannot be undone.",
+    "deleteTableTooltip": "Delete table",
+    "deleteTableTitle": "Delete table?"
   },
   "floorPlanSettings": {
     "backToSettings": "Back to Settings",
     "title": "Floor Plan Editor",
-    "showCapacity": "Show capacity",
+    "totalCapacity": "Total capacity",
     "addFloor": "Add floor",
     "loading": "Loading…",
     "groundFloor": "Ground Floor"
@@ -295,5 +300,18 @@
     "table": "Table",
     "phoneNumber": "Phone number",
     "notes": "Notes"
+  },
+  "dayPlanModal": {
+    "loading": "Loading…",
+    "noFloorPlan": "No floor plan configured.",
+    "timeConflict": "Conflict with: {names}.",
+    "showAll": "Show all",
+    "reservations": "Reservations",
+    "noReservationsFiltered": "No reservations",
+    "noReservations": "None",
+    "removeFromTable": "Remove from table",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "timeConflictTitle": "Time conflict"
   }
 }

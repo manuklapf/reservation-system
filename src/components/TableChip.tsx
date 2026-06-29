@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { Users, X } from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
+import ConfirmDialog from './ConfirmDialog'
 
 export interface TableChipProps {
   id: string
@@ -30,14 +32,27 @@ export default function TableChip({
 }: TableChipProps) {
   const { messages } = useI18n()
   const t = messages.tableManagement
+  const [pendingConfirm, setPendingConfirm] = useState(false)
   const finalDeleteConfirmMessage = deleteConfirmMessage || t.deleteTableConfirm
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!confirm(finalDeleteConfirmMessage)) return
-    await onDelete?.(id)
+    setPendingConfirm(true)
   }
 
   return (
+    <>
+    <ConfirmDialog
+      isOpen={pendingConfirm}
+      title={messages.tableManagement.deleteTableTitle}
+      message={finalDeleteConfirmMessage}
+      confirmLabel={messages.common.delete}
+      danger
+      onConfirm={() => {
+        setPendingConfirm(false)
+        onDelete?.(id)
+      }}
+      onCancel={() => setPendingConfirm(false)}
+    />
     <button
       key={id}
       type="button"
@@ -72,5 +87,6 @@ export default function TableChip({
         </span>
       )}
     </button>
+    </>
   )
 }

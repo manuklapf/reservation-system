@@ -11,10 +11,10 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { Reservation } from '@/types/reservation'
 import { timesOverlap } from '@/utils/reservationConflictChecker'
+import ConfirmDialog from './ConfirmDialog'
 
 interface DBTable {
   id: string
@@ -97,8 +97,13 @@ export default function DayPlanModal({
     y: number
   } | null>(null)
 
-  const { prefs } = useDisplayPrefs()
-  const { language } = useI18n()
+  const { language, messages } = useI18n()
+  const t = messages.dayPlanModal
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    title: string
+    message: string
+    onConfirm: () => void
+  } | null>(null)
 
   // Refs for touch handling — avoids stale closures in the one-time effect
   const touchDragRef = useRef<typeof touchDragState>(null)
@@ -236,18 +241,24 @@ export default function DayPlanModal({
         getEffectiveTableIds(r).includes(tableId) &&
         timesOverlap(res.time, res.end_time, r.time, r.end_time)
     )
+    const doAssign = () =>
+      setAssignments(prev => {
+        const prevIds = prev[reservationId] ?? getEffectiveTableIds(res)
+        if (prevIds.includes(tableId)) return prev
+        return { ...prev, [reservationId]: [...prevIds, tableId] }
+      })
     if (conflicts.length > 0) {
       const names = conflicts
         .map(r => `${r.customer_name} (${r.time.slice(0, 5)})`)
         .join(', ')
-      if (!window.confirm(`Time conflict with: ${names}. Assign anyway?`))
-        return
+      setPendingConfirm({
+        title: t.timeConflictTitle,
+        message: t.timeConflict.replace('{names}', names),
+        onConfirm: doAssign,
+      })
+      return
     }
-    setAssignments(prev => {
-      const prevIds = prev[reservationId] ?? getEffectiveTableIds(res)
-      if (prevIds.includes(tableId)) return prev
-      return { ...prev, [reservationId]: [...prevIds, tableId] }
-    })
+    doAssign()
   }
 
   // Always up-to-date ref so the one-time touch effect can call handleDrop
@@ -474,24 +485,37 @@ export default function DayPlanModal({
           ) : null
         })()}
 
+      <ConfirmDialog
+        isOpen={!!pendingConfirm}
+        title={pendingConfirm?.title ?? ''}
+        message={pendingConfirm?.message ?? ''}
+        confirmLabel={messages.common.confirm}
+        danger={false}
+        onConfirm={() => {
+          pendingConfirm?.onConfirm()
+          setPendingConfirm(null)
+        }}
+        onCancel={() => setPendingConfirm(null)}
+      />
+
       <div className="fixed inset-0 z-50 flex p-4 backdrop-blur-sm bg-black/60">
         <div className="flex h-full w-full flex-col bg-white">
           {/* Header */}
           <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3 lg:px-6 lg:py-4">
+            <h3 className="text-base font-semibold text-gray-900 md:text-lg">
+              {new Date(date + 'T00:00:00').toLocaleDateString(locale, {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </h3>
             <div className="flex items-center gap-3">
-              <h3 className="text-base font-semibold text-gray-900 md:text-lg">
-                {new Date(date + 'T00:00:00').toLocaleDateString(locale, {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </h3>
               {floors.length > 1 && (
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => setFloorDropdownOpen(o => !o)}
-                    className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                    className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-200"
                   >
                     {floors[activeFloorIdx]?.name}
                     <ChevronDown
@@ -527,14 +551,14 @@ export default function DayPlanModal({
                   )}
                 </div>
               )}
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
-            >
-              <X className="h-5 w-5" />
-            </button>
           </div>
 
           {/* Body */}
@@ -546,11 +570,11 @@ export default function DayPlanModal({
             >
               {loadingFloors ? (
                 <div className="flex h-32 items-center justify-center text-sm text-gray-400">
-                  Loading…
+                  {t.loading}
                 </div>
               ) : floors.length === 0 ? (
                 <div className="flex h-32 items-center justify-center text-sm text-gray-400">
-                  No floor plan configured.
+                  {t.noFloorPlan}
                 </div>
               ) : (
                 <div
@@ -728,21 +752,19 @@ export default function DayPlanModal({
                           >
                             {db.table_identifier}
                           </span>
-                          {prefs.showTableCapacity && (
-                            <span
-                              style={{
-                                fontSize: 10,
-                                color: 'rgba(255,255,255,0.85)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 2,
-                                pointerEvents: 'none',
-                              }}
-                            >
-                              <Users style={{ width: 9, height: 9 }} />
-                              {db.capacity}
-                            </span>
-                          )}
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: 'rgba(255,255,255,0.85)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 2,
+                              pointerEvents: 'none',
+                            }}
+                          >
+                            <Users style={{ width: 9, height: 9 }} />
+                            {db.capacity}
+                          </span>
                         </div>
                       )
                     })}
@@ -764,12 +786,12 @@ export default function DayPlanModal({
                       onClick={() => setFocusedTableId(null)}
                       className="text-xs text-gray-400 hover:text-gray-600"
                     >
-                      Show all
+                      {t.showAll}
                     </button>
                   </>
                 ) : (
                   <span className="text-sm font-semibold text-gray-700">
-                    Reservations ({reservations.length})
+                    {t.reservations} ({reservations.length})
                   </span>
                 )}
                 {isTouch && totalPages > 1 && (
@@ -799,7 +821,9 @@ export default function DayPlanModal({
               >
                 {displayedReservations.length === 0 ? (
                   <li className="flex h-16 items-center justify-center text-sm text-gray-400">
-                    {focusedTableId ? 'No reservations' : 'None'}
+                    {focusedTableId
+                      ? t.noReservationsFiltered
+                      : t.noReservations}
                   </li>
                 ) : (
                   paginatedReservations.map(r => (
@@ -838,7 +862,7 @@ export default function DayPlanModal({
                               }))
                             }}
                             className="ml-auto mt-0.5 shrink-0 rounded-full p-1 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
-                            title="Remove from table"
+                            title={t.removeFromTable}
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -880,12 +904,12 @@ export default function DayPlanModal({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Saving…
+                  {t.saving}
                 </>
               ) : (
                 <>
                   <Check className="h-4 w-4" />
-                  Save changes
+                  {t.saveChanges}
                 </>
               )}
             </button>

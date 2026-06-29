@@ -365,12 +365,27 @@
    ============================================================ */
 
 /* Monospace font */
+@font-face {
+  font-family: 'Courier New Adjusted';
+  src: local('Courier New');
+  ascent-override: 90%;
+  descent-override: 10%;
+}
+
+@font-face {
+  font-family: 'Courier New Adjusted';
+  src: local('Courier New Bold'), local('CourierNewPS-BoldMT');
+  font-weight: bold;
+  ascent-override: 80%;
+  descent-override: 10%;
+}
+
 html[data-theme='brutalist'] body {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Courier New Adjusted', Courier, monospace;
 }
 
 html[data-theme='brutalist'] * {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Courier New Adjusted', Courier, monospace;
 }
 
 /* Remove all border-radius */

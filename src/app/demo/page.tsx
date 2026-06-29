@@ -10,6 +10,7 @@ import ReservationRow from '@/components/ReservationRow'
 import EnhancedCalendar from '@/components/EnhancedCalendar'
 import TableManagementPanel from '@/components/TableManagementPanel'
 import { useI18n } from '@/contexts/I18nContext'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 type Tab = 'list' | 'calendar' | 'tables'
 
@@ -29,6 +30,7 @@ export default function DemoPage() {
   const st = messages.setupPage
   const dt = messages.demo
 
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<Tab>('list')
   const [selectedReservation, setSelectedReservation] =
     useState<Reservation | null>(null)
@@ -128,6 +130,18 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <ConfirmDialog
+        isOpen={!!pendingDeleteId}
+        title={st.confirmDeleteTitle}
+        message={st.confirmDelete}
+        confirmLabel={messages.common.delete}
+        danger
+        onConfirm={() => {
+          if (pendingDeleteId) deleteTable(pendingDeleteId)
+          setPendingDeleteId(null)
+        }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
       {/* Nav */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -247,10 +261,7 @@ export default function DemoPage() {
               setEditCapacity('')
               setTableError('')
             }}
-            onDelete={id => {
-              if (!confirm(st.confirmDelete)) return
-              deleteTable(id)
-            }}
+            onDelete={id => setPendingDeleteId(id)}
             onToggleActive={(id, isActive) =>
               updateTable(id, { is_active: !isActive })
             }

@@ -20,6 +20,38 @@ import DayPlanModal from '@/components/DayPlanModal'
 import { Reservation } from '@/types/reservation'
 import { useI18n, Language } from '@/contexts/I18nContext'
 
+function CapacityRing({ used, total }: { used: number; total: number }) {
+  const r = 10
+  const circ = 2 * Math.PI * r
+  const pct = total > 0 ? Math.min(used / total, 1) : 0
+  const offset = circ * (1 - pct)
+  const color =
+    total === 0
+      ? '#d1d5db'
+      : pct >= 1
+        ? '#ef4444'
+        : pct >= 0.8
+          ? '#f59e0b'
+          : '#22c55e'
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r={r} fill="none" stroke="#e5e7eb" strokeWidth="4" />
+      <circle
+        cx="12"
+        cy="12"
+        r={r}
+        fill="none"
+        stroke={color}
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeDasharray={circ}
+        strokeDashoffset={offset}
+        transform="rotate(-90 12 12)"
+      />
+    </svg>
+  )
+}
+
 export default function DashboardPage() {
   const { user, loading, tenantId } = useAuth()
   const router = useRouter()
@@ -33,6 +65,8 @@ export default function DashboardPage() {
   const [filterDateTo, setFilterDateTo] = useState('')
   const [filterOpen, setFilterOpen] = useState(false)
   const [dayPlanDate, setDayPlanDate] = useState<string | null>(null)
+  const [totalCapacity, setTotalCapacity] = useState<number | null>(null)
+  const [tooltipDay, setTooltipDay] = useState<string | null>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const { language, setLanguage, messages } = useI18n()
 
@@ -50,6 +84,35 @@ export default function DashboardPage() {
       fetchReservations()
     }
   }, [user, tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!tenantId || !supabase) return
+    supabase
+      .from('floor_plans')
+      .select('layout')
+      .eq('tenant_id', tenantId)
+      .then(async ({ data: fpData }) => {
+        if (!fpData?.length) return
+        const placedIds = new Set<string>()
+        for (const fp of fpData) {
+          const layout = (fp.layout as Array<{ id: string }> | null) ?? []
+          for (const t of layout) {
+            if (t.id) placedIds.add(t.id)
+          }
+        }
+        if (!placedIds.size) return
+        const { data: tableData } = await supabase!
+          .from('tables')
+          .select('capacity')
+          .in('id', Array.from(placedIds))
+          .eq('is_active', true)
+        if (tableData) {
+          setTotalCapacity(
+            tableData.reduce((s, t) => s + (t.capacity ?? 0), 0)
+          )
+        }
+      })
+  }, [tenantId])
 
   const fetchReservations = async () => {
     if (!supabase) return
@@ -113,6 +176,19 @@ export default function DashboardPage() {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [filterOpen])
+
+  useEffect(() => {
+    if (!tooltipDay) return
+    let handler: (() => void) | null = null
+    const id = setTimeout(() => {
+      handler = () => setTooltipDay(null)
+      document.addEventListener('click', handler)
+    }, 0)
+    return () => {
+      clearTimeout(id)
+      if (handler) document.removeEventListener('click', handler)
+    }
+  }, [tooltipDay])
 
   const activeFilterCount = [
     filterGuestName,
@@ -299,20 +375,43 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               ) : (
-                visibleDays.map(day => (
+                visibleDays.map(day => {
+                  const usedCapacity = groupedByDay[day].reduce(
+                    (s, r) => s + r.party_size,
+                    0
+                  )
+                  return (
                   <div key={day}>
                     <div className="flex items-center justify-between mb-2 px-1">
-                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                        {new Date(day + 'T00:00:00').toLocaleDateString(
-                          language === 'de' ? 'de-DE' : 'en-US',
-                          {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          }
-                        )}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                          {new Date(day + 'T00:00:00').toLocaleDateString(
+                            language === 'de' ? 'de-DE' : 'en-US',
+                            {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            }
+                          )}
+                        </h3>
+                        <div
+                          className="relative inline-flex items-center cursor-pointer"
+                          onPointerEnter={e => { if (e.pointerType === 'mouse') setTooltipDay(day) }}
+                          onPointerLeave={e => { if (e.pointerType === 'mouse') setTooltipDay(null) }}
+                          onClick={e => {
+                            e.stopPropagation()
+                            setTooltipDay(prev => prev === day ? null : day)
+                          }}
+                        >
+                          <CapacityRing used={usedCapacity} total={totalCapacity ?? 0} />
+                          {tooltipDay === day && (
+                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 px-2 py-1 bg-gray-800 text-white text-xs font-semibold rounded-md whitespace-nowrap z-20 pointer-events-none shadow">
+                              {usedCapacity} / {totalCapacity ?? '?'}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <button
                         onClick={() => setDayPlanDate(day)}
                         className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
@@ -333,7 +432,8 @@ export default function DashboardPage() {
                       </ul>
                     </div>
                   </div>
-                ))
+                  )
+                })
               )}
             </div>
           )}

@@ -64,7 +64,7 @@ export default function SettingsPage() {
           {/* Open floor plan editor */}
           <Link
             href="/dashboard/settings/floor-plan"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold mb-4"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold mb-4"
           >
             <LayoutDashboard className="h-4 w-4" />
             {st.openFloorPlanEditor}

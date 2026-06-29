@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { X, Check, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import { useI18n } from '@/contexts/I18nContext'
 
 interface DBTable {
@@ -71,7 +70,6 @@ export default function FloorPlanPickerModal({
   const [loadingFloors, setLoadingFloors] = useState(false)
   const [activeIdx, setActiveIdx] = useState(0)
   const [draft, setDraft] = useState<string[]>([])
-  const { prefs } = useDisplayPrefs()
   const { messages } = useI18n()
   const t = messages.floorPlanPickerModal
 
@@ -338,21 +336,19 @@ export default function FloorPlanPickerModal({
                       >
                         {db.table_identifier}
                       </span>
-                      {prefs.showTableCapacity && (
-                        <span
-                          style={{
-                            fontSize: 10,
-                            color: 'rgba(255,255,255,0.85)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 2,
-                            pointerEvents: 'none',
-                          }}
-                        >
-                          <Users style={{ width: 9, height: 9 }} />
-                          {db.capacity}
-                        </span>
-                      )}
+                      <span
+                        style={{
+                          fontSize: 10,
+                          color: 'rgba(255,255,255,0.85)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        <Users style={{ width: 9, height: 9 }} />
+                        {db.capacity}
+                      </span>
                     </div>
                   )
                 })}

@@ -15,7 +15,9 @@
     "confirmed": "Bestätigt",
     "pending": "Ausstehend",
     "cancelled": "Storniert",
-    "notAvailable": "k. A."
+    "notAvailable": "k. A.",
+    "delete": "Löschen",
+    "confirm": "Bestätigen"
   },
   "home": {
     "title": "Restaurant-Reservierungssystem",
@@ -118,7 +120,8 @@
       "failedStatusUpdate": "Tischstatus konnte nicht aktualisiert werden",
       "failedDelete": "Tisch konnte nicht gelöscht werden"
     },
-    "confirmDelete": "Möchtest du diesen Tisch wirklich löschen?"
+    "confirmDelete": "Dies kann nicht rückgängig gemacht werden.",
+    "confirmDeleteTitle": "Tisch löschen?"
   },
   "tenant": {
     "loading": "Wird geladen...",
@@ -188,7 +191,8 @@
       "dbSetupRequired": "Datenbankeinrichtung erforderlich! Bitte führe supabase-tables-schema.sql im Supabase SQL Editor aus.",
       "dbMigrationRequired": "Datenbankmigration erforderlich! Die Spalte table_number muss nullable sein. Bitte führe die aktualisierte supabase-tables-schema.sql im Supabase SQL Editor aus."
     },
-    "confirmDelete": "Möchtest du diese Reservierung wirklich löschen?"
+    "confirmDelete": "Dies kann nicht rückgängig gemacht werden.",
+    "confirmDeleteTitle": "Reservierung löschen?"
   },
   "calendar": {
     "loading": "Kalender wird geladen...",
@@ -222,7 +226,7 @@
     "clickToRename": "Zum Umbenennen anklicken",
     "editLayout": "Grundriss bearbeiten (Hindernisse hinzufügen)",
     "deleteFloor": "Grundriss löschen",
-    "deleteFloorConfirm": "Diesen Grundriss und alle seine Tischplatzierungen löschen? Dies kann nicht rückgängig gemacht werden.",
+    "deleteFloorConfirm": "Alle Tischplatzierungen werden ebenfalls entfernt. Dies kann nicht rückgängig gemacht werden.",
     "editLayoutMode": "Layout bearbeiten:",
     "addBlock": "Block hinzufügen",
     "doneEditing": "Bearbeitung abgeschlossen",
@@ -237,7 +241,7 @@
     "seatsLabel": "Plätze",
     "shapeLabel": "Form",
     "colorLabel": "Farbe",
-    "deleteTableConfirm": "Diesen Tisch löschen? Dies kann nicht rückgängig gemacht werden.",
+    "deleteTableConfirm": "Dies kann nicht rückgängig gemacht werden.",
     "removeFromPlan": "Aus dem Plan entfernen",
     "deleteTable": "Tisch löschen",
     "none": "(keine)",
@@ -245,7 +249,9 @@
     "style": "Stil",
     "filled": "Ausgefüllt",
     "outlined": "Umrissen",
-    "remove": "Entfernen"
+    "remove": "Entfernen",
+    "deleteTableTitle": "Tisch löschen?",
+    "deleteFloorTitle": "Grundriss löschen?"
   },
   "floorPlanPickerModal": {
     "tapTablesToSelect": "Tippe auf Tische, um sie auszuwählen",
@@ -265,13 +271,14 @@
     "loadingTables": "Tische werden geladen…",
     "noTablesYet": "Noch keine Tische. Fügen Sie oben einen hinzu!",
     "notPlaced": "Nicht platziert",
-    "deleteTableConfirm": "Diesen Tisch löschen? Dies kann nicht rückgängig gemacht werden.",
-    "deleteTableTooltip": "Tisch löschen"
+    "deleteTableConfirm": "Dies kann nicht rückgängig gemacht werden.",
+    "deleteTableTooltip": "Tisch löschen",
+    "deleteTableTitle": "Tisch löschen?"
   },
   "floorPlanSettings": {
     "backToSettings": "Zurück zu Einstellungen",
     "title": "Sitzplan Editor",
-    "showCapacity": "Tisch-Kapazität anzeigen",
+    "totalCapacity": "Gesamtkapazität",
     "addFloor": "Sitzplan hinzufügen",
     "loading": "Wird geladen…",
     "groundFloor": "Erdgeschoss"
@@ -293,5 +300,18 @@
     "table": "Tisch",
     "phoneNumber": "Telefonnummer",
     "notes": "Notizen"
+  },
+  "dayPlanModal": {
+    "loading": "Lädt…",
+    "noFloorPlan": "Kein Grundriss konfiguriert.",
+    "timeConflict": "Konflikt mit: {names}.",
+    "showAll": "Alle anzeigen",
+    "reservations": "Reservierungen",
+    "noReservationsFiltered": "Keine Reservierungen",
+    "noReservations": "Keine",
+    "removeFromTable": "Vom Tisch entfernen",
+    "saving": "Speichern…",
+    "saveChanges": "Änderungen speichern",
+    "timeConflictTitle": "Zeitkonflikt"
   }
 }

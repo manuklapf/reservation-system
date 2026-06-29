@@ -20,6 +20,7 @@ import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
 import FloorPlanPickerModal from './FloorPlanPickerModal'
+import ConfirmDialog from './ConfirmDialog'
 
 interface Table {
   id: string
@@ -60,6 +61,11 @@ export default function ReservationEditModal({
   const { prefs } = useDisplayPrefs()
   const { reservationLengthEnabled } = prefs
   const [loading, setLoading] = useState(false)
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    title: string
+    message: string
+    onConfirm: () => void
+  } | null>(null)
   const [tables, setTables] = useState<Table[]>([])
   const [availableTables, setAvailableTables] = useState<Table[]>([])
   const [loadingTables, setLoadingTables] = useState(false)
@@ -343,36 +349,39 @@ export default function ReservationEditModal({
     }
   }
 
-  const handleDelete = async () => {
-    if (!confirm(t.confirmDelete)) return
-    setLoading(true)
-
-    if (onDemoDelete) {
-      onDemoDelete(reservation.id)
-      onDelete?.(reservation.id)
-      setLoading(false)
-      onClose()
-      return
-    }
-
-    if (!supabase) {
-      setLoading(false)
-      return
-    }
-    try {
-      const { error } = await supabase
-        .from('reservations')
-        .delete()
-        .eq('id', reservation.id)
-      if (error) throw error
-      onDelete?.(reservation.id)
-      onClose()
-    } catch (error) {
-      console.error('Error deleting reservation:', error)
-      alert(t.errors.deleteFailed)
-    } finally {
-      setLoading(false)
-    }
+  const handleDelete = () => {
+    setPendingConfirm({
+      title: t.confirmDeleteTitle,
+      message: t.confirmDelete,
+      onConfirm: async () => {
+        setLoading(true)
+        if (onDemoDelete) {
+          onDemoDelete(reservation.id)
+          onDelete?.(reservation.id)
+          setLoading(false)
+          onClose()
+          return
+        }
+        if (!supabase) {
+          setLoading(false)
+          return
+        }
+        try {
+          const { error } = await supabase
+            .from('reservations')
+            .delete()
+            .eq('id', reservation.id)
+          if (error) throw error
+          onDelete?.(reservation.id)
+          onClose()
+        } catch (error) {
+          console.error('Error deleting reservation:', error)
+          alert(t.errors.deleteFailed)
+        } finally {
+          setLoading(false)
+        }
+      },
+    })
   }
 
   const handleChange = (
@@ -398,15 +407,33 @@ export default function ReservationEditModal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-        <div className="relative w-full max-w-lg">
+      <ConfirmDialog
+        isOpen={!!pendingConfirm}
+        title={pendingConfirm?.title ?? ''}
+        message={pendingConfirm?.message ?? ''}
+        confirmLabel={messages.common.delete}
+        danger
+        onConfirm={() => {
+          pendingConfirm?.onConfirm()
+          setPendingConfirm(null)
+        }}
+        onCancel={() => setPendingConfirm(null)}
+      />
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <div
+          className="relative w-full max-w-lg"
+          onClick={e => e.stopPropagation()}
+        >
           {/* Delete button — left side */}
           {onDelete && (
             <button
               type="button"
               onClick={handleDelete}
               disabled={loading}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center text-red-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center text-red-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t.deleteReservation}
               title={t.deleteReservation}
             >
@@ -419,7 +446,7 @@ export default function ReservationEditModal({
             form="edit-reservation-form"
             type="submit"
             disabled={loading}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             aria-label={t.updateReservation}
             title={t.updateReservation}
           >
@@ -451,20 +478,6 @@ export default function ReservationEditModal({
 
           <div className="bg-white rounded-xl shadow-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all">
             <div className="p-8">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {t.editReservation}
-                </h2>
-                <button
-                  onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors text-3xl font-light hover:bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center"
-                  aria-label={t.closeModal}
-                >
-                  ×
-                </button>
-              </div>
-
               <form
                 id="edit-reservation-form"
                 onSubmit={handleSubmit}

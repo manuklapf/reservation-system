@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Trash2, Users, Pencil, X, Square } from 'lucide-react'
-import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { supabase } from '@/lib/supabase'
 import TableChip from './TableChip'
+import ConfirmDialog from './ConfirmDialog'
 
 interface DBTable {
   id: string
@@ -112,9 +112,13 @@ export default function FloorPlanEditor({
   onDeleteTable,
   activeTableIds,
 }: Props) {
-  const { prefs } = useDisplayPrefs()
   const { messages } = useI18n()
   const t = messages.floorPlanEditor
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    title: string
+    message: string
+    onConfirm: () => void
+  } | null>(null)
   const storageKey = `floorplan_v1_${tenantId}_${floorId}`
   const obstacleKey = `floorplan_obs_v1_${tenantId}_${floorId}`
 
@@ -293,6 +297,8 @@ export default function FloorPlanEditor({
         color,
       },
     ])
+    setSelected(t.id)
+    setSelectedObstacle(null)
   }
 
   const removeFromCanvas = (id: string) => {
@@ -310,10 +316,12 @@ export default function FloorPlanEditor({
     setShowAddModal(false)
   }
 
-  const handleDeleteTable = async (id: string) => {
-    if (!confirm(t.deleteTableConfirm)) return
-    await onDeleteTable(id)
-    // canvas entry will be pruned automatically via the tables useEffect
+  const handleDeleteTable = (id: string) => {
+    setPendingConfirm({
+      title: t.deleteTableTitle,
+      message: t.deleteTableConfirm,
+      onConfirm: () => onDeleteTable(id),
+    })
   }
 
   const updatePlaced = (id: string, patch: Partial<PlacedTable>) => {
@@ -360,10 +368,11 @@ export default function FloorPlanEditor({
 
   const addBlock = () => {
     const size = obstacleDefaultSize()
+    const newId = generateObstacleId()
     setObstacles(prev => [
       ...prev,
       {
-        id: generateObstacleId(),
+        id: newId,
         type: 'block' as const,
         label: '',
         x: snapG(
@@ -376,6 +385,8 @@ export default function FloorPlanEditor({
         outlined: false,
       },
     ])
+    setSelectedObstacle(newId)
+    setSelected(null)
   }
 
   const handleCanvasClick = () => {
@@ -445,11 +456,13 @@ export default function FloorPlanEditor({
         {onDeleteFloor && (
           <button
             type="button"
-            onClick={() => {
-              if (confirm(t.deleteFloorConfirm)) {
-                onDeleteFloor()
-              }
-            }}
+            onClick={() =>
+              setPendingConfirm({
+                title: t.deleteFloorTitle,
+                message: t.deleteFloorConfirm,
+                onConfirm: () => onDeleteFloor!(),
+              })
+            }
             className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0 ml-auto"
             title={t.deleteFloor}
           >
@@ -528,7 +541,7 @@ export default function FloorPlanEditor({
                         identifier={t.table_identifier}
                         capacity={t.capacity}
                         color={color}
-                        showCapacity={prefs.showTableCapacity}
+                        showCapacity={true}
                         onClick={() => addToCanvas(t)}
                       />
                     </div>
@@ -603,6 +616,10 @@ export default function FloorPlanEditor({
               }
               setDragPreviewPos(null)
               setDraggedTableId(null)
+              if (table) {
+                setSelected(table.id)
+                setSelectedObstacle(null)
+              }
             }}
           >
             {/* Blocks (rendered below tables) */}
@@ -967,15 +984,13 @@ export default function FloorPlanEditor({
                   >
                     {db.table_identifier}
                   </span>
-                  {prefs.showTableCapacity && (
-                    <span
-                      className="flex items-center gap-0.5 text-white/80 leading-none"
-                      style={{ fontSize: 10 }}
-                    >
-                      <Users style={{ width: 9, height: 9 }} />
-                      {db.capacity}
-                    </span>
-                  )}
+                  <span
+                    className="flex items-center gap-0.5 text-white/80 leading-none"
+                    style={{ fontSize: 10 }}
+                  >
+                    <Users style={{ width: 9, height: 9 }} />
+                    {db.capacity}
+                  </span>
                 </div>
               )
             })}
@@ -1046,11 +1061,9 @@ export default function FloorPlanEditor({
             <p className="text-xs font-bold text-gray-800">
               {selDb.table_identifier}
             </p>
-            {prefs.showTableCapacity && (
-              <p className="text-xs text-gray-400">
-                {selDb.capacity} {t.seatsLabel}
-              </p>
-            )}
+            <p className="text-xs text-gray-400">
+              {selDb.capacity} {t.seatsLabel}
+            </p>
           </div>
 
           <div className="w-px self-stretch bg-gray-100 shrink-0" />
@@ -1135,6 +1148,19 @@ export default function FloorPlanEditor({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!pendingConfirm}
+        title={pendingConfirm?.title ?? ''}
+        message={pendingConfirm?.message ?? ''}
+        confirmLabel={messages.common.delete}
+        danger
+        onConfirm={() => {
+          pendingConfirm?.onConfirm()
+          setPendingConfirm(null)
+        }}
+        onCancel={() => setPendingConfirm(null)}
+      />
 
       {/* Block properties bar — only in edit mode when a block is selected */}
       {obstacleMode && selObs && (

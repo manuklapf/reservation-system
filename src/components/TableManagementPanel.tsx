@@ -11,7 +11,6 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
-import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 interface TableItem {
   id: string
@@ -67,7 +66,6 @@ export default function TableManagementPanel({
   const tmp = messages.tableManagementPanel
   const { messages } = useI18n()
   const t = messages.setupPage
-  const { prefs } = useDisplayPrefs()
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [menuAbove, setMenuAbove] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -104,17 +102,15 @@ export default function TableManagementPanel({
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={saving}
           />
-          {prefs.showTableCapacity && (
-            <input
-              type="number"
-              placeholder={t.capacityPlaceholder}
-              value={newCapacity}
-              onChange={e => onNewCapacityChange(e.target.value)}
-              className="w-full sm:w-28 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={saving}
-              min="1"
-            />
-          )}
+          <input
+            type="number"
+            placeholder={t.capacityPlaceholder}
+            value={newCapacity}
+            onChange={e => onNewCapacityChange(e.target.value)}
+            className="w-full sm:w-28 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={saving}
+            min="1"
+          />
           <button
             onClick={onAdd}
             disabled={saving}
@@ -148,11 +144,9 @@ export default function TableManagementPanel({
                   <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t.table}
                   </th>
-                  {prefs.showTableCapacity && (
-                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t.capacity}
-                    </th>
-                  )}
+                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t.capacity}
+                  </th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t.status}
                   </th>
@@ -180,24 +174,22 @@ export default function TableManagementPanel({
                         </span>
                       )}
                     </td>
-                    {prefs.showTableCapacity && (
-                      <td className="px-5 py-3 whitespace-nowrap">
-                        {editingId === table.id ? (
-                          <input
-                            type="number"
-                            value={editCapacity}
-                            onChange={e => onEditCapacityChange(e.target.value)}
-                            className="w-20 px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            disabled={saving}
-                            min="1"
-                          />
-                        ) : (
-                          <span className="text-sm text-gray-900">
-                            {table.capacity}
-                          </span>
-                        )}
-                      </td>
-                    )}
+                    <td className="px-5 py-3 whitespace-nowrap">
+                      {editingId === table.id ? (
+                        <input
+                          type="number"
+                          value={editCapacity}
+                          onChange={e => onEditCapacityChange(e.target.value)}
+                          className="w-20 px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          disabled={saving}
+                          min="1"
+                        />
+                      ) : (
+                        <span className="text-sm text-gray-900">
+                          {table.capacity}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-5 py-3 whitespace-nowrap">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
