@@ -35,7 +35,14 @@ function CapacityRing({ used, total }: { used: number; total: number }) {
           : '#22c55e'
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r={r} fill="none" stroke="#e5e7eb" strokeWidth="4" />
+      <circle
+        cx="12"
+        cy="12"
+        r={r}
+        fill="none"
+        stroke="#e5e7eb"
+        strokeWidth="4"
+      />
       <circle
         cx="12"
         cy="12"
@@ -107,9 +114,7 @@ export default function DashboardPage() {
           .in('id', Array.from(placedIds))
           .eq('is_active', true)
         if (tableData) {
-          setTotalCapacity(
-            tableData.reduce((s, t) => s + (t.capacity ?? 0), 0)
-          )
+          setTotalCapacity(tableData.reduce((s, t) => s + (t.capacity ?? 0), 0))
         }
       })
   }, [tenantId])
@@ -220,7 +225,9 @@ export default function DashboardPage() {
     return acc
   }, {})
   const allDays = Object.keys(groupedByDay).sort()
-  const visibleDays = dateFilterActive ? allDays : allDays.filter(d => d >= todayISO)
+  const visibleDays = dateFilterActive
+    ? allDays
+    : allDays.filter(d => d >= todayISO)
 
   if (loading) {
     return (
@@ -381,57 +388,64 @@ export default function DashboardPage() {
                     0
                   )
                   return (
-                  <div key={day}>
-                    <div className="flex items-center justify-between mb-2 px-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                          {new Date(day + 'T00:00:00').toLocaleDateString(
-                            language === 'de' ? 'de-DE' : 'en-US',
-                            {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            }
-                          )}
-                        </h3>
-                        <div
-                          className="relative inline-flex items-center cursor-pointer"
-                          onPointerEnter={e => { if (e.pointerType === 'mouse') setTooltipDay(day) }}
-                          onPointerLeave={e => { if (e.pointerType === 'mouse') setTooltipDay(null) }}
-                          onClick={e => {
-                            e.stopPropagation()
-                            setTooltipDay(prev => prev === day ? null : day)
-                          }}
-                        >
-                          <CapacityRing used={usedCapacity} total={totalCapacity ?? 0} />
-                          {tooltipDay === day && (
-                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 px-2 py-1 bg-gray-800 text-white text-xs font-semibold rounded-md whitespace-nowrap z-20 pointer-events-none shadow">
-                              {usedCapacity} / {totalCapacity ?? '?'}
-                            </div>
-                          )}
+                    <div key={day}>
+                      <div className="flex items-center justify-between mb-2 px-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                            {new Date(day + 'T00:00:00').toLocaleDateString(
+                              language === 'de' ? 'de-DE' : 'en-US',
+                              {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              }
+                            )}
+                          </h3>
+                          <div
+                            className="relative inline-flex items-center cursor-pointer"
+                            onPointerEnter={e => {
+                              if (e.pointerType === 'mouse') setTooltipDay(day)
+                            }}
+                            onPointerLeave={e => {
+                              if (e.pointerType === 'mouse') setTooltipDay(null)
+                            }}
+                            onClick={e => {
+                              e.stopPropagation()
+                              setTooltipDay(prev => (prev === day ? null : day))
+                            }}
+                          >
+                            <CapacityRing
+                              used={usedCapacity}
+                              total={totalCapacity ?? 0}
+                            />
+                            {tooltipDay === day && (
+                              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 px-2 py-1 bg-gray-800 text-white text-xs font-semibold rounded-md whitespace-nowrap z-20 pointer-events-none shadow">
+                                {usedCapacity} / {totalCapacity ?? '?'}
+                              </div>
+                            )}
+                          </div>
                         </div>
+                        <button
+                          onClick={() => setDayPlanDate(day)}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                          title="Edit day plan"
+                        >
+                          <LayoutGrid className="h-4 w-4" />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => setDayPlanDate(day)}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-                        title="Edit day plan"
-                      >
-                        <LayoutGrid className="h-4 w-4" />
-                      </button>
+                      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                        <ul className="divide-y divide-gray-200">
+                          {groupedByDay[day].map(reservation => (
+                            <ReservationRow
+                              key={reservation.id}
+                              reservation={reservation}
+                              onEdit={handleOpenEditModal}
+                            />
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div className="bg-white shadow overflow-hidden sm:rounded-md">
-                      <ul className="divide-y divide-gray-200">
-                        {groupedByDay[day].map(reservation => (
-                          <ReservationRow
-                            key={reservation.id}
-                            reservation={reservation}
-                            onEdit={handleOpenEditModal}
-                          />
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
                   )
                 })
               )}
