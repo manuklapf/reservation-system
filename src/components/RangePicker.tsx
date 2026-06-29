@@ -58,7 +58,8 @@ export default function RangePicker({
     if (!from || (from && to)) {
       onChange(iso, '')
     } else {
-      if (iso < from) onChange(iso, from)
+      if (iso === from) onChange('', '')
+      else if (iso < from) onChange(iso, from)
       else onChange(from, iso)
     }
   }

@@ -234,6 +234,7 @@ export default function ReservationEditModal({
         party_size: reservation.party_size.toString(),
         notes: reservation.notes || '',
       })
+      setShowAdditional(!!(reservation.notes || reservation.customer_phone))
     }
   }, [isOpen, reservation])
 
@@ -508,7 +509,7 @@ export default function ReservationEditModal({
                       {t.date}
                     </span>
                     <span className="text-sm font-semibold">
-                      {formData.date}
+                      {formData.date.split('-').reverse().join('.')}
                     </span>
                   </button>
 

@@ -129,6 +129,9 @@ export default function DashboardPage() {
     return true
   })
 
+  const todayISO = new Date().toISOString().split('T')[0]
+  const dateFilterActive = !!(filterDateFrom || filterDateTo)
+
   // Group reservations by date, preserving sort order
   const groupedByDay = filteredReservations.reduce<
     Record<string, Reservation[]>
@@ -137,7 +140,8 @@ export default function DashboardPage() {
     acc[r.date].push(r)
     return acc
   }, {})
-  const sortedDays = Object.keys(groupedByDay).sort()
+  const allDays = Object.keys(groupedByDay).sort()
+  const visibleDays = dateFilterActive ? allDays : allDays.filter(d => d >= todayISO)
 
   if (loading) {
     return (
@@ -292,7 +296,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               ) : (
-                sortedDays.map(day => (
+                visibleDays.map(day => (
                   <div key={day}>
                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2 px-1">
                       {new Date(day + 'T00:00:00').toLocaleDateString(
