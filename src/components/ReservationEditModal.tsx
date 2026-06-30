@@ -21,6 +21,7 @@ import StepTime from './StepTime'
 import StepPersons from './StepPersons'
 import FloorPlanPickerModal from './FloorPlanPickerModal'
 import ConfirmDialog from './ConfirmDialog'
+import ReservationChip from './ReservationChip'
 
 interface Table {
   id: string
@@ -420,7 +421,7 @@ export default function ReservationEditModal({
         onCancel={() => setPendingConfirm(null)}
       />
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-6 z-50 backdrop-blur-sm"
         onClick={onClose}
       >
         <div
@@ -433,7 +434,7 @@ export default function ReservationEditModal({
               type="button"
               onClick={handleDelete}
               disabled={loading}
-              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center text-red-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="absolute left-0.5 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center text-red-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t.deleteReservation}
               title={t.deleteReservation}
             >
@@ -446,7 +447,7 @@ export default function ReservationEditModal({
             form="edit-reservation-form"
             type="submit"
             disabled={loading}
-            className="absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-0.5 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             aria-label={t.updateReservation}
             title={t.updateReservation}
           >
@@ -504,139 +505,99 @@ export default function ReservationEditModal({
                 </div>
 
                 {/* Chip grid */}
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Date chip */}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveStep(prev => (prev === 'date' ? null : 'date'))
-                    }
-                    className={`flex flex-col items-start rounded-xl px-4 py-3 text-left transition-colors ${
-                      activeStep === 'date'
-                        ? '!bg-blue-500 !text-white'
-                        : '!bg-blue-100 !text-blue-700 !hover:bg-blue-200'
-                    }`}
-                  >
-                    <span className="text-xs font-medium opacity-70 mb-0.5 flex items-center gap-1">
-                      <CalendarDays className="h-3.5 w-3.5" />
-                      {t.date}
-                    </span>
-                    <span className="text-sm font-semibold">
-                      {formData.date.split('-').reverse().join('.')}
-                    </span>
-                  </button>
-
-                  {/* Time chip */}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveStep(prev => (prev === 'time' ? null : 'time'))
-                    }
-                    className={`flex flex-col items-start rounded-xl px-4 py-3 text-left transition-colors ${
-                      activeStep === 'time'
-                        ? 'bg-violet-500 text-white'
-                        : 'bg-violet-100 text-violet-700 hover:bg-violet-200'
-                    }`}
-                  >
-                    <span className="text-xs font-medium opacity-70 mb-0.5 flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5" />
-                      {reservationLengthEnabled ? t.steps.startTime : t.time}
-                    </span>
-                    <span className="text-sm font-semibold">
-                      {formData.time?.slice(0, 5)}
-                    </span>
-                  </button>
-
-                  {/* End Time chip — only when reservation length is enabled */}
-                  {reservationLengthEnabled && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveStep(prev =>
-                          prev === 'end_time' ? null : 'end_time'
-                        )
-                      }
-                      className={`flex flex-col items-start rounded-xl px-4 py-3 text-left transition-colors ${
-                        activeStep === 'end_time'
-                          ? 'bg-violet-500 text-white'
-                          : formData.end_time
-                            ? 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+                {(() => {
+                  const selectedTables = formData.table_ids
+                    .map(id => tables.find(tb => tb.id === id))
+                    .filter(Boolean)
+                  const hasTableSelection = selectedTables.length > 0
+                  const tableLabel = hasTableSelection
+                    ? selectedTables.map(tb => tb!.table_identifier).join(', ')
+                    : t.selectTable
+                  return (
+                    <div className="grid grid-cols-2 gap-2">
+                      <ReservationChip
+                        icon={<CalendarDays className="h-3.5 w-3.5" />}
+                        label={t.date}
+                        value={formData.date.split('-').reverse().join('.')}
+                        active={activeStep === 'date'}
+                        activeClass="bg-blue-500 text-white"
+                        inactiveClass="bg-blue-100 text-blue-700 hover:bg-blue-200"
+                        onClick={() =>
+                          setActiveStep(prev =>
+                            prev === 'date' ? null : 'date'
+                          )
+                        }
+                      />
+                      <ReservationChip
+                        icon={<Clock className="h-3.5 w-3.5" />}
+                        label={
+                          reservationLengthEnabled ? t.steps.startTime : t.time
+                        }
+                        value={formData.time?.slice(0, 5)}
+                        active={activeStep === 'time'}
+                        activeClass="bg-violet-500 text-white"
+                        inactiveClass="bg-violet-100 text-violet-700 hover:bg-violet-200"
+                        onClick={() =>
+                          setActiveStep(prev =>
+                            prev === 'time' ? null : 'time'
+                          )
+                        }
+                      />
+                      {reservationLengthEnabled && (
+                        <ReservationChip
+                          icon={<Clock className="h-3.5 w-3.5" />}
+                          label={t.steps.endTime}
+                          value={formData.end_time?.slice(0, 5) || '—'}
+                          active={activeStep === 'end_time'}
+                          activeClass="bg-violet-500 text-white"
+                          inactiveClass={
+                            formData.end_time
+                              ? 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+                              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                          }
+                          onClick={() =>
+                            setActiveStep(prev =>
+                              prev === 'end_time' ? null : 'end_time'
+                            )
+                          }
+                        />
+                      )}
+                      <ReservationChip
+                        icon={<Users className="h-3.5 w-3.5" />}
+                        label={t.partySize}
+                        value={`${formData.party_size} ${
+                          parseInt(formData.party_size) === 1
+                            ? t.person
+                            : t.people
+                        }`}
+                        active={activeStep === 'persons'}
+                        activeClass="bg-red-500 text-white"
+                        inactiveClass="bg-red-50 text-red-600 hover:bg-red-100"
+                        onClick={() =>
+                          setActiveStep(prev =>
+                            prev === 'persons' ? null : 'persons'
+                          )
+                        }
+                      />
+                      <ReservationChip
+                        icon={<UtensilsCrossed className="h-3.5 w-3.5" />}
+                        label={t.table}
+                        value={tableLabel}
+                        active={showFloorPicker}
+                        activeClass="bg-emerald-500 text-white"
+                        inactiveClass={
+                          hasTableSelection
+                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                             : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                      }`}
-                    >
-                      <span className="text-xs font-medium opacity-70 mb-0.5 flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        {t.steps.endTime}
-                      </span>
-                      <span className="text-sm font-semibold">
-                        {formData.end_time?.slice(0, 5) || '—'}
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Party size chip */}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveStep(prev =>
-                        prev === 'persons' ? null : 'persons'
-                      )
-                    }
-                    className={`flex flex-col items-start rounded-xl px-4 py-3 text-left transition-colors ${
-                      activeStep === 'persons'
-                        ? '!bg-red-500 !text-white'
-                        : '!bg-red-50 !text-red-600 !hover:bg-red-100'
-                    }`}
-                  >
-                    <span className="text-xs font-medium opacity-70 mb-0.5 flex items-center gap-1">
-                      <Users className="h-3.5 w-3.5" />
-                      {t.partySize}
-                    </span>
-                    <span className="text-sm font-semibold">
-                      {formData.party_size}{' '}
-                      {parseInt(formData.party_size) === 1
-                        ? t.person
-                        : t.people}
-                    </span>
-                  </button>
-
-                  {/* Table chip */}
-                  {(() => {
-                    const selectedTables = formData.table_ids
-                      .map(id => tables.find(tb => tb.id === id))
-                      .filter(Boolean)
-                    const hasSelection = selectedTables.length > 0
-                    const label = hasSelection
-                      ? selectedTables
-                          .map(tb => tb!.table_identifier)
-                          .join(', ')
-                      : t.selectTable
-                    return (
-                      <button
-                        type="button"
+                        }
                         onClick={() => {
                           setActiveStep(null)
                           setShowFloorPicker(true)
                         }}
-                        className={`flex flex-col items-start rounded-xl px-4 py-3 text-left transition-colors ${
-                          showFloorPicker
-                            ? 'bg-emerald-500 text-white'
-                            : hasSelection
-                              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                        }`}
-                      >
-                        <span className="text-xs font-medium opacity-70 mb-0.5 flex items-center gap-1">
-                          <UtensilsCrossed className="h-3.5 w-3.5" />
-                          {t.table}
-                        </span>
-                        <span className="text-sm font-semibold truncate max-w-[120px]">
-                          {label}
-                        </span>
-                      </button>
-                    )
-                  })()}
-                </div>
+                      />
+                    </div>
+                  )
+                })()}
 
                 {/* Inline step panels */}
                 {activeStep === 'date' && (

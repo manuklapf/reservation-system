@@ -6,7 +6,6 @@ import {
   Check,
   Users,
   GripVertical,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
@@ -15,6 +14,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { Reservation } from '@/types/reservation'
 import { timesOverlap } from '@/utils/reservationConflictChecker'
 import ConfirmDialog from './ConfirmDialog'
+import FloorDropdown from './FloorDropdown'
 
 interface DBTable {
   id: string
@@ -90,7 +90,6 @@ export default function DayPlanModal({
   const [scale, setScale] = useState(0.88)
   const [listPage, setListPage] = useState(0)
   const [isTouch, setIsTouch] = useState(false)
-  const [floorDropdownOpen, setFloorDropdownOpen] = useState(false)
   const [touchDragState, setTouchDragState] = useState<{
     resId: string
     x: number
@@ -142,7 +141,6 @@ export default function DayPlanModal({
     setAssignments(init)
     setFocusedTableId(null)
     setActiveFloorIdx(0)
-    setFloorDropdownOpen(false)
     setListPage(0)
     touchDragRef.current = null
     setTouchDragState(null)
@@ -510,47 +508,11 @@ export default function DayPlanModal({
               })}
             </h3>
             <div className="flex items-center gap-3">
-              {floors.length > 1 && (
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setFloorDropdownOpen(o => !o)}
-                    className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-200"
-                  >
-                    {floors[activeFloorIdx]?.name}
-                    <ChevronDown
-                      className={`h-3 w-3 transition-transform ${floorDropdownOpen ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                  {floorDropdownOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-[55]"
-                        onClick={() => setFloorDropdownOpen(false)}
-                      />
-                      <div className="absolute left-0 top-full z-[56] mt-1 min-w-[120px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
-                        {floors.map((f, i) => (
-                          <button
-                            key={f.id}
-                            type="button"
-                            onClick={() => {
-                              setActiveFloorIdx(i)
-                              setFloorDropdownOpen(false)
-                            }}
-                            className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors ${
-                              i === activeFloorIdx
-                                ? 'bg-gray-100 font-semibold text-gray-900'
-                                : 'text-gray-700 hover:bg-gray-50'
-                            }`}
-                          >
-                            {f.name}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
+              <FloorDropdown
+                floors={floors}
+                activeIdx={activeFloorIdx}
+                onChange={setActiveFloorIdx}
+              />
               <button
                 type="button"
                 onClick={onClose}

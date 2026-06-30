@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { X, Check, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
+import FloorDropdown from './FloorDropdown'
 
 interface DBTable {
   id: string
@@ -55,7 +56,6 @@ interface Props {
 
 const CANVAS_W = 832
 const CANVAS_H = 480
-const SCALE = 0.72
 
 export default function FloorPlanPickerModal({
   isOpen,
@@ -70,10 +70,10 @@ export default function FloorPlanPickerModal({
   const [loadingFloors, setLoadingFloors] = useState(false)
   const [activeIdx, setActiveIdx] = useState(0)
   const [draft, setDraft] = useState<string[]>([])
+  const [scale, setScale] = useState(0.72)
   const { messages } = useI18n()
   const t = messages.floorPlanPickerModal
 
-  // Reset draft and tab when opening
   useEffect(() => {
     if (isOpen) {
       setDraft([...selectedIds])
@@ -81,7 +81,22 @@ export default function FloorPlanPickerModal({
     }
   }, [isOpen, selectedIds])
 
-  // Load floor plans (localStorage → DB fallback)
+  // Compute scale from viewport to avoid ResizeObserver feedback loops
+  useEffect(() => {
+    if (!isOpen) return
+    const measure = () => {
+      // 32 = backdrop p-4 × 2; 896 = max-w-4xl; 32 = canvas p-4 × 2
+      const availW = Math.min(window.innerWidth - 32, 896) - 32
+      // 165 ≈ top bar + footer + legend + gap + canvas vertical padding
+      const availH = window.innerHeight * 0.9 - 165
+      const s = Math.min(availW / CANVAS_W, availH / CANVAS_H, 1)
+      setScale(Math.max(s, 0.15))
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [isOpen])
+
   useEffect(() => {
     if (!isOpen || !tenantId || !supabase) return
     setLoadingFloors(true)
@@ -103,7 +118,7 @@ export default function FloorPlanPickerModal({
               )
               if (ls) layout = JSON.parse(ls)
             } catch {
-              // ignore
+              /* ignore */
             }
             try {
               const ls = localStorage.getItem(
@@ -111,7 +126,7 @@ export default function FloorPlanPickerModal({
               )
               if (ls) obstacles = JSON.parse(ls)
             } catch {
-              // ignore
+              /* ignore */
             }
             return { id: row.id, name: row.name, layout, obstacles }
           })
@@ -128,11 +143,9 @@ export default function FloorPlanPickerModal({
   }
 
   const tableMap = new Map(allTables.map(t => [t.id, t]))
-
-  const selectedNames = draft
-    .map(id => tableMap.get(id)?.table_identifier)
-    .filter(Boolean)
-    .join(', ')
+  const colorMap = new Map(
+    floors.flatMap(f => f.layout.map(p => [p.id, p.color]))
+  )
 
   if (!isOpen) return null
 
@@ -140,50 +153,37 @@ export default function FloorPlanPickerModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="flex w-full max-w-3xl max-h-[90vh] flex-col rounded-2xl bg-white shadow-2xl">
-        {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-6 py-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              {t.selectTables}
-            </h3>
-            <p className="mt-0.5 text-sm text-gray-400">
-              {draft.length === 0
-                ? t.tapTablesToSelect
-                : `${t.selected}: ${selectedNames}`}
-            </p>
-          </div>
+      <div className="flex w-full max-w-4xl max-h-[90vh] flex-col rounded-2xl bg-white shadow-2xl">
+        {/* Top bar */}
+        <div className="flex shrink-0 items-center gap-2 border-b border-gray-200 px-3 py-2">
+          <FloorDropdown
+            floors={floors}
+            activeIdx={activeIdx}
+            onChange={setActiveIdx}
+          />
+          <div className="flex-1" />
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+            className="shrink-0 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
           >
             <X className="h-5 w-5" />
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              onConfirm(draft)
+              onClose()
+            }}
+            disabled={draft.length === 0}
+            className="shrink-0 rounded-full p-2 bg-emerald-500 text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Check className="h-5 w-5" />
+          </button>
         </div>
 
-        {/* Floor tabs */}
-        {floors.length > 1 && (
-          <div className="flex shrink-0 gap-1.5 px-4 pt-3">
-            {floors.map((f, i) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setActiveIdx(i)}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                  i === activeIdx
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {f.name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Canvas area */}
-        <div className="flex min-h-0 flex-1 items-start justify-center overflow-auto p-4">
+        {/* Canvas + legend */}
+        <div className="flex flex-col items-center gap-3 overflow-hidden p-4">
           {loadingFloors ? (
             <div className="flex h-40 items-center justify-center text-sm text-gray-400">
               {t.loadingFloorPlans}
@@ -193,16 +193,14 @@ export default function FloorPlanPickerModal({
               {t.noFloorPlans}
             </div>
           ) : (
-            // Wrapper sized to the scaled canvas so the flex container collapses correctly
             <div
               style={{
-                width: CANVAS_W * SCALE,
-                height: CANVAS_H * SCALE,
+                width: CANVAS_W * scale,
+                height: CANVAS_H * scale,
                 position: 'relative',
                 flexShrink: 0,
               }}
             >
-              {/* Inner canvas at native size, then scaled down */}
               <div
                 style={{
                   position: 'absolute',
@@ -210,7 +208,7 @@ export default function FloorPlanPickerModal({
                   left: 0,
                   width: CANVAS_W,
                   height: CANVAS_H,
-                  transform: `scale(${SCALE})`,
+                  transform: `scale(${scale})`,
                   transformOrigin: 'top left',
                   borderRadius: 12,
                   border: '2px solid #e5e7eb',
@@ -292,7 +290,6 @@ export default function FloorPlanPickerModal({
                           ? '0 0 0 4px rgba(5,150,105,0.3), 2px 3px 8px rgba(0,0,0,0.12)'
                           : '2px 3px 8px rgba(0,0,0,0.10)',
                         cursor: 'pointer',
-                        opacity: 1,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -355,10 +352,8 @@ export default function FloorPlanPickerModal({
               </div>
             </div>
           )}
-        </div>
 
-        {/* Footer */}
-        <div className="flex shrink-0 items-center justify-between border-t border-gray-200 px-6 py-4">
+          {/* Legend */}
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-3 w-3 rounded-sm bg-[#4ecdc4]" />
@@ -379,28 +374,27 @@ export default function FloorPlanPickerModal({
               {t.selected}
             </span>
           </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
-            >
-              {t.cancel}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onConfirm(draft)
-                onClose()
-              }}
-              disabled={draft.length === 0}
-              className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <Check className="h-4 w-4" />
-              {t.confirm}
-              {draft.length > 0 ? ` (${draft.length})` : ''}
-            </button>
-          </div>
+        </div>
+
+        {/* Footer — selected tables */}
+        <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto border-t border-gray-200 px-4 py-2.5">
+          {draft.length === 0 ? (
+            <span className="text-sm text-gray-400">{t.tapTablesToSelect}</span>
+          ) : (
+            draft.map(id => {
+              const db = tableMap.get(id)
+              if (!db) return null
+              return (
+                <span
+                  key={id}
+                  className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold text-white"
+                  style={{ backgroundColor: colorMap.get(id) ?? '#4ecdc4' }}
+                >
+                  {db.table_identifier}
+                </span>
+              )
+            })
+          )}
         </div>
       </div>
     </div>
