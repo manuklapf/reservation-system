@@ -51,7 +51,9 @@ export default function EnhancedCalendar({
   const common = messages.common
   const [view, setView] = useState<View>(Views.MONTH)
   const [date, setDate] = useState(selectedDate)
-  const [overflowPopup, setOverflowPopup] = useState<{ events: CalendarEvent[] } | null>(null)
+  const [overflowPopup, setOverflowPopup] = useState<{
+    events: CalendarEvent[]
+  } | null>(null)
   const calendarRef = useRef<HTMLDivElement>(null)
 
   const { reservations: fetchedReservations, loading } = useReservations(
@@ -122,9 +124,13 @@ export default function EnhancedCalendar({
 
   const handleSelectEvent = useCallback(
     (event: CalendarEvent) => {
-      const resource = event.resource as unknown as OverflowResource | Reservation
+      const resource = event.resource as unknown as
+        | OverflowResource
+        | Reservation
       if ((resource as OverflowResource)._isOverflow) {
-        setOverflowPopup({ events: (resource as OverflowResource).hiddenEvents })
+        setOverflowPopup({
+          events: (resource as OverflowResource).hiddenEvents,
+        })
         return
       }
       onSelectEvent?.(event.resource)
@@ -202,7 +208,9 @@ export default function EnhancedCalendar({
   // week/day views show only the customer name (time is readable from the grid)
   const EventComponent = useCallback(
     ({ event, title }: { event: CalendarEvent; title: string }) => {
-      const resource = event.resource as unknown as OverflowResource | Reservation
+      const resource = event.resource as unknown as
+        | OverflowResource
+        | Reservation
       if ((resource as OverflowResource)._isOverflow) {
         return (
           <div
@@ -219,31 +227,32 @@ export default function EnhancedCalendar({
         )
       }
       if (view !== Views.MONTH) {
-        return <span style={{ fontWeight: 600 }}>{(resource as Reservation).customer_name}</span>
+        return (
+          <span style={{ fontWeight: 600 }}>
+            {(resource as Reservation).customer_name}
+          </span>
+        )
       }
       return <span>{title}</span>
     },
     [view]
   )
 
-  const eventStyleGetter = useCallback(
-    (event: CalendarEvent) => {
-      const resource = event.resource as unknown as OverflowResource | Reservation
-      if ((resource as OverflowResource)._isOverflow) {
-        return {
-          style: {
-            backgroundColor: 'rgba(156, 163, 175, 0.15)',
-            border: '1.5px dashed #9ca3af',
-            color: '#374151',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          },
-        }
+  const eventStyleGetter = useCallback((event: CalendarEvent) => {
+    const resource = event.resource as unknown as OverflowResource | Reservation
+    if ((resource as OverflowResource)._isOverflow) {
+      return {
+        style: {
+          backgroundColor: 'rgba(156, 163, 175, 0.15)',
+          border: '1.5px dashed #9ca3af',
+          color: '#374151',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        },
       }
-      return getEventStyle()
-    },
-    []
-  )
+    }
+    return getEventStyle()
+  }, [])
 
   if (loading) {
     return (
@@ -373,7 +382,9 @@ export default function EnhancedCalendar({
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-gray-900 text-sm">
                 {overflowPopup.events.length} more{' '}
-                {overflowPopup.events.length === 1 ? 'reservation' : 'reservations'}
+                {overflowPopup.events.length === 1
+                  ? 'reservation'
+                  : 'reservations'}
               </h3>
               <button
                 onClick={() => setOverflowPopup(null)}
@@ -397,7 +408,8 @@ export default function EnhancedCalendar({
                   }}
                 >
                   <div className="font-medium text-xs opacity-90">
-                    {format(event.start, 'h:mm a')} – {format(event.end, 'h:mm a')}
+                    {format(event.start, 'h:mm a')} –{' '}
+                    {format(event.end, 'h:mm a')}
                   </div>
                   <div className="font-semibold truncate">{event.title}</div>
                 </button>

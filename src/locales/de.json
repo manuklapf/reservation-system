@@ -313,5 +313,8 @@
     "saving": "Speichern…",
     "saveChanges": "Änderungen speichern",
     "timeConflictTitle": "Zeitkonflikt"
+  },
+  "demo": {
+    "backToHome": "Zurück zur Startseite"
   }
 }
