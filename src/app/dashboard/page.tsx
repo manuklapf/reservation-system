@@ -9,10 +9,12 @@ import {
   Settings,
   Globe,
   CalendarDays,
+  List,
   SlidersHorizontal,
   Plus,
   LayoutGrid,
 } from 'lucide-react'
+import CalendarKitCalendar from '@/components/CalendarKitCalendar'
 import ReservationModal from '@/components/ReservationModal'
 import ReservationRow from '@/components/ReservationRow'
 import RangePicker from '@/components/RangePicker'
@@ -74,6 +76,12 @@ export default function DashboardPage() {
   const [dayPlanDate, setDayPlanDate] = useState<string | null>(null)
   const [totalCapacity, setTotalCapacity] = useState<number | null>(null)
   const [tooltipDay, setTooltipDay] = useState<string | null>(null)
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [calendarKey, setCalendarKey] = useState(0)
+  const [selectedSlot, setSelectedSlot] = useState<{
+    start: Date
+    end: Date
+  } | null>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const { language, setLanguage, messages } = useI18n()
 
@@ -161,14 +169,23 @@ export default function DashboardPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setSelectedReservation(null)
+    setSelectedSlot(null)
   }
 
   const handleSaveReservation = async () => {
     await fetchReservations()
+    setCalendarKey(prev => prev + 1)
   }
 
   const handleDeleteReservation = async () => {
     await fetchReservations()
+    setCalendarKey(prev => prev + 1)
+  }
+
+  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+    setSelectedReservation(null)
+    setSelectedSlot(slotInfo)
+    setIsModalOpen(true)
   }
 
   useEffect(() => {
@@ -243,7 +260,10 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-10 m-1">
+      <nav
+        className="bg-white shadow-sm border-b sticky top-0 m-1"
+        style={{ zIndex: 50 }}
+      >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -282,90 +302,104 @@ export default function DashboardPage() {
               {t.reservations}
             </h2>
             <div className="flex items-center gap-1">
-              <Link
-                href="/dashboard/calendar"
+              <button
+                onClick={() => setShowCalendar(prev => !prev)}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                aria-label={t.calendarView}
-                title={t.calendarView}
+                aria-label={showCalendar ? t.reservations : t.calendarView}
+                title={showCalendar ? t.reservations : t.calendarView}
               >
-                <CalendarDays className="h-5 w-5" />
-              </Link>
-              <div className="relative" ref={filterRef}>
-                <button
-                  onClick={() => setFilterOpen(prev => !prev)}
-                  className={`relative inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
-                    activeFilterCount > 0
-                      ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
-                  aria-label={t.filter}
-                  title={t.filter}
-                >
-                  <SlidersHorizontal className="h-5 w-5" />
-                  {activeFilterCount > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                      {activeFilterCount}
-                    </span>
-                  )}
-                </button>
-
-                {filterOpen && (
-                  <div className="absolute right-0 top-10 z-20 w-72 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-gray-700">
-                          {t.filterGuestName}
-                        </label>
-                        <input
-                          type="text"
-                          value={filterGuestName}
-                          onChange={e => setFilterGuestName(e.target.value)}
-                          placeholder={t.filterGuestName}
-                          className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-2 block text-xs font-medium text-gray-700">
-                          {t.filterDate}
-                          {(filterDateFrom || filterDateTo) && (
-                            <span className="ml-2 font-normal text-blue-600">
-                              {filterDateFrom.split('-').reverse().join('.')}
-                              {filterDateTo && filterDateTo !== filterDateFrom
-                                ? ` – ${filterDateTo.split('-').reverse().join('.')}`
-                                : ''}
-                            </span>
-                          )}
-                        </label>
-                        <RangePicker
-                          from={filterDateFrom}
-                          to={filterDateTo}
-                          onChange={(f, t2) => {
-                            setFilterDateFrom(f)
-                            setFilterDateTo(t2)
-                          }}
-                          locale={language === 'de' ? 'de-DE' : 'en-US'}
-                        />
-                      </div>
-                      {activeFilterCount > 0 && (
-                        <button
-                          onClick={() => {
-                            setFilterGuestName('')
-                            setFilterDateFrom('')
-                            setFilterDateTo('')
-                          }}
-                          className="w-full text-center text-sm text-gray-500 underline hover:text-gray-800"
-                        >
-                          {t.clearFilters}
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                {showCalendar ? (
+                  <List className="h-5 w-5" />
+                ) : (
+                  <CalendarDays className="h-5 w-5" />
                 )}
-              </div>
+              </button>
+              {!showCalendar && (
+                <div className="relative" ref={filterRef}>
+                  <button
+                    onClick={() => setFilterOpen(prev => !prev)}
+                    className={`relative inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
+                      activeFilterCount > 0
+                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
+                    }`}
+                    aria-label={t.filter}
+                    title={t.filter}
+                  >
+                    <SlidersHorizontal className="h-5 w-5" />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {filterOpen && (
+                    <div className="absolute right-0 top-10 z-20 w-72 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-gray-700">
+                            {t.filterGuestName}
+                          </label>
+                          <input
+                            type="text"
+                            value={filterGuestName}
+                            onChange={e => setFilterGuestName(e.target.value)}
+                            placeholder={t.filterGuestName}
+                            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-2 block text-xs font-medium text-gray-700">
+                            {t.filterDate}
+                            {(filterDateFrom || filterDateTo) && (
+                              <span className="ml-2 font-normal text-blue-600">
+                                {filterDateFrom.split('-').reverse().join('.')}
+                                {filterDateTo && filterDateTo !== filterDateFrom
+                                  ? ` – ${filterDateTo.split('-').reverse().join('.')}`
+                                  : ''}
+                              </span>
+                            )}
+                          </label>
+                          <RangePicker
+                            from={filterDateFrom}
+                            to={filterDateTo}
+                            onChange={(f, t2) => {
+                              setFilterDateFrom(f)
+                              setFilterDateTo(t2)
+                            }}
+                            locale={language === 'de' ? 'de-DE' : 'en-US'}
+                          />
+                        </div>
+                        {activeFilterCount > 0 && (
+                          <button
+                            onClick={() => {
+                              setFilterGuestName('')
+                              setFilterDateFrom('')
+                              setFilterDateTo('')
+                            }}
+                            className="w-full text-center text-sm text-gray-500 underline hover:text-gray-800"
+                          >
+                            {t.clearFilters}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {loadingReservations ? (
+          {showCalendar ? (
+            <div className="rounded-lg">
+              <CalendarKitCalendar
+                refreshKey={calendarKey}
+                onSelectEvent={handleOpenEditModal}
+                onSelectSlot={handleSelectSlot}
+              />
+            </div>
+          ) : loadingReservations ? (
             <div className="text-center py-8">
               <div className="text-lg">{t.loadingReservations}</div>
             </div>
@@ -454,20 +488,28 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
-        <button
-          onClick={handleOpenNewModal}
-          className="inline-flex whitespace-nowrap items-center gap-2 px-12 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <Plus className="h-4 w-4" />
-          {t.newReservation}
-        </button>
-      </div>
+      {!showCalendar && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
+          <button
+            onClick={handleOpenNewModal}
+            className="inline-flex whitespace-nowrap items-center gap-2 px-12 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            <Plus className="h-4 w-4" />
+            {t.newReservation}
+          </button>
+        </div>
+      )}
 
       <ReservationModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         reservation={selectedReservation}
+        selectedDate={selectedSlot?.start}
+        selectedTime={
+          selectedSlot?.start
+            ? `${selectedSlot.start.getHours().toString().padStart(2, '0')}:${selectedSlot.start.getMinutes().toString().padStart(2, '0')}`
+            : undefined
+        }
         onSave={handleSaveReservation}
         onDelete={handleDeleteReservation}
       />

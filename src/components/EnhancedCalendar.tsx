@@ -12,7 +12,6 @@ import { useMobileTouch } from '@/hooks/useMobileTouch'
 import { getEventStyle } from '@/utils/calendarHelpers'
 import { useI18n } from '@/contexts/I18nContext'
 
-// Setup the localizer for react-big-calendar
 const locales = {
   'en-US': enUS,
 }
@@ -24,6 +23,11 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 })
+
+interface OverflowResource {
+  _isOverflow: true
+  hiddenEvents: CalendarEvent[]
+}
 
 interface EnhancedCalendarProps {
   onSelectEvent?: (reservation: Reservation) => void
@@ -47,23 +51,21 @@ export default function EnhancedCalendar({
   const common = messages.common
   const [view, setView] = useState<View>(Views.MONTH)
   const [date, setDate] = useState(selectedDate)
+  const [overflowPopup, setOverflowPopup] = useState<{ events: CalendarEvent[] } | null>(null)
   const calendarRef = useRef<HTMLDivElement>(null)
 
-  // Fetch reservations (skipped in demo mode)
   const { reservations: fetchedReservations, loading } = useReservations(
     demoReservations ? null : tenantId,
     refreshKey
   )
   const reservations = demoReservations ?? fetchedReservations
 
-  // Mobile touch handlers
   const { handleTouchStart, handleTouchEnd, handleClick } = useMobileTouch({
     onSelectSlot: onSelectSlot || (() => {}),
     currentDate: date,
     view,
   })
 
-  // Convert reservations to calendar events
   const events: CalendarEvent[] = useMemo(() => {
     return reservations.map(reservation => {
       const startDate = new Date(`${reservation.date}T${reservation.time}`)
@@ -84,15 +86,52 @@ export default function EnhancedCalendar({
     })
   }, [reservations])
 
-  // Handle event selection
+  // For week/day views: limit to 2 events per same-start-time group, add overflow indicator
+  const displayEvents = useMemo(() => {
+    if (view === Views.MONTH) return events
+
+    const groups = new Map<string, CalendarEvent[]>()
+    events.forEach(event => {
+      const key = event.start.toISOString()
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(event)
+    })
+
+    const result: CalendarEvent[] = []
+    groups.forEach(groupEvents => {
+      if (groupEvents.length <= 2) {
+        result.push(...groupEvents)
+      } else {
+        result.push(groupEvents[0], groupEvents[1])
+        const hiddenCount = groupEvents.length - 2
+        result.push({
+          id: `overflow-${groupEvents[0].start.toISOString()}`,
+          title: `+${hiddenCount} more`,
+          start: groupEvents[0].start,
+          end: groupEvents[0].end,
+          resource: {
+            _isOverflow: true,
+            hiddenEvents: groupEvents.slice(2),
+          } as unknown as Reservation,
+        })
+      }
+    })
+
+    return result
+  }, [events, view])
+
   const handleSelectEvent = useCallback(
     (event: CalendarEvent) => {
+      const resource = event.resource as unknown as OverflowResource | Reservation
+      if ((resource as OverflowResource)._isOverflow) {
+        setOverflowPopup({ events: (resource as OverflowResource).hiddenEvents })
+        return
+      }
       onSelectEvent?.(event.resource)
     },
     [onSelectEvent]
   )
 
-  // Handle slot selection
   const handleSelectSlot = useCallback(
     (slotInfo: { start: Date; end: Date }) => {
       onSelectSlot?.(slotInfo)
@@ -100,7 +139,6 @@ export default function EnhancedCalendar({
     [onSelectSlot]
   )
 
-  // Custom toolbar component
   const Toolbar = useCallback(
     (toolbar: any) => {
       const goToBack = () => toolbar.onNavigate('PREV')
@@ -160,9 +198,50 @@ export default function EnhancedCalendar({
     [view]
   )
 
-  // Event style
+  // Custom event content — overflow events get centered "+X more" text;
+  // week/day views show only the customer name (time is readable from the grid)
+  const EventComponent = useCallback(
+    ({ event, title }: { event: CalendarEvent; title: string }) => {
+      const resource = event.resource as unknown as OverflowResource | Reservation
+      if ((resource as OverflowResource)._isOverflow) {
+        return (
+          <div
+            style={{
+              textAlign: 'center',
+              fontWeight: 700,
+              fontSize: '13px',
+              lineHeight: '1.4',
+              paddingTop: '2px',
+            }}
+          >
+            {title}
+          </div>
+        )
+      }
+      if (view !== Views.MONTH) {
+        return <span style={{ fontWeight: 600 }}>{(resource as Reservation).customer_name}</span>
+      }
+      return <span>{title}</span>
+    },
+    [view]
+  )
+
   const eventStyleGetter = useCallback(
-    (_event: CalendarEvent) => getEventStyle(),
+    (event: CalendarEvent) => {
+      const resource = event.resource as unknown as OverflowResource | Reservation
+      if ((resource as OverflowResource)._isOverflow) {
+        return {
+          style: {
+            backgroundColor: 'rgba(156, 163, 175, 0.15)',
+            border: '1.5px dashed #9ca3af',
+            color: '#374151',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          },
+        }
+      }
+      return getEventStyle()
+    },
     []
   )
 
@@ -176,7 +255,6 @@ export default function EnhancedCalendar({
 
   return (
     <div className="h-full">
-      {/* CSS Styles for react-big-calendar */}
       <style jsx global>{`
         .rbc-calendar {
           font-family: inherit;
@@ -211,10 +289,18 @@ export default function EnhancedCalendar({
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        /* Ensure proper spacing for overlapping events in day/week view */
-        .rbc-time-slot .rbc-event,
+        /* Hide the auto-generated time label inside event boxes in time views;
+           the time is already visible from the grid itself */
+        .rbc-time-view .rbc-event-label {
+          display: none;
+        }
+        /* White outline creates a visible gap between adjacent column events */
         .rbc-day-slot .rbc-event {
-          margin-right: 1px;
+          box-shadow: 0 0 0 1.5px white;
+        }
+        /* Small gap between stacked events in month view */
+        .rbc-month-view .rbc-event {
+          margin-bottom: 2px;
         }
         .rbc-time-view .rbc-time-gutter {
           background-color: #f8fafc;
@@ -243,7 +329,7 @@ export default function EnhancedCalendar({
         >
           <Calendar
             localizer={localizer}
-            events={events}
+            events={displayEvents}
             startAccessor="start"
             endAccessor="end"
             style={{ height: '100%' }}
@@ -259,6 +345,7 @@ export default function EnhancedCalendar({
             popupOffset={{ x: 10, y: 10 }}
             components={{
               toolbar: Toolbar,
+              event: EventComponent,
             }}
             step={60}
             timeslots={1}
@@ -273,21 +360,52 @@ export default function EnhancedCalendar({
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="mt-4 flex flex-wrap gap-4 text-sm">
-        <div className="flex items-center">
-          <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
-          <span>{t.legendConfirmed}</span>
+      {/* Overflow popup for week/day "+X more" */}
+      {overflowPopup && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          onClick={() => setOverflowPopup(null)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl border border-gray-200 p-4 max-w-sm w-full mx-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-gray-900 text-sm">
+                {overflowPopup.events.length} more{' '}
+                {overflowPopup.events.length === 1 ? 'reservation' : 'reservations'}
+              </h3>
+              <button
+                onClick={() => setOverflowPopup(null)}
+                className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="space-y-1.5 max-h-72 overflow-y-auto">
+              {overflowPopup.events.map(event => (
+                <button
+                  key={event.id}
+                  onClick={() => {
+                    onSelectEvent?.(event.resource)
+                    setOverflowPopup(null)
+                  }}
+                  className="w-full text-left px-3 py-2 rounded text-sm cursor-pointer transition-opacity hover:opacity-90"
+                  style={{
+                    backgroundColor: 'var(--color-accent)',
+                    color: 'var(--color-accent-fg)',
+                  }}
+                >
+                  <div className="font-medium text-xs opacity-90">
+                    {format(event.start, 'h:mm a')} – {format(event.end, 'h:mm a')}
+                  </div>
+                  <div className="font-semibold truncate">{event.title}</div>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="flex items-center">
-          <div className="w-3 h-3 bg-yellow-500 rounded mr-2"></div>
-          <span>{t.legendPending}</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
-          <span>{t.legendCancelled}</span>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

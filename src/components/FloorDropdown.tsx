@@ -14,7 +14,11 @@ interface FloorDropdownProps {
   onChange: (idx: number) => void
 }
 
-export default function FloorDropdown({ floors, activeIdx, onChange }: FloorDropdownProps) {
+export default function FloorDropdown({
+  floors,
+  activeIdx,
+  onChange,
+}: FloorDropdownProps) {
   const [open, setOpen] = useState(false)
 
   if (floors.length <= 1) return null
