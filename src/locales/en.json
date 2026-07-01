@@ -33,13 +33,13 @@
     "subtitle": "Manage your restaurant reservations efficiently",
     "staffDashboard": "Staff Dashboard",
     "staffDashboardDescription": "Access the full reservation management system for staff members",
-    "staffLogin": "Staff Login",
+    "staffLogin": "Login",
     "widgetTitle": "Embeddable Widget",
     "widgetDescription": "Embed reservations in your website using tenant-specific URLs",
     "widgetExample": "/[tenant-slug] - Your embeddable reservation view"
   },
   "login": {
-    "title": "Staff Login",
+    "title": "Login",
     "subtitle": "Sign in to access the reservation system",
     "emailAddress": "Email address",
     "password": "Password",
@@ -85,6 +85,7 @@
   },
   "setupPage": {
     "loginRequired": "Please log in to access this page.",
+    "accessDenied": "You don't have permission to access this page.",
     "title": "Table Setup",
     "backToDashboard": "Back to Dashboard",
     "addNewTable": "Add New Table",

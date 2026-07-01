@@ -44,7 +44,7 @@ type Floor = {
 }
 
 export default function FloorPlanPage() {
-  const { user, tenantId } = useAuth()
+  const { user, tenantId, isAdmin } = useAuth()
   const { messages } = useI18n()
   const t = messages.setupPage
   const fps = messages.floorPlanSettings
@@ -314,6 +314,14 @@ export default function FloorPlanPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>{t.loginRequired}</p>
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>{t.accessDenied}</p>
       </div>
     )
   }

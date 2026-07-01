@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
+export type UserRole = 'admin' | 'staff'
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -11,6 +13,8 @@ interface AuthContextType {
   signOut: () => Promise<void>
   tenantId: string | null
   setTenantId: (id: string) => void
+  role: UserRole | null
+  isAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -19,6 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [tenantId, setTenantId] = useState<string | null>(null)
+  const [role, setRole] = useState<UserRole | null>(null)
 
   useEffect(() => {
     if (!supabase) {
@@ -44,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchUserTenant(session.user.email!)
       } else {
         setTenantId(null)
+        setRole(null)
       }
       setLoading(false)
     })
@@ -57,12 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('staff')
-        .select('tenant_id')
+        .select('tenant_id, role')
         .eq('email', email)
         .single()
 
       if (error) {
-        // Check if it's a "no rows" error (user not in staff table)
         if (error.code === 'PGRST116') {
           console.warn(
             `User ${email} not found in staff table. Please add them to access the system.`
@@ -80,6 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           `User ${email} found in staff table but has no tenant_id assigned.`
         )
       }
+
+      const fetchedRole = data?.role === 'admin' ? 'admin' : 'staff'
+      setRole(fetchedRole as UserRole)
     } catch (error) {
       console.error('Unexpected error fetching user tenant:', error)
     }
@@ -106,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     await supabase.auth.signOut()
     setTenantId(null)
+    setRole(null)
   }
 
   return (
@@ -117,6 +126,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signOut,
         tenantId,
         setTenantId,
+        role,
+        isAdmin: role === 'admin',
       }}
     >
       {children}

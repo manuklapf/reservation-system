@@ -11,7 +11,7 @@ import { useTheme, Theme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
 export default function SettingsPage() {
-  const { user, tenantId, signOut } = useAuth()
+  const { user, tenantId, signOut, isAdmin } = useAuth()
   const router = useRouter()
   const { messages } = useI18n()
   const t = messages.setupPage
@@ -61,14 +61,16 @@ export default function SettingsPage() {
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="space-y-3">
-          {/* Open floor plan editor */}
-          <Link
-            href="/dashboard/settings/floor-plan"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold mb-4"
-          >
-            <LayoutDashboard className="h-4 w-4" />
-            {st.openFloorPlanEditor}
-          </Link>
+          {/* Open floor plan editor — admin only */}
+          {isAdmin && (
+            <Link
+              href="/dashboard/settings/floor-plan"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold mb-4"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              {st.openFloorPlanEditor}
+            </Link>
+          )}
           <AccordionItem title={st.appearance} description={st.appearanceDesc}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(
@@ -231,7 +233,7 @@ export default function SettingsPage() {
             </div>
           </AccordionItem>
 
-          <AccordionItem
+          {isAdmin && <AccordionItem
             title={st.reservationSettings}
             description={st.reservationSettingsDesc}
           >
@@ -267,7 +269,7 @@ export default function SettingsPage() {
                 />
               </button>
             </label>
-          </AccordionItem>
+          </AccordionItem>}
         </div>
       </main>
     </div>

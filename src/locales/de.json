@@ -33,13 +33,13 @@
     "subtitle": "Verwalte deine Restaurantreservierungen effizient",
     "staffDashboard": "Mitarbeiter-Dashboard",
     "staffDashboardDescription": "Zugriff auf das vollständige Reservierungsmanagement für Mitarbeiter",
-    "staffLogin": "Mitarbeiter-Login",
+    "staffLogin": "Anmelden",
     "widgetTitle": "Einbettbares Widget",
     "widgetDescription": "Bette Reservierungen mit mandantenspezifischen URLs in deine Website ein",
     "widgetExample": "/[tenant-slug] - Deine einbettbare Reservierungsansicht"
   },
   "login": {
-    "title": "Mitarbeiter-Login",
+    "title": "Anmelden",
     "subtitle": "Melde dich an, um auf das Reservierungssystem zuzugreifen",
     "emailAddress": "E-Mail-Adresse",
     "password": "Passwort",
@@ -85,6 +85,7 @@
   },
   "setupPage": {
     "loginRequired": "Bitte melde dich an, um auf diese Seite zuzugreifen.",
+    "accessDenied": "Du hast keine Berechtigung, auf diese Seite zuzugreifen.",
     "title": "Tische einrichten",
     "backToDashboard": "Zurück zum Dashboard",
     "addNewTable": "Neuen Tisch hinzufügen",
