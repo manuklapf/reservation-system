@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check, LogOut, LayoutDashboard } from 'lucide-react'
+import { ArrowLeft, Check, LogOut, LayoutDashboard, Users } from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
@@ -61,15 +61,24 @@ export default function SettingsPage() {
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="space-y-3">
-          {/* Open floor plan editor — admin only */}
+          {/* Admin-only quick links */}
           {isAdmin && (
-            <Link
-              href="/dashboard/settings/floor-plan"
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold mb-4"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              {st.openFloorPlanEditor}
-            </Link>
+            <div className="flex gap-3 mb-4">
+              <Link
+                href="/dashboard/settings/floor-plan"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                {st.openFloorPlanEditor}
+              </Link>
+              <Link
+                href="/dashboard/settings/users"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold"
+              >
+                <Users className="h-4 w-4" />
+                {st.manageStaff}
+              </Link>
+            </div>
           )}
           <AccordionItem title={st.appearance} description={st.appearanceDesc}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
