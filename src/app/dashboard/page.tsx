@@ -62,7 +62,7 @@ function CapacityRing({ used, total }: { used: number; total: number }) {
 }
 
 export default function DashboardPage() {
-  const { user, loading, tenantId } = useAuth()
+  const { user, loading, tenantId, isPlatformAdmin } = useAuth()
   const router = useRouter()
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
@@ -91,8 +91,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!loading && !user) {
       router.push('/auth/login')
+    } else if (!loading && user && isPlatformAdmin) {
+      router.push('/admin')
     }
-  }, [user, loading, router])
+  }, [user, loading, isPlatformAdmin, router])
 
   useEffect(() => {
     if (user && tenantId) {

@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
-export type UserRole = 'admin' | 'staff'
+export type UserRole = 'platform_admin' | 'admin' | 'staff'
 
 interface AuthContextType {
   user: User | null
@@ -15,6 +15,7 @@ interface AuthContextType {
   setTenantId: (id: string) => void
   role: UserRole | null
   isAdmin: boolean
+  isPlatformAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -86,8 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         )
       }
 
-      const fetchedRole = data?.role === 'admin' ? 'admin' : 'staff'
-      setRole(fetchedRole as UserRole)
+      const r = data?.role
+      const fetchedRole: UserRole =
+        r === 'platform_admin' ? 'platform_admin' : r === 'admin' ? 'admin' : 'staff'
+      setRole(fetchedRole)
     } catch (error) {
       console.error('Unexpected error fetching user tenant:', error)
     }
@@ -128,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setTenantId,
         role,
         isAdmin: role === 'admin',
+        isPlatformAdmin: role === 'platform_admin',
       }}
     >
       {children}
