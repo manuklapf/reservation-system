@@ -20,7 +20,7 @@ const THEME_STORAGE_KEY = 'appTheme'
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('default')
+  const [theme, setThemeState] = useState<Theme>('brutalist')
 
   useEffect(() => {
     const saved =
@@ -28,7 +28,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         ? (window.localStorage.getItem(THEME_STORAGE_KEY) as Theme | null)
         : null
     const resolved: Theme =
-      saved === 'default' || saved === 'brutalist' ? saved : 'default'
+      saved === 'default' || saved === 'brutalist' ? saved : 'brutalist'
     setThemeState(resolved)
     document.documentElement.setAttribute('data-theme', resolved)
   }, [])

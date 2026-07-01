@@ -15,7 +15,10 @@ export interface Reservation {
   created_at: string
   updated_at: string
   tenant_id: string
-  created_by: string
+  created_by: string | null
+  customer_email?: string | null
+  is_requested?: boolean
+  approved_by?: string | null
   tables?: {
     table_identifier: string
     capacity: number

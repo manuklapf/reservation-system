@@ -16,6 +16,7 @@ interface AuthContextType {
   role: UserRole | null
   isAdmin: boolean
   isPlatformAdmin: boolean
+  staffName: string | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -25,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [tenantId, setTenantId] = useState<string | null>(null)
   const [role, setRole] = useState<UserRole | null>(null)
+  const [staffName, setStaffName] = useState<string | null>(null)
 
   useEffect(() => {
     if (!supabase) {
@@ -51,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setTenantId(null)
         setRole(null)
+        setStaffName(null)
       }
       setLoading(false)
     })
@@ -64,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('staff')
-        .select('tenant_id, role')
+        .select('tenant_id, role, name')
         .eq('email', email)
         .single()
 
@@ -91,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const fetchedRole: UserRole =
         r === 'platform_admin' ? 'platform_admin' : r === 'admin' ? 'admin' : 'staff'
       setRole(fetchedRole)
+      setStaffName(data?.name ?? null)
     } catch (error) {
       console.error('Unexpected error fetching user tenant:', error)
     }
@@ -132,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role,
         isAdmin: role === 'admin',
         isPlatformAdmin: role === 'platform_admin',
+        staffName,
       }}
     >
       {children}

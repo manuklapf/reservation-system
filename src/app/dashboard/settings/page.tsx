@@ -1,21 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check, LogOut, LayoutDashboard, Users } from 'lucide-react'
+import {
+  ArrowLeft,
+  Check,
+  LogOut,
+  LayoutDashboard,
+  Users,
+  Copy,
+  Code2,
+} from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
+import { supabase } from '@/lib/supabase'
 
 export default function SettingsPage() {
   const { user, tenantId, signOut, isAdmin } = useAuth()
+  const [tenantSlug, setTenantSlug] = useState<string | null>(null)
+  const [embedCopied, setEmbedCopied] = useState(false)
+
+  useEffect(() => {
+    if (!supabase || !tenantId) return
+    supabase
+      .from('tenants')
+      .select('slug')
+      .eq('id', tenantId)
+      .single()
+      .then(({ data }) => {
+        if (data?.slug) setTenantSlug(data.slug)
+      })
+  }, [tenantId])
   const router = useRouter()
   const { messages } = useI18n()
   const t = messages.setupPage
   const st = messages.settingsPage
+  const wr = messages.reservationRequest
   const dl = messages.dashboardDisplayLabels
   const { theme, setTheme } = useTheme()
   const { prefs, setPrefs } = useDisplayPrefs()
@@ -242,43 +266,110 @@ export default function SettingsPage() {
             </div>
           </AccordionItem>
 
-          {isAdmin && <AccordionItem
-            title={st.reservationSettings}
-            description={st.reservationSettingsDesc}
-          >
-            <label className="flex items-center justify-between gap-3 cursor-pointer select-none">
-              <div>
-                <p className="text-sm font-medium text-gray-800">
-                  {st.reservationLength}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {st.reservationLengthDesc}
-                </p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={prefs.reservationLengthEnabled}
-                onClick={() =>
-                  setPrefs({
-                    ...prefs,
-                    reservationLengthEnabled: !prefs.reservationLengthEnabled,
-                  })
-                }
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  prefs.reservationLengthEnabled ? 'bg-blue-600' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+          {isAdmin && tenantSlug && (
+            <AccordionItem
+              title={wr.widgetEmbedTitle}
+              description={wr.widgetEmbedDesc}
+            >
+              {(() => {
+                const origin =
+                  typeof window !== 'undefined' ? window.location.origin : ''
+                const buttonUrl = `${origin}/${tenantSlug}/widget`
+                const formUrl = `${origin}/${tenantSlug}/request`
+                const embedCode = `<iframe\n  src="${buttonUrl}"\n  width="220"\n  height="56"\n  frameborder="0"\n  scrolling="no"\n  style="border:none;overflow:hidden;"\n></iframe>`
+                return (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                        {wr.widgetEmbedTitle}
+                      </p>
+                      <div className="relative">
+                        <pre className="bg-white border border-gray-200 rounded-lg p-3 pr-24 text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap break-all">
+                          {embedCode}
+                        </pre>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(embedCode)
+                            setEmbedCopied(true)
+                            setTimeout(() => setEmbedCopied(false), 2000)
+                          }}
+                          className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+                        >
+                          {embedCopied ? (
+                            <>
+                              <Check className="h-3 w-3 text-green-600" />
+                              {wr.widgetEmbedCopied}
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3 w-3" />
+                              {wr.widgetEmbedCopy}
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                        {wr.widgetDirectLink}
+                      </p>
+                      <a
+                        href={formUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline break-all"
+                      >
+                        <Code2 className="h-4 w-4 shrink-0" />
+                        {formUrl}
+                      </a>
+                    </div>
+                  </div>
+                )
+              })()}
+            </AccordionItem>
+          )}
+
+          {isAdmin && (
+            <AccordionItem
+              title={st.reservationSettings}
+              description={st.reservationSettingsDesc}
+            >
+              <label className="flex items-center justify-between gap-3 cursor-pointer select-none">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">
+                    {st.reservationLength}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {st.reservationLengthDesc}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={prefs.reservationLengthEnabled}
+                  onClick={() =>
+                    setPrefs({
+                      ...prefs,
+                      reservationLengthEnabled: !prefs.reservationLengthEnabled,
+                    })
+                  }
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                     prefs.reservationLengthEnabled
-                      ? 'translate-x-6'
-                      : 'translate-x-1'
+                      ? 'bg-blue-600'
+                      : 'bg-gray-200'
                   }`}
-                />
-              </button>
-            </label>
-          </AccordionItem>}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      prefs.reservationLengthEnabled
+                        ? 'translate-x-6'
+                        : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </label>
+            </AccordionItem>
+          )}
         </div>
       </main>
     </div>

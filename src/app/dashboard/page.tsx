@@ -13,12 +13,14 @@ import {
   SlidersHorizontal,
   Plus,
   LayoutGrid,
+  Inbox,
 } from 'lucide-react'
 import CalendarKitCalendar from '@/components/CalendarKitCalendar'
 import ReservationModal from '@/components/ReservationModal'
 import ReservationRow from '@/components/ReservationRow'
 import RangePicker from '@/components/RangePicker'
 import DayPlanModal from '@/components/DayPlanModal'
+import MailboxPanel from '@/components/MailboxPanel'
 import { Reservation } from '@/types/reservation'
 import { useI18n, Language } from '@/contexts/I18nContext'
 
@@ -82,6 +84,8 @@ export default function DashboardPage() {
     start: Date
     end: Date
   } | null>(null)
+  const [mailboxOpen, setMailboxOpen] = useState(false)
+  const [tenantName, setTenantName] = useState('')
   const filterRef = useRef<HTMLDivElement>(null)
   const { language, setLanguage, messages } = useI18n()
 
@@ -101,6 +105,18 @@ export default function DashboardPage() {
       fetchReservations()
     }
   }, [user, tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!tenantId || !supabase) return
+    supabase
+      .from('tenants')
+      .select('name')
+      .eq('id', tenantId)
+      .single()
+      .then(({ data }) => {
+        if (data?.name) setTenantName(data.name)
+      })
+  }, [tenantId])
 
   useEffect(() => {
     if (!tenantId || !supabase) return
@@ -219,7 +235,14 @@ export default function DashboardPage() {
     filterDateFrom || filterDateTo,
   ].filter(Boolean).length
 
+  // Pending guest requests shown only in mailbox; approved ones appear in main list
+  const pendingRequests = reservations.filter(
+    r => r.is_requested && !r.approved_by
+  )
+
   const filteredReservations = reservations.filter(r => {
+    // Exclude unapproved guest requests from main list
+    if (r.is_requested && !r.approved_by) return false
     if (
       filterGuestName &&
       !r.customer_name.toLowerCase().includes(filterGuestName.toLowerCase())
@@ -284,6 +307,19 @@ export default function DashboardPage() {
                 </span>
               </button>
               <span className="text-sm text-gray-400">|</span>
+              <button
+                onClick={() => setMailboxOpen(true)}
+                className="relative inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                aria-label={t.mailbox}
+                title={t.mailbox}
+              >
+                <Inbox className="h-5 w-5" />
+                {pendingRequests.length > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    {pendingRequests.length > 9 ? '9+' : pendingRequests.length}
+                  </span>
+                )}
+              </button>
               <Link
                 href="/dashboard/settings"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
@@ -410,12 +446,6 @@ export default function DashboardPage() {
               {filteredReservations.length === 0 ? (
                 <div className="bg-white shadow sm:rounded-md text-center py-8">
                   <p className="text-gray-500">{t.noReservations}</p>
-                  <Link
-                    href="/dashboard/reservations/new"
-                    className="mt-2 inline-block text-blue-600 hover:text-blue-800"
-                  >
-                    {t.createFirstReservation}
-                  </Link>
                 </div>
               ) : (
                 visibleDays.map(day => {
@@ -526,6 +556,14 @@ export default function DashboardPage() {
           onSave={fetchReservations}
         />
       )}
+
+      <MailboxPanel
+        isOpen={mailboxOpen}
+        onClose={() => setMailboxOpen(false)}
+        requests={pendingRequests}
+        onRefresh={fetchReservations}
+        tenantName={tenantName}
+      />
     </div>
   )
 }

@@ -38,7 +38,9 @@ export function useReservations(
 
       if (error) throw error
 
-      setReservations(data || [])
+      setReservations(
+        (data || []).filter(r => !r.is_requested || !!r.approved_by)
+      )
     } catch (error) {
       console.error('Error fetching reservations:', error)
       setReservations([])

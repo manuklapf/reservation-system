@@ -50,7 +50,7 @@ export default function ReservationCreateModal({
   demoReservations,
   onDemoSave,
 }: ReservationCreateModalProps) {
-  const { user, tenantId } = useAuth()
+  const { user, tenantId, staffName } = useAuth()
   const { messages } = useI18n()
   const t = messages.reservationModal
   const common = messages.common
@@ -276,7 +276,7 @@ export default function ReservationCreateModal({
           {
             customer_name: formData.customer_name,
             customer_phone: formData.customer_phone,
-            table_id: formData.table_ids[0] ?? formData.table_id ?? null,
+            table_id: formData.table_ids[0] || formData.table_id || null,
             table_ids: formData.table_ids,
             table_identifiers: formData.table_identifiers,
             table_number: null,
@@ -320,7 +320,7 @@ export default function ReservationCreateModal({
           {
             customer_name: formData.customer_name,
             customer_phone: formData.customer_phone,
-            table_id: formData.table_ids[0] ?? formData.table_id ?? null,
+            table_id: formData.table_ids[0] || formData.table_id || null,
             table_ids: formData.table_ids,
             table_identifiers: formData.table_identifiers,
             date: formData.date,
@@ -330,6 +330,8 @@ export default function ReservationCreateModal({
             notes: formData.notes,
             tenant_id: tenantId,
             created_by: user.id,
+            is_requested: false,
+            approved_by: staffName ?? user.email ?? null,
           },
         ])
         .select()

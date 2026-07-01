@@ -75,7 +75,50 @@
     "filterGuestName": "Gastname",
     "filterDate": "Datum",
     "clearFilters": "Filter zurücksetzen",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "mailbox": "Reservierungsanfragen"
+  },
+  "mailbox": {
+    "title": "Reservierungsanfragen",
+    "empty": "Keine ausstehenden Reservierungsanfragen.",
+    "approve": "Annehmen",
+    "decline": "Ablehnen",
+    "approving": "Wird angenommen...",
+    "guests": "Gäste",
+    "phone": "Telefon",
+    "notes": "Notizen",
+    "guestRequest": "Gastanfrage"
+  },
+  "reservationRequest": {
+    "title": "Tisch reservieren",
+    "subtitle": "Sende eine Reservierungsanfrage und wir bestätigen sie in Kürze.",
+    "steps": {
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "persons": "Personenzahl",
+      "name": "Ihr Name",
+      "additionalInfo": "Weitere Informationen"
+    },
+    "customerNamePlaceholder": "Ihr vollständiger Name",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "ihre@email.de",
+    "phoneNumber": "Telefonnummer",
+    "phonePlaceholder": "+49 123 4567890",
+    "specialNotes": "Besondere Wünsche",
+    "specialNotesPlaceholder": "Allergien, besondere Wünsche oder andere Hinweise...",
+    "submit": "Anfrage senden",
+    "submitting": "Wird gesendet...",
+    "successTitle": "Anfrage gesendet!",
+    "successMessage": "Ihre Reservierungsanfrage ist eingegangen. Wir melden uns in Kürze bei Ihnen.",
+    "newRequest": "Weitere Anfrage senden",
+    "restaurantNotFound": "Restaurant nicht gefunden",
+    "restaurantNotFoundMsg": "Diese Restaurantseite ist nicht mehr verfügbar.",
+    "loading": "Wird geladen...",
+    "widgetEmbedTitle": "Widget",
+    "widgetEmbedDesc": "Fügen Sie diesen Snippet auf Ihrer Website ein, damit Gäste Reservierungen anfragen können.",
+    "widgetEmbedCopied": "Kopiert!",
+    "widgetEmbedCopy": "Einbettungscode kopieren",
+    "widgetDirectLink": "Direktlink"
   },
   "calendarPage": {
     "loginRequired": "Bitte melde dich an, um den Kalender anzuzeigen.",
@@ -193,7 +236,8 @@
       "dbMigrationRequired": "Datenbankmigration erforderlich! Die Spalte table_number muss nullable sein. Bitte führe die aktualisierte supabase-tables-schema.sql im Supabase SQL Editor aus."
     },
     "confirmDelete": "Dies kann nicht rückgängig gemacht werden.",
-    "confirmDeleteTitle": "Reservierung löschen?"
+    "confirmDeleteTitle": "Reservierung löschen?",
+    "approvedBy": "Genehmigt von"
   },
   "calendar": {
     "loading": "Kalender wird geladen...",

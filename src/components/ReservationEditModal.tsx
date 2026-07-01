@@ -11,6 +11,7 @@ import {
   Clock,
   Users,
   UtensilsCrossed,
+  UserCheck,
 } from 'lucide-react'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
@@ -699,6 +700,15 @@ export default function ReservationEditModal({
                           onChange={handleChange}
                         />
                       </div>
+                      {reservation.approved_by && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
+                          <UserCheck className="h-4 w-4 text-green-600 shrink-0" />
+                          <p className="text-sm text-green-800">
+                            <span className="font-semibold">{t.approvedBy}:</span>{' '}
+                            {reservation.approved_by}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

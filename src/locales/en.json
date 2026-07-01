@@ -75,7 +75,50 @@
     "filterGuestName": "Guest name",
     "filterDate": "Date",
     "clearFilters": "Clear filters",
-    "settings": "Settings"
+    "settings": "Settings",
+    "mailbox": "Reservation requests"
+  },
+  "mailbox": {
+    "title": "Reservation Requests",
+    "empty": "No pending reservation requests.",
+    "approve": "Approve",
+    "decline": "Decline",
+    "approving": "Approving...",
+    "guests": "guests",
+    "phone": "Phone",
+    "notes": "Notes",
+    "guestRequest": "Guest request"
+  },
+  "reservationRequest": {
+    "title": "Reserve a Table",
+    "subtitle": "Submit a reservation request and we'll confirm it shortly.",
+    "steps": {
+      "date": "Date",
+      "time": "Time",
+      "persons": "Party Size",
+      "name": "Your Name",
+      "additionalInfo": "Additional Information"
+    },
+    "customerNamePlaceholder": "Your full name",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "your@email.com",
+    "phoneNumber": "Phone Number",
+    "phonePlaceholder": "+1 234 567 8900",
+    "specialNotes": "Special Requests",
+    "specialNotesPlaceholder": "Allergies, special requests, or other notes...",
+    "submit": "Submit Request",
+    "submitting": "Submitting...",
+    "successTitle": "Request Sent!",
+    "successMessage": "Your reservation request has been received. We will get back to you shortly.",
+    "newRequest": "Submit another request",
+    "restaurantNotFound": "Restaurant not found",
+    "restaurantNotFoundMsg": "This restaurant page is no longer available.",
+    "loading": "Loading...",
+    "widgetEmbedTitle": "Widget",
+    "widgetEmbedDesc": "Paste this snippet on your website to let guests request reservations.",
+    "widgetEmbedCopied": "Copied!",
+    "widgetEmbedCopy": "Copy embed code",
+    "widgetDirectLink": "Direct link"
   },
   "calendarPage": {
     "loginRequired": "Please log in to view the calendar.",
@@ -193,7 +236,8 @@
       "dbMigrationRequired": "Database migration required! The table_number column must be nullable. Please run the updated supabase-tables-schema.sql in your Supabase SQL Editor."
     },
     "confirmDelete": "This cannot be undone.",
-    "confirmDeleteTitle": "Delete reservation?"
+    "confirmDeleteTitle": "Delete reservation?",
+    "approvedBy": "Approved by"
   },
   "calendar": {
     "loading": "Loading calendar...",
