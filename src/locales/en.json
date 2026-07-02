@@ -113,6 +113,8 @@
     "newRequest": "Submit another request",
     "restaurantNotFound": "Restaurant not found",
     "restaurantNotFoundMsg": "This restaurant page is no longer available.",
+    "unavailableTitle": "Online booking unavailable",
+    "unavailableMsg": "This restaurant isn't accepting online reservations right now. Please contact them directly.",
     "loading": "Loading...",
     "widgetEmbedTitle": "Widget",
     "widgetEmbedDesc": "Paste this snippet on your website to let guests request reservations.",
@@ -292,7 +294,28 @@
     "staffCount": "staff",
     "errorLoad": "Failed to load restaurants.",
     "errorAdd": "Failed to create restaurant.",
-    "createdAt": "Created"
+    "createdAt": "Created",
+    "planLabel": "Plan",
+    "planActive": "Paid",
+    "planTrial": "Trial · {days}d left",
+    "planExpired": "Expired",
+    "planOptionTrial": "Trial (reset 14d)",
+    "planOptionActive": "Active (paid)",
+    "planOptionExpired": "Expired"
+  },
+  "trial": {
+    "bannerDaysLeft": "{days} days left in your free trial.",
+    "bannerDayLeft": "Last day of your free trial.",
+    "upgrade": "Upgrade",
+    "redirecting": "Redirecting…",
+    "gateTitle": "Your free trial has ended",
+    "gateSubtitle": "Upgrade to keep managing reservations, or export all of your data to Excel.",
+    "upgradeCta": "Upgrade to continue",
+    "exportCta": "Export reservations to Excel",
+    "exporting": "Exporting…",
+    "signOut": "Sign out",
+    "checkoutError": "Could not start checkout. Please try again.",
+    "exportError": "Export failed. Please try again."
   },
   "staffManagement": {
     "title": "Manage Staff",

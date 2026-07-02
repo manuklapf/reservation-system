@@ -59,6 +59,10 @@ export type Database = {
           id: string
           name: string
           slug: string
+          plan_status: 'trial' | 'active' | 'expired'
+          trial_ends_at: string
+          ls_subscription_id: string | null
+          ls_customer_id: string | null
           created_at: string
           updated_at: string
         }
@@ -66,6 +70,10 @@ export type Database = {
           id?: string
           name: string
           slug: string
+          plan_status?: 'trial' | 'active' | 'expired'
+          trial_ends_at?: string
+          ls_subscription_id?: string | null
+          ls_customer_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -73,6 +81,10 @@ export type Database = {
           id?: string
           name?: string
           slug?: string
+          plan_status?: 'trial' | 'active' | 'expired'
+          trial_ends_at?: string
+          ls_subscription_id?: string | null
+          ls_customer_id?: string | null
           created_at?: string
           updated_at?: string
         }

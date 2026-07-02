@@ -6,6 +6,9 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useI18n } from '@/contexts/I18nContext'
 import { Building2, LogOut, Plus, Users } from '@/components/icons'
+import { getAccountState } from '@/lib/trial'
+
+type PlanStatus = 'trial' | 'active' | 'expired'
 
 type Tenant = {
   id: string
@@ -13,6 +16,8 @@ type Tenant = {
   slug: string
   created_at: string
   staffCount: number
+  plan_status: PlanStatus
+  trial_ends_at: string
 }
 
 async function getToken(): Promise<string | null> {
@@ -122,6 +127,31 @@ export default function PlatformAdminPage() {
       setShowForm(false)
     }
     setAdding(false)
+  }
+
+  const [savingPlan, setSavingPlan] = useState<string | null>(null)
+
+  const patchTenant = async (
+    id: string,
+    payload: { planStatus?: PlanStatus; extendTrialDays?: number }
+  ) => {
+    setSavingPlan(id)
+    const token = await getToken()
+    const res = await fetch('/api/admin/tenants', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ id, ...payload }),
+    })
+    if (res.ok) {
+      const updated = await res.json()
+      setTenants(prev =>
+        prev.map(x => (x.id === id ? { ...x, ...updated } : x))
+      )
+    }
+    setSavingPlan(null)
   }
 
   if (loading || !user || !isPlatformAdmin) {
@@ -288,31 +318,64 @@ export default function PlatformAdminPage() {
           ) : tenants.length === 0 ? (
             <p className="p-6 text-sm text-gray-400">{t.noRestaurants}</p>
           ) : (
-            tenants.map(tenant => (
-              <div
-                key={tenant.id}
-                className="flex items-center justify-between px-5 py-4 gap-4"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-800">
-                    {tenant.name}
-                  </p>
-                  <p className="text-xs text-gray-400 font-mono mt-0.5">
-                    /{tenant.slug}
-                  </p>
+            tenants.map(tenant => {
+              const state = getAccountState(tenant)
+              const badge =
+                state.mode === 'active'
+                  ? { text: t.planActive, cls: 'bg-green-100 text-green-700' }
+                  : state.mode === 'trial'
+                    ? {
+                        text: t.planTrial.replace(
+                          '{days}',
+                          String(state.daysLeft)
+                        ),
+                        cls: 'bg-amber-100 text-amber-700',
+                      }
+                    : { text: t.planExpired, cls: 'bg-red-100 text-red-700' }
+              return (
+                <div
+                  key={tenant.id}
+                  className="flex items-center justify-between px-5 py-4 gap-4 flex-wrap"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-800">
+                        {tenant.name}
+                      </p>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${badge.cls}`}
+                      >
+                        {badge.text}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 font-mono mt-0.5">
+                      /{tenant.slug}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 text-xs text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5" />
+                      {tenant.staffCount} {t.staffCount}
+                    </span>
+                    <select
+                      value={tenant.plan_status}
+                      disabled={savingPlan === tenant.id}
+                      onChange={e =>
+                        patchTenant(tenant.id, {
+                          planStatus: e.target.value as PlanStatus,
+                        })
+                      }
+                      className="text-xs border border-gray-300 rounded-md px-2 py-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+                      aria-label={t.planLabel}
+                    >
+                      <option value="trial">{t.planOptionTrial}</option>
+                      <option value="active">{t.planOptionActive}</option>
+                      <option value="expired">{t.planOptionExpired}</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 shrink-0 text-xs text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" />
-                    {tenant.staffCount} {t.staffCount}
-                  </span>
-                  <span>
-                    {t.createdAt}{' '}
-                    {new Date(tenant.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       </main>

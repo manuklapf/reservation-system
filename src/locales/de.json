@@ -113,6 +113,8 @@
     "newRequest": "Weitere Anfrage senden",
     "restaurantNotFound": "Restaurant nicht gefunden",
     "restaurantNotFoundMsg": "Diese Restaurantseite ist nicht mehr verfügbar.",
+    "unavailableTitle": "Online-Buchung nicht verfügbar",
+    "unavailableMsg": "Dieses Restaurant nimmt derzeit keine Online-Reservierungen an. Bitte kontaktiere es direkt.",
     "loading": "Wird geladen...",
     "widgetEmbedTitle": "Widget",
     "widgetEmbedDesc": "Fügen Sie diesen Snippet auf Ihrer Website ein, damit Gäste Reservierungen anfragen können.",
@@ -292,7 +294,28 @@
     "staffCount": "Mitarbeiter",
     "errorLoad": "Restaurants konnten nicht geladen werden.",
     "errorAdd": "Restaurant konnte nicht erstellt werden.",
-    "createdAt": "Erstellt"
+    "createdAt": "Erstellt",
+    "planLabel": "Tarif",
+    "planActive": "Bezahlt",
+    "planTrial": "Test · {days} T übrig",
+    "planExpired": "Abgelaufen",
+    "planOptionTrial": "Test (14 T zurücksetzen)",
+    "planOptionActive": "Aktiv (bezahlt)",
+    "planOptionExpired": "Abgelaufen"
+  },
+  "trial": {
+    "bannerDaysLeft": "Noch {days} Tage in deiner kostenlosen Testphase.",
+    "bannerDayLeft": "Letzter Tag deiner kostenlosen Testphase.",
+    "upgrade": "Upgraden",
+    "redirecting": "Weiterleitung…",
+    "gateTitle": "Deine kostenlose Testphase ist beendet",
+    "gateSubtitle": "Führe ein Upgrade durch, um weiter Reservierungen zu verwalten, oder exportiere alle Daten nach Excel.",
+    "upgradeCta": "Upgrade durchführen",
+    "exportCta": "Reservierungen nach Excel exportieren",
+    "exporting": "Exportiere…",
+    "signOut": "Abmelden",
+    "checkoutError": "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
+    "exportError": "Export fehlgeschlagen. Bitte erneut versuchen."
   },
   "staffManagement": {
     "title": "Mitarbeiter verwalten",

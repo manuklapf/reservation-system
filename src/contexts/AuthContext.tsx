@@ -1,8 +1,19 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
+import {
+  getAccountState,
+  type AccountState,
+  type PlanStatus,
+} from '@/lib/trial'
 
 export type UserRole = 'platform_admin' | 'admin' | 'staff'
 
@@ -17,6 +28,12 @@ interface AuthContextType {
   isAdmin: boolean
   isPlatformAdmin: boolean
   staffName: string | null
+  /** Effective account state (trial / active / expired + access). Null until loaded. */
+  account: AccountState | null
+  planStatus: PlanStatus | null
+  trialDaysLeft: number
+  accessLocked: boolean
+  refreshAccount: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -27,6 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [tenantId, setTenantId] = useState<string | null>(null)
   const [role, setRole] = useState<UserRole | null>(null)
   const [staffName, setStaffName] = useState<string | null>(null)
+  const [account, setAccount] = useState<AccountState | null>(null)
+  const [planStatus, setPlanStatus] = useState<PlanStatus | null>(null)
 
   useEffect(() => {
     if (!supabase) {
@@ -54,12 +73,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setTenantId(null)
         setRole(null)
         setStaffName(null)
+        setAccount(null)
+        setPlanStatus(null)
       }
       setLoading(false)
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUserTenant = async (email: string) => {
     if (!supabase) return
@@ -99,10 +120,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             : 'staff'
       setRole(fetchedRole)
       setStaffName(data?.name ?? null)
+
+      if (data?.tenant_id) {
+        fetchAccount(data.tenant_id)
+      }
     } catch (error) {
       console.error('Unexpected error fetching user tenant:', error)
     }
   }
+
+  const fetchAccount = useCallback(async (id: string) => {
+    if (!supabase) return
+    const { data, error } = await supabase
+      .from('tenants')
+      .select('plan_status, trial_ends_at')
+      .eq('id', id)
+      .single()
+
+    if (error || !data) {
+      // Fail open: don't lock people out on a transient read error.
+      setAccount(null)
+      setPlanStatus(null)
+      return
+    }
+
+    setPlanStatus((data.plan_status as PlanStatus) ?? 'trial')
+    setAccount(getAccountState(data))
+  }, [])
+
+  const refreshAccount = useCallback(async () => {
+    if (tenantId) await fetchAccount(tenantId)
+  }, [tenantId, fetchAccount])
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) {
@@ -126,6 +174,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut()
     setTenantId(null)
     setRole(null)
+    setAccount(null)
+    setPlanStatus(null)
   }
 
   return (
@@ -141,6 +191,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAdmin: role === 'admin',
         isPlatformAdmin: role === 'platform_admin',
         staffName,
+        account,
+        planStatus,
+        trialDaysLeft: account?.mode === 'trial' ? account.daysLeft : 0,
+        accessLocked: account?.access === 'locked',
+        refreshAccount,
       }}
     >
       {children}

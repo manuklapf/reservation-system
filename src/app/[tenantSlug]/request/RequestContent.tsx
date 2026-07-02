@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import ReservationRequestForm from '@/components/ReservationRequestForm'
+import { getAccountState } from '@/lib/trial'
 
 interface Tenant {
   id: string
   name: string
   slug: string
+  plan_status: 'trial' | 'active' | 'expired'
+  trial_ends_at: string
 }
 
 export default function RequestContent({ tenantSlug }: { tenantSlug: string }) {
@@ -24,7 +27,7 @@ export default function RequestContent({ tenantSlug }: { tenantSlug: string }) {
     }
     supabase
       .from('tenants')
-      .select('id, name, slug')
+      .select('id, name, slug, plan_status, trial_ends_at')
       .eq('slug', tenantSlug)
       .single()
       .then(({ data, error }) => {
@@ -49,6 +52,19 @@ export default function RequestContent({ tenantSlug }: { tenantSlug: string }) {
             {t.restaurantNotFound}
           </h1>
           <p className="text-gray-500">{t.restaurantNotFoundMsg}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (getAccountState(tenant).access === 'locked') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-gray-900 mb-2">
+            {t.unavailableTitle}
+          </h1>
+          <p className="text-gray-500">{t.unavailableMsg}</p>
         </div>
       </div>
     )
