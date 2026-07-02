@@ -59,31 +59,36 @@ export default function TableChip({
         disabled={disabled}
         title={identifier}
         onClick={onClick}
-        className="flex items-center justify-between gap-1 pl-2 pr-1 py-1 rounded-full text-white text-xs font-semibold shadow-sm hover:brightness-110 transition-all active:scale-95 w-full"
+        className="relative flex flex-col items-center justify-center aspect-square w-full rounded-md text-white shadow-sm hover:brightness-110 transition-all active:scale-95"
         style={{ backgroundColor: color }}
       >
-        <span className="truncate">{identifier}</span>
+        {deletable && onDelete && (
+          <div
+            role="button"
+            tabIndex={disabled ? -1 : 0}
+            onClick={handleDelete}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleDelete(e as any)
+              }
+            }}
+            className="absolute top-0.5 right-0.5 p-0.5 hover:bg-white/25 rounded transition-colors cursor-pointer"
+            title={t.deleteTableTooltip}
+          >
+            <X style={{ width: 12, height: 12 }} />
+          </div>
+        )}
+        <span className="font-bold text-xs leading-tight text-center px-1 truncate max-w-full drop-shadow-sm">
+          {identifier}
+        </span>
         {showCapacity && (
-          <span className="flex items-center gap-0.5 shrink-0">
+          <span
+            className="flex items-center gap-0.5 text-white/80 leading-none mt-0.5"
+            style={{ fontSize: 10 }}
+          >
             <Users style={{ width: 9, height: 9 }} />
             {capacity}
-            {deletable && onDelete && (
-              <div
-                role="button"
-                tabIndex={disabled ? -1 : 0}
-                onClick={handleDelete}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    handleDelete(e as any)
-                  }
-                }}
-                className="p-0.5 hover:bg-white/20 rounded transition-colors cursor-pointer"
-                title={t.deleteTableTooltip}
-              >
-                <X style={{ width: 12, height: 12 }} />
-              </div>
-            )}
           </span>
         )}
       </button>

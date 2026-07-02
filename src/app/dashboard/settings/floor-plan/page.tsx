@@ -13,6 +13,7 @@ type Table = {
   table_identifier: string
   capacity: number
   is_active: boolean
+  floor_id: string | null
 }
 
 type PlacedTable = {
@@ -241,19 +242,29 @@ export default function FloorPlanPage() {
     }
   }, [user, tenantId, fetchActiveTableIds])
 
-  const handleAddTable = async (identifier: string, capacity: number) => {
+  const handleAddTable = async (
+    identifier: string,
+    capacity: number,
+    floorId: string
+  ) => {
     if (!supabase) return
     try {
       setSaving(true)
       setError('')
-      const { error } = await supabase.from('tables').insert({
-        tenant_id: tenantId,
-        table_identifier: identifier,
-        capacity,
-        is_active: true,
-      })
+      const { data, error } = await supabase
+        .from('tables')
+        .insert({
+          tenant_id: tenantId,
+          table_identifier: identifier,
+          capacity,
+          is_active: true,
+          floor_id: floorId,
+        })
+        .select('id, table_identifier, capacity, is_active, floor_id')
+        .single()
       if (error) throw error
       await fetchTables()
+      return data as Table
     } catch (err: any) {
       setError(
         err.message?.includes('duplicate')
@@ -385,14 +396,8 @@ export default function FloorPlanPage() {
           {tenantId && floorsLoaded && floors.length > 0 ? (
             <div className="space-y-10">
               {floors.map(floor => {
-                const takenElsewhere = new Set(
-                  floors
-                    .filter(f => f.id !== floor.id)
-                    .flatMap(f => placedByFloor[f.id] ?? [])
-                )
-                const floorTables = tables.filter(
-                  t => !takenElsewhere.has(t.id)
-                )
+                // Tables belong to a floor and only appear in that floor's list
+                const floorTables = tables.filter(t => t.floor_id === floor.id)
                 return (
                   <div key={floor.id}>
                     <FloorPlanEditor
@@ -417,7 +422,9 @@ export default function FloorPlanPage() {
                       allTables={tables}
                       saving={saving}
                       addError={error || undefined}
-                      onAddTable={handleAddTable}
+                      onAddTable={(identifier, capacity) =>
+                        handleAddTable(identifier, capacity, floor.id)
+                      }
                       onDeleteTable={handleDeleteTable}
                       activeTableIds={activeTableIds}
                     />

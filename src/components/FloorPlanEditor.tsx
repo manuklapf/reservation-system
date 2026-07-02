@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Plus, Trash2, Users, Pencil, X, Square } from '@/components/icons'
+import { Plus, Trash2, Users, Redo } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import { supabase } from '@/lib/supabase'
 import TableChip from './TableChip'
@@ -55,7 +55,8 @@ interface Props {
   allTables: DBTable[]
   saving?: boolean
   addError?: string
-  onAddTable: (identifier: string, capacity: number) => Promise<void>
+  /** Creates the table and resolves with the created row so it can be placed on the canvas. */
+  onAddTable: (identifier: string, capacity: number) => Promise<DBTable | void>
   onDeleteTable: (id: string) => Promise<void>
   /** IDs of tables currently occupied by an active reservation */
   activeTableIds?: Set<string>
@@ -141,6 +142,8 @@ export default function FloorPlanEditor({
   )
   // Track dragging table for drag and drop
   const [draggedTableId, setDraggedTableId] = useState<string | null>(null)
+  // Track dragging a new block from the objects palette
+  const [draggingBlock, setDraggingBlock] = useState(false)
   // Track the position of the drag preview over the canvas
   const [dragPreviewPos, setDragPreviewPos] = useState<{
     x: number
@@ -159,8 +162,12 @@ export default function FloorPlanEditor({
     }
     return initialObstacles ?? []
   })
-  const [obstacleMode, setObstacleMode] = useState(false)
   const [selectedObstacle, setSelectedObstacle] = useState<string | null>(null)
+
+  // Undo history: snapshots of the floor plan taken before each change
+  const [history, setHistory] = useState<
+    { placed: PlacedTable[]; obstacles: Obstacle[] }[]
+  >([])
 
   // New-table inline form
   const [newId, setNewId] = useState('')
@@ -234,6 +241,58 @@ export default function FloorPlanEditor({
     }
   }, [obstacles, obstacleKey])
 
+  // Keep live refs to the current state so history snapshots are never stale
+  const placedRef = useRef(placed)
+  const obstaclesRef = useRef(obstacles)
+  useEffect(() => {
+    placedRef.current = placed
+  }, [placed])
+  useEffect(() => {
+    obstaclesRef.current = obstacles
+  }, [obstacles])
+
+  // Record the current layout so it can be restored with the revert button.
+  // Call before applying any change (drag start, resize start, add/remove, etc.)
+  const pushHistory = () => {
+    setHistory(prev =>
+      [
+        ...prev,
+        { placed: placedRef.current, obstacles: obstaclesRef.current },
+      ].slice(-50)
+    )
+  }
+
+  const revert = () => {
+    setHistory(prev => {
+      if (prev.length === 0) return prev
+      const snapshot = prev[prev.length - 1]
+      setPlaced(snapshot.placed)
+      setObstacles(snapshot.obstacles)
+      setSelected(null)
+      setSelectedObstacle(null)
+      return prev.slice(0, -1)
+    })
+  }
+
+  // For drag/resize: snapshot on pointer-down but only commit to history once the
+  // item is actually moved, so a plain select-click doesn't consume an undo step.
+  const pendingHistoryRef = useRef<{
+    placed: PlacedTable[]
+    obstacles: Obstacle[]
+  } | null>(null)
+  const armPendingHistory = () => {
+    pendingHistoryRef.current = {
+      placed: placedRef.current,
+      obstacles: obstaclesRef.current,
+    }
+  }
+  const commitPendingHistory = () => {
+    const snapshot = pendingHistoryRef.current
+    if (!snapshot) return
+    pendingHistoryRef.current = null
+    setHistory(prev => [...prev, snapshot].slice(-50))
+  }
+
   // Notify parent of layout changes (debounced 800ms) so it can persist to DB
   const onLayoutChangeRef = useRef(onLayoutChange)
   useEffect(() => {
@@ -269,9 +328,11 @@ export default function FloorPlanEditor({
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if (selected) {
+        pushHistory()
         setPlaced(prev => prev.filter(p => p.id !== selected))
         setSelected(null)
-      } else if (obstacleMode && selectedObstacle) {
+      } else if (selectedObstacle) {
+        pushHistory()
         setObstacles(prev => prev.filter(o => o.id !== selectedObstacle))
         setSelectedObstacle(null)
       }
@@ -284,6 +345,7 @@ export default function FloorPlanEditor({
   const unplaced = tables.filter(t => t.is_active && !placedIds.has(t.id))
 
   const addToCanvas = (t: DBTable) => {
+    pushHistory()
     const size = defaultSize('square')
     const color = getTableColor(t)
     setPlaced(prev => [
@@ -302,6 +364,7 @@ export default function FloorPlanEditor({
   }
 
   const removeFromCanvas = (id: string) => {
+    pushHistory()
     setPlaced(prev => prev.filter(p => p.id !== id))
     setSelected(null)
   }
@@ -310,10 +373,12 @@ export default function FloorPlanEditor({
     const identifier = newId.trim()
     const capacity = parseInt(newCap)
     if (!identifier || isNaN(capacity) || capacity <= 0) return
-    await onAddTable(identifier, capacity)
+    const created = await onAddTable(identifier, capacity)
     setNewId('')
     setNewCap('2')
     setShowAddModal(false)
+    // Drop the freshly created table straight onto this floor's canvas
+    if (created) addToCanvas(created)
   }
 
   const handleDeleteTable = (id: string) => {
@@ -335,8 +400,11 @@ export default function FloorPlanEditor({
     if (overrideColor) return overrideColor
     // Then check stored color on table
     if (table.color) return table.color
-    // Fall back to index-based default
-    return TABLE_COLORS[allTables.indexOf(table) % TABLE_COLORS.length]
+    // Fall back to index-based default. A just-created table may not be in
+    // allTables yet (indexOf === -1), so use its eventual position instead.
+    const idx = allTables.indexOf(table)
+    const pos = idx >= 0 ? idx : allTables.length
+    return TABLE_COLORS[pos % TABLE_COLORS.length]
   }
 
   // Save table color to database when it's changed in the editor
@@ -362,25 +430,33 @@ export default function FloorPlanEditor({
   }
 
   const removeObstacle = (id: string) => {
+    pushHistory()
     setObstacles(prev => prev.filter(o => o.id !== id))
     setSelectedObstacle(null)
   }
 
-  const addBlock = () => {
+  const addBlock = (pos?: { x: number; y: number }) => {
+    pushHistory()
     const size = obstacleDefaultSize()
     const newId = generateObstacleId()
+    const x = pos
+      ? pos.x
+      : snapG(
+          Math.max(0, Math.min(CANVAS_W / 2 - size.w / 2, CANVAS_W - size.w))
+        )
+    const y = pos
+      ? pos.y
+      : snapG(
+          Math.max(0, Math.min(CANVAS_H / 2 - size.h / 2, CANVAS_H - size.h))
+        )
     setObstacles(prev => [
       ...prev,
       {
         id: newId,
         type: 'block' as const,
         label: '',
-        x: snapG(
-          Math.max(0, Math.min(CANVAS_W / 2 - size.w / 2, CANVAS_W - size.w))
-        ),
-        y: snapG(
-          Math.max(0, Math.min(CANVAS_H / 2 - size.h / 2, CANVAS_H - size.h))
-        ),
+        x,
+        y,
         ...size,
         outlined: false,
       },
@@ -425,84 +501,53 @@ export default function FloorPlanEditor({
             className="text-xl font-bold text-gray-900 border-b-2 border-blue-400 bg-transparent outline-none p-0 pb-0.5 w-full min-w-0"
           />
         ) : (
-          <>
-            <h2
-              className="text-xl font-bold text-gray-900 leading-tight cursor-pointer hover:text-blue-600 transition-colors"
-              title={t.clickToRename}
-              onClick={() => {
-                setDraftName(floorName)
-                setEditingName(true)
-              }}
-            >
-              {floorName}
-            </h2>
+          <h2
+            className="text-xl font-bold text-gray-900 leading-tight cursor-pointer hover:text-blue-600 transition-colors"
+            title={t.clickToRename}
+            onClick={() => {
+              setDraftName(floorName)
+              setEditingName(true)
+            }}
+          >
+            {floorName}
+          </h2>
+        )}
+        <div className="flex items-center gap-1 ml-auto shrink-0">
+          <button
+            type="button"
+            onClick={revert}
+            disabled={history.length === 0}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-500 transition-colors"
+            title={t.revert}
+            aria-label={t.revert}
+          >
+            <Redo className="h-4 w-4" />
+          </button>
+          {onDeleteFloor && (
             <button
               type="button"
-              onClick={() => {
-                setObstacleMode(v => !v)
-                if (obstacleMode) setSelectedObstacle(null)
-              }}
-              className={`p-1 rounded transition-colors shrink-0 ${
-                obstacleMode
-                  ? 'text-blue-600 bg-blue-100 hover:bg-blue-200'
-                  : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
-              }`}
-              title={t.editLayout}
+              onClick={() =>
+                setPendingConfirm({
+                  title: t.deleteFloorTitle,
+                  message: t.deleteFloorConfirm,
+                  onConfirm: () => onDeleteFloor!(),
+                })
+              }
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+              title={t.deleteFloor}
+              aria-label={t.deleteFloor}
             >
-              <Pencil className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" />
             </button>
-          </>
-        )}
-        {onDeleteFloor && (
-          <button
-            type="button"
-            onClick={() =>
-              setPendingConfirm({
-                title: t.deleteFloorTitle,
-                message: t.deleteFloorConfirm,
-                onConfirm: () => onDeleteFloor!(),
-              })
-            }
-            className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0 ml-auto"
-            title={t.deleteFloor}
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Obstacle toolbar */}
-      {obstacleMode && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-xl flex-wrap">
-          <p className="text-xs font-semibold text-blue-700 mr-1">
-            {t.editLayoutMode}
-          </p>
-          <button
-            type="button"
-            onClick={addBlock}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-300 hover:border-blue-400 transition-colors"
-          >
-            <Plus className="h-4 w-4" /> {t.addBlock}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setObstacleMode(false)
-              setSelectedObstacle(null)
-            }}
-            className="ml-auto p-1 rounded text-blue-400 hover:text-blue-700 hover:bg-blue-100 transition-colors"
-            title={t.doneEditing}
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
-
       <div className="flex flex-col gap-3">
-        {/* Sidebar: unplaced list */}
-        <div className="space-y-3">
-          {/* Unplaced */}
-          <div>
+        {/* Palettes: unplaced tables + objects */}
+        <div className="flex flex-wrap items-start gap-5">
+          {/* Unplaced tables */}
+          <div className="flex-1 min-w-[180px]">
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
                 {t.unplacedTables}
@@ -516,9 +561,11 @@ export default function FloorPlanEditor({
                 <Plus className="h-4 w-4" />
               </button>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-8 sm:grid-cols-12 gap-1">
               {unplaced.length === 0 ? (
-                <p className="text-xs text-gray-400 italic">{t.allPlaced}</p>
+                <p className="text-xs text-gray-400 italic col-span-full">
+                  {t.allPlaced}
+                </p>
               ) : (
                 unplaced.map(t => {
                   const color = getTableColor(t)
@@ -526,7 +573,7 @@ export default function FloorPlanEditor({
                     <div
                       key={t.id}
                       draggable
-                      onDragStart={e => {
+                      onDragStart={() => {
                         setDraggedTableId(t.id)
                         setDragPreviewPos(null)
                       }}
@@ -543,12 +590,45 @@ export default function FloorPlanEditor({
                         color={color}
                         showCapacity={true}
                         onClick={() => addToCanvas(t)}
+                        deletable
+                        onDelete={onDeleteTable}
+                        deleteConfirmMessage={
+                          messages.floorPlanEditor.deleteTableConfirm
+                        }
                       />
                     </div>
                   )
                 })
               )}
             </div>
+          </div>
+
+          {/* Objects palette */}
+          <div className="shrink-0">
+            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+              {t.objects}
+            </p>
+            <div
+              draggable
+              onDragStart={() => {
+                setDraggingBlock(true)
+                setDragPreviewPos(null)
+              }}
+              onDragEnd={() => {
+                setDraggingBlock(false)
+                setDragPreviewPos(null)
+              }}
+              onClick={() => addBlock()}
+              title={t.addBlockHint}
+              className="cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity"
+              style={{
+                width: 44,
+                height: 44,
+                backgroundColor: '#000000',
+                border: '2px solid #000000',
+                borderRadius: 2,
+              }}
+            />
           </div>
         </div>
 
@@ -575,7 +655,7 @@ export default function FloorPlanEditor({
               e.preventDefault()
               e.stopPropagation()
               // Update drag preview position while over canvas
-              if (draggedTableId) {
+              if (draggedTableId || draggingBlock) {
                 const rect = e.currentTarget.getBoundingClientRect()
                 setDragPreviewPos({
                   x: snapG(
@@ -596,10 +676,20 @@ export default function FloorPlanEditor({
             onDrop={e => {
               e.preventDefault()
               e.stopPropagation()
+              // Dropping a new block from the objects palette
+              if (draggingBlock) {
+                if (dragPreviewPos) {
+                  addBlock({ x: dragPreviewPos.x, y: dragPreviewPos.y })
+                }
+                setDragPreviewPos(null)
+                setDraggingBlock(false)
+                return
+              }
               if (!draggedTableId || !dragPreviewPos) return
               // Find the table and place it at the drop position
               const table = tables.find(t => t.id === draggedTableId)
               if (table) {
+                pushHistory()
                 const color = getTableColor(table)
                 setPlaced(prev => [
                   ...prev,
@@ -624,7 +714,7 @@ export default function FloorPlanEditor({
           >
             {/* Blocks (rendered below tables) */}
             {obstacles.map(o => {
-              const isSel = obstacleMode && selectedObstacle === o.id
+              const isSel = selectedObstacle === o.id
               return (
                 <div
                   key={o.id}
@@ -641,19 +731,19 @@ export default function FloorPlanEditor({
                     boxShadow: isSel
                       ? '0 0 0 3px rgba(59,130,246,0.35)'
                       : 'none',
-                    cursor: obstacleMode ? 'grab' : 'default',
+                    cursor: 'grab',
                     touchAction: 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: isSel ? 8 : 0,
-                    pointerEvents: obstacleMode ? 'auto' : 'none',
+                    pointerEvents: 'auto',
                     transition: 'box-shadow 0.1s',
                   }}
                   onPointerDown={e => {
-                    if (!obstacleMode) return
                     e.stopPropagation()
                     e.currentTarget.setPointerCapture(e.pointerId)
+                    armPendingHistory()
                     obsDragRef.current = {
                       id: o.id,
                       mx0: e.clientX,
@@ -667,6 +757,7 @@ export default function FloorPlanEditor({
                   onPointerMove={e => {
                     if (!obsDragRef.current || obsDragRef.current.id !== o.id)
                       return
+                    commitPendingHistory()
                     const { mx0, my0, tx0, ty0 } = obsDragRef.current
                     const nx = snapG(
                       Math.max(
@@ -684,9 +775,9 @@ export default function FloorPlanEditor({
                   }}
                   onPointerUp={() => {
                     obsDragRef.current = null
+                    pendingHistoryRef.current = null
                   }}
                   onClick={e => {
-                    if (!obstacleMode) return
                     e.stopPropagation()
                     setSelectedObstacle(o.id)
                     setSelected(null)
@@ -714,6 +805,7 @@ export default function FloorPlanEditor({
                         onPointerDown={e => {
                           e.stopPropagation()
                           e.currentTarget.setPointerCapture(e.pointerId)
+                          armPendingHistory()
                           obsResizeRef.current = {
                             id: o.id,
                             corner,
@@ -732,6 +824,7 @@ export default function FloorPlanEditor({
                             obsResizeRef.current.corner !== corner
                           )
                             return
+                          commitPendingHistory()
                           const { mx0, my0, tx0, ty0, tw0, th0 } =
                             obsResizeRef.current
                           const dx = e.clientX - mx0
@@ -765,6 +858,7 @@ export default function FloorPlanEditor({
                         }}
                         onPointerUp={() => {
                           obsResizeRef.current = null
+                          pendingHistoryRef.current = null
                         }}
                       />
                     ))}
@@ -826,6 +920,28 @@ export default function FloorPlanEditor({
               </div>
             )}
 
+            {/* Drag preview - shows the block being dragged onto the canvas */}
+            {draggingBlock && dragPreviewPos && (
+              <div
+                key="block-drag-preview"
+                style={{
+                  position: 'absolute',
+                  left: dragPreviewPos.x,
+                  top: dragPreviewPos.y,
+                  width: 80,
+                  height: 80,
+                  backgroundColor: '#000000',
+                  borderRadius: 2,
+                  border: '2px dashed #1d4ed8',
+                  boxShadow:
+                    '0 0 0 3px rgba(59,130,246,0.35), 2px 3px 8px rgba(0,0,0,0.14)',
+                  zIndex: 5,
+                  opacity: 0.7,
+                  pointerEvents: 'none',
+                }}
+              />
+            )}
+
             {placed.map(p => {
               const db = tables.find(t => t.id === p.id)
               if (!db) return null
@@ -868,6 +984,7 @@ export default function FloorPlanEditor({
                   onPointerDown={e => {
                     e.stopPropagation()
                     e.currentTarget.setPointerCapture(e.pointerId)
+                    armPendingHistory()
                     dragRef.current = {
                       id: p.id,
                       mx0: e.clientX,
@@ -879,6 +996,7 @@ export default function FloorPlanEditor({
                   }}
                   onPointerMove={e => {
                     if (!dragRef.current || dragRef.current.id !== p.id) return
+                    commitPendingHistory()
                     const { mx0, my0, tx0, ty0 } = dragRef.current
                     const nx = snapG(
                       Math.max(
@@ -896,6 +1014,7 @@ export default function FloorPlanEditor({
                   }}
                   onPointerUp={() => {
                     dragRef.current = null
+                    pendingHistoryRef.current = null
                   }}
                   onClick={e => {
                     e.stopPropagation()
@@ -924,6 +1043,7 @@ export default function FloorPlanEditor({
                         onPointerDown={e => {
                           e.stopPropagation()
                           e.currentTarget.setPointerCapture(e.pointerId)
+                          armPendingHistory()
                           resizeRef.current = {
                             id: p.id,
                             corner,
@@ -942,6 +1062,7 @@ export default function FloorPlanEditor({
                             resizeRef.current.corner !== corner
                           )
                             return
+                          commitPendingHistory()
                           const { mx0, my0, tx0, ty0, tw0, th0 } =
                             resizeRef.current
                           const dx = e.clientX - mx0
@@ -975,6 +1096,7 @@ export default function FloorPlanEditor({
                         }}
                         onPointerUp={() => {
                           resizeRef.current = null
+                          pendingHistoryRef.current = null
                         }}
                       />
                     ))}
@@ -1001,7 +1123,7 @@ export default function FloorPlanEditor({
       {/* Add table modal */}
       {showAddModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
           onClick={() => setShowAddModal(false)}
         >
           <div
@@ -1078,7 +1200,10 @@ export default function FloorPlanEditor({
                 <button
                   key={s}
                   type="button"
-                  onClick={() => updatePlaced(selected!, { shape: s })}
+                  onClick={() => {
+                    pushHistory()
+                    updatePlaced(selected!, { shape: s })
+                  }}
                   title={s.charAt(0).toUpperCase() + s.slice(1)}
                   className={`flex items-center justify-center h-8 w-8 rounded border-2 transition-colors ${
                     sel.shape === s
@@ -1112,6 +1237,7 @@ export default function FloorPlanEditor({
                   key={c}
                   type="button"
                   onClick={() => {
+                    pushHistory()
                     updatePlaced(selected!, { color: c })
                     saveTableColor(selected!, c)
                   }}
@@ -1162,8 +1288,8 @@ export default function FloorPlanEditor({
         onCancel={() => setPendingConfirm(null)}
       />
 
-      {/* Block properties bar — only in edit mode when a block is selected */}
-      {obstacleMode && selObs && (
+      {/* Block properties bar — shown when a block is selected */}
+      {selObs && (
         <div className="flex items-start gap-4 px-4 py-3 border border-gray-200 rounded-xl bg-white flex-wrap">
           {/* Name */}
           <div className="shrink-0 self-center">
@@ -1174,6 +1300,7 @@ export default function FloorPlanEditor({
               type="text"
               value={selObs.label}
               placeholder={t.none}
+              onFocus={pushHistory}
               onChange={e =>
                 updateObstacle(selObs.id, { label: e.target.value })
               }
@@ -1192,7 +1319,10 @@ export default function FloorPlanEditor({
             <div className="flex gap-1.5">
               <button
                 type="button"
-                onClick={() => updateObstacle(selObs.id, { outlined: false })}
+                onClick={() => {
+                  pushHistory()
+                  updateObstacle(selObs.id, { outlined: false })
+                }}
                 className={`flex items-center justify-center h-8 w-8 rounded border-2 transition-colors ${
                   !selObs.outlined
                     ? 'border-blue-500 bg-blue-50'
@@ -1207,7 +1337,10 @@ export default function FloorPlanEditor({
               </button>
               <button
                 type="button"
-                onClick={() => updateObstacle(selObs.id, { outlined: true })}
+                onClick={() => {
+                  pushHistory()
+                  updateObstacle(selObs.id, { outlined: true })
+                }}
                 className={`flex items-center justify-center h-8 w-8 rounded border-2 transition-colors ${
                   selObs.outlined
                     ? 'border-blue-500 bg-blue-50'

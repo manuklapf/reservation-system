@@ -43,6 +43,7 @@ import { LogOut as LogOutAnim } from '@/components/animate-ui/icons/log-out'
 import { Mail as MailAnim } from '@/components/animate-ui/icons/mail'
 import { Pencil as PencilAnim } from '@/components/animate-ui/icons/pencil'
 import { Plus as PlusAnim } from '@/components/animate-ui/icons/plus'
+import { Redo as RedoAnim } from '@/components/animate-ui/icons/redo'
 import { Settings as SettingsAnim } from '@/components/animate-ui/icons/settings'
 import { SlidersHorizontal as SlidersHorizontalAnim } from '@/components/animate-ui/icons/sliders-horizontal'
 import { Square as SquareAnim } from '@/components/animate-ui/icons/square'
@@ -146,6 +147,7 @@ export const LogOut = hoverAnimated(LogOutAnim, 'LogOut')
 export const Mail = hoverAnimated(MailAnim, 'Mail')
 export const Pencil = hoverAnimated(PencilAnim, 'Pencil')
 export const Plus = hoverAnimated(PlusAnim, 'Plus')
+export const Redo = hoverAnimated(RedoAnim, 'Redo')
 export const Settings = hoverAnimated(SettingsAnim, 'Settings')
 export const SlidersHorizontal = hoverAnimated(
   SlidersHorizontalAnim,
