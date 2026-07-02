@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import { CalendarCheck } from '@/components/icons'
+import { getAccountState } from '@/lib/trial'
 
 interface Tenant {
   id: string
   name: string
   slug: string
+  plan_status: 'trial' | 'active' | 'expired'
+  trial_ends_at: string
 }
 
 export default function WidgetContent({ tenantSlug }: { tenantSlug: string }) {
@@ -24,7 +27,7 @@ export default function WidgetContent({ tenantSlug }: { tenantSlug: string }) {
     }
     supabase
       .from('tenants')
-      .select('id, name, slug')
+      .select('id, name, slug, plan_status, trial_ends_at')
       .eq('slug', tenantSlug)
       .single()
       .then(({ data, error }) => {
@@ -33,7 +36,10 @@ export default function WidgetContent({ tenantSlug }: { tenantSlug: string }) {
       })
   }, [tenantSlug])
 
-  if (loading || !tenant) return null
+  // Hide the widget entirely for locked (expired) accounts.
+  if (loading || !tenant || getAccountState(tenant).access === 'locked') {
+    return null
+  }
 
   return (
     <div className="inline-flex">
