@@ -1,6 +1,6 @@
 'use client'
 
-import { UtensilsCrossed } from 'lucide-react'
+import { UtensilsCrossed } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 
 interface Table {

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { ArrowLeft, Trash2, UserPlus } from 'lucide-react'
+import { ArrowLeft, Trash2, UserPlus } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 
 type StaffMember = {
@@ -198,7 +198,9 @@ export default function StaffManagementPage() {
 
         {/* Staff list */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-sm font-semibold text-gray-800 mb-4">{t.currentStaff}</h2>
+          <h2 className="text-sm font-semibold text-gray-800 mb-4">
+            {t.currentStaff}
+          </h2>
           {loading ? (
             <p className="text-sm text-gray-400">{messages.common.loading}</p>
           ) : loadError ? (
@@ -216,7 +218,9 @@ export default function StaffManagementPage() {
                     <p className="text-sm font-medium text-gray-800 truncate">
                       {member.name}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">{member.email}</p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {member.email}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span

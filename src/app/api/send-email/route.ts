@@ -1,8 +1,14 @@
-import { SESClient, SendRawEmailCommand, SendEmailCommand } from '@aws-sdk/client-ses'
+import {
+  SESClient,
+  SendRawEmailCommand,
+  SendEmailCommand,
+} from '@aws-sdk/client-ses'
 import { NextResponse } from 'next/server'
 import { generateIcs } from '@/utils/generateIcs'
 
-const sesClient = new SESClient({ region: process.env.AWS_REGION ?? 'eu-central-1' })
+const sesClient = new SESClient({
+  region: process.env.AWS_REGION ?? 'eu-central-1',
+})
 
 export interface SendEmailPayload {
   type: 'approved' | 'denied'
@@ -275,7 +281,10 @@ export async function POST(request: Request) {
     const { type, reservation, tenantName } = payload
 
     if (!reservation.customerEmail) {
-      return NextResponse.json({ error: 'No email address provided' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'No email address provided' },
+        { status: 400 }
+      )
     }
 
     const from = process.env.SES_FROM_EMAIL ?? 'noreply@example.com'
@@ -306,7 +315,9 @@ export async function POST(request: Request) {
         html,
         ics,
       })
-      await sesClient.send(new SendRawEmailCommand({ RawMessage: { Data: raw } }))
+      await sesClient.send(
+        new SendRawEmailCommand({ RawMessage: { Data: raw } })
+      )
     } else {
       const html = deniedHtml(
         reservation.customerName,
@@ -335,6 +346,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true })
   } catch (err: any) {
     console.error('SES error:', err)
-    return NextResponse.json({ error: err.message ?? 'Failed to send email' }, { status: 500 })
+    return NextResponse.json(
+      { error: err.message ?? 'Failed to send email' },
+      { status: 500 }
+    )
   }
 }

@@ -8,7 +8,7 @@ import {
   GripVertical,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react'
+} from '@/components/icons'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import { Reservation } from '@/types/reservation'

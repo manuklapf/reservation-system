@@ -118,7 +118,8 @@
     "widgetEmbedDesc": "Fügen Sie diesen Snippet auf Ihrer Website ein, damit Gäste Reservierungen anfragen können.",
     "widgetEmbedCopied": "Kopiert!",
     "widgetEmbedCopy": "Einbettungscode kopieren",
-    "widgetDirectLink": "Direktlink"
+    "widgetDirectLink": "Direktlink",
+    "sessionError": "Anfrage konnte nicht gesendet werden. Bitte öffnen Sie diese Seite in einem privaten Browserfenster und versuchen Sie es erneut."
   },
   "calendarPage": {
     "loginRequired": "Bitte melde dich an, um den Kalender anzuzeigen.",
@@ -266,7 +267,9 @@
     "reservationSettings": "Reservierungseinstellungen",
     "reservationSettingsDesc": "Konfiguriere, wie Reservierungen erstellt und angezeigt werden",
     "reservationLength": "Reservierungsdauer",
-    "reservationLengthDesc": "Fügt einen Endzeit-Schritt beim Erstellen oder Bearbeiten einer Reservierung hinzu"
+    "reservationLengthDesc": "Fügt einen Endzeit-Schritt beim Erstellen oder Bearbeiten einer Reservierung hinzu",
+    "logoutConfirmTitle": "Abmelden?",
+    "logoutConfirmMessage": "Möchtest du dich wirklich von deinem Konto abmelden?"
   },
   "platformAdmin": {
     "title": "Plattform-Admin",

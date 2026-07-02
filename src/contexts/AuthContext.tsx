@@ -92,7 +92,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const r = data?.role
       const fetchedRole: UserRole =
-        r === 'platform_admin' ? 'platform_admin' : r === 'admin' ? 'admin' : 'staff'
+        r === 'platform_admin'
+          ? 'platform_admin'
+          : r === 'admin'
+            ? 'admin'
+            : 'staff'
       setRole(fetchedRole)
       setStaffName(data?.name ?? null)
     } catch (error) {

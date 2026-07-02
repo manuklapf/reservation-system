@@ -12,9 +12,11 @@ import {
   Users,
   Copy,
   Code2,
-} from 'lucide-react'
+  Globe,
+} from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
+import ConfirmDialog from '@/components/ConfirmDialog'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import { supabase } from '@/lib/supabase'
@@ -23,6 +25,7 @@ export default function SettingsPage() {
   const { user, tenantId, signOut, isAdmin } = useAuth()
   const [tenantSlug, setTenantSlug] = useState<string | null>(null)
   const [embedCopied, setEmbedCopied] = useState(false)
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
 
   useEffect(() => {
     if (!supabase || !tenantId) return
@@ -36,9 +39,10 @@ export default function SettingsPage() {
       })
   }, [tenantId])
   const router = useRouter()
-  const { messages } = useI18n()
+  const { messages, language, setLanguage } = useI18n()
   const t = messages.setupPage
   const st = messages.settingsPage
+  const c = messages.common
   const wr = messages.reservationRequest
   const dl = messages.dashboardDisplayLabels
   const { theme, setTheme } = useTheme()
@@ -66,18 +70,20 @@ export default function SettingsPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-4">
+              <button
+                onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
+                className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                aria-label={c.language}
+                title={c.language}
+              >
+                <Globe className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase">
+                  {language}
+                </span>
+              </button>
               <h1 className="text-xl font-semibold text-gray-900">
                 {st.title}
               </h1>
-              <button
-                onClick={async () => {
-                  await signOut()
-                  router.push('/')
-                }}
-                className="text-red-700"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
             </div>
           </div>
         </div>
@@ -370,8 +376,31 @@ export default function SettingsPage() {
               </label>
             </AccordionItem>
           )}
+
+          <button
+            type="button"
+            onClick={() => setLogoutConfirmOpen(true)}
+            className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm bg-red-600 text-white hover:bg-red-700 transition-colors text-sm font-semibold"
+          >
+            <LogOut className="h-4 w-4" />
+            {st.signOut}
+          </button>
         </div>
       </main>
+
+      <ConfirmDialog
+        isOpen={logoutConfirmOpen}
+        title={st.logoutConfirmTitle}
+        message={st.logoutConfirmMessage}
+        confirmLabel={st.signOut}
+        danger
+        onConfirm={async () => {
+          setLogoutConfirmOpen(false)
+          await signOut()
+          router.push('/')
+        }}
+        onCancel={() => setLogoutConfirmOpen(false)}
+      />
     </div>
   )
 }

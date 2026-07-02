@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* React Big Calendar Styles */
-@import 'react-big-calendar/lib/css/react-big-calendar.css';
+/* React Big Calendar styles are imported in src/app/layout.tsx (right after
+   this file) so the @import stays spec-compliant for Turbopack while keeping
+   its original load order (after Tailwind). */
 
 /* Safe area support for iOS */
 .pb-safe {

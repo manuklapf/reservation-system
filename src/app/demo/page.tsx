@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, List, Table2, Plus, ArrowLeft } from 'lucide-react'
+import { CalendarDays, List, Table2, Plus, ArrowLeft } from '@/components/icons'
 import { useDemo } from '@/contexts/DemoContext'
 import { Reservation } from '@/types/reservation'
 import ReservationModal from '@/components/ReservationModal'

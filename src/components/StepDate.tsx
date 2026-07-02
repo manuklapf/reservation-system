@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays } from '@/components/icons'
 import DatePickerWheel from './DatePickerWheel'
 
 interface StepDateProps {
@@ -19,7 +19,7 @@ export default function StepDate({
   return (
     <div className="min-w-full">
       <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-        <CalendarDays className="h-5 w-5 text-blue-500" />
+        <CalendarDays className="h-5 w-5 text-blue-500" animate />
         {title}
       </p>
       <DatePickerWheel

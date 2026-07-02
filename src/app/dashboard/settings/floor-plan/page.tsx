@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Info } from 'lucide-react'
+import { ArrowLeft, Plus, Info } from '@/components/icons'
 import FloorPlanEditor from '@/components/FloorPlanEditor'
 import { useI18n } from '@/contexts/I18nContext'
 

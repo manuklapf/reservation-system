@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Users, X } from 'lucide-react'
+import { Users, X } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import ConfirmDialog from './ConfirmDialog'
 

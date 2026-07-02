@@ -7,14 +7,13 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import {
   Settings,
-  Globe,
   CalendarDays,
   List,
   SlidersHorizontal,
   Plus,
-  LayoutGrid,
-  Inbox,
-} from 'lucide-react'
+  LayoutDashboard,
+  Bell,
+} from '@/components/icons'
 import CalendarKitCalendar from '@/components/CalendarKitCalendar'
 import ReservationModal from '@/components/ReservationModal'
 import ReservationRow from '@/components/ReservationRow'
@@ -87,7 +86,7 @@ export default function DashboardPage() {
   const [mailboxOpen, setMailboxOpen] = useState(false)
   const [tenantName, setTenantName] = useState('')
   const filterRef = useRef<HTMLDivElement>(null)
-  const { language, setLanguage, messages } = useI18n()
+  const { language, messages } = useI18n()
 
   const t = messages.dashboard
   const common = messages.common
@@ -296,24 +295,12 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-1">
               <button
-                onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
-                className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                aria-label={common.language}
-                title={common.language}
-              >
-                <Globe className="h-4 w-4" />
-                <span className="text-xs font-semibold uppercase">
-                  {language}
-                </span>
-              </button>
-              <span className="text-sm text-gray-400">|</span>
-              <button
                 onClick={() => setMailboxOpen(true)}
                 className="relative inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                 aria-label={t.mailbox}
                 title={t.mailbox}
               >
-                <Inbox className="h-5 w-5" />
+                <Bell className="h-5 w-5" />
                 {pendingRequests.length > 0 && (
                   <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
                     {pendingRequests.length > 9 ? '9+' : pendingRequests.length}
@@ -497,7 +484,7 @@ export default function DashboardPage() {
                           className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                           title="Edit day plan"
                         >
-                          <LayoutGrid className="h-4 w-4" />
+                          <LayoutDashboard className="h-4 w-4" />
                         </button>
                       </div>
                       <div className="bg-white shadow overflow-hidden sm:rounded-md">

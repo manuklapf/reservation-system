@@ -12,7 +12,7 @@ import {
   Users,
   UtensilsCrossed,
   UserCheck,
-} from 'lucide-react'
+} from '@/components/icons'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
@@ -704,7 +704,9 @@ export default function ReservationEditModal({
                         <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
                           <UserCheck className="h-4 w-4 text-green-600 shrink-0" />
                           <p className="text-sm text-green-800">
-                            <span className="font-semibold">{t.approvedBy}:</span>{' '}
+                            <span className="font-semibold">
+                              {t.approvedBy}:
+                            </span>{' '}
                             {reservation.approved_by}
                           </p>
                         </div>

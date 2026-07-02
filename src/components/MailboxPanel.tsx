@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { Reservation } from '@/types/reservation'
-import { X, Check, Mail } from 'lucide-react'
+import { X, Check, Mail } from '@/components/icons'
 
 interface MailboxPanelProps {
   isOpen: boolean

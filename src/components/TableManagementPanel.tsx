@@ -9,7 +9,7 @@ import {
   Trash2,
   Eye,
   EyeOff,
-} from 'lucide-react'
+} from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 
 interface TableItem {

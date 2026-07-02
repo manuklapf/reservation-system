@@ -1,7 +1,20 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+// Anon-only client — never inherits an authenticated dashboard session
+const anonSupabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  }
+)
 import {
   Check,
   ChevronLeft,
@@ -9,7 +22,7 @@ import {
   User,
   ClipboardList,
   CalendarCheck,
-} from 'lucide-react'
+} from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import StepDate from './StepDate'
 import StepTime from './StepTime'
@@ -77,14 +90,10 @@ export default function ReservationRequestForm({
   }
 
   const handleSubmit = async () => {
-    if (!supabase) {
-      setError('Service unavailable. Please try again later.')
-      return
-    }
     setLoading(true)
     setError(null)
     try {
-      const { error: insertError } = await supabase
+      const { error: insertError } = await anonSupabase
         .from('reservations')
         .insert([
           {
@@ -111,7 +120,11 @@ export default function ReservationRequestForm({
       setSubmitted(true)
     } catch (err: any) {
       console.error('Error submitting request:', err)
-      setError(err?.message ?? 'Failed to submit request. Please try again.')
+      if (err?.code === '42501') {
+        setError(t.sessionError)
+      } else {
+        setError(err?.message ?? 'Failed to submit request. Please try again.')
+      }
     } finally {
       setLoading(false)
     }

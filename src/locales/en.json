@@ -118,7 +118,8 @@
     "widgetEmbedDesc": "Paste this snippet on your website to let guests request reservations.",
     "widgetEmbedCopied": "Copied!",
     "widgetEmbedCopy": "Copy embed code",
-    "widgetDirectLink": "Direct link"
+    "widgetDirectLink": "Direct link",
+    "sessionError": "Unable to submit your request. Please open this page in a private/incognito browser window and try again."
   },
   "calendarPage": {
     "loginRequired": "Please log in to view the calendar.",
@@ -266,7 +267,9 @@
     "reservationSettings": "Reservation Settings",
     "reservationSettingsDesc": "Configure how reservations are created and displayed",
     "reservationLength": "Reservation length",
-    "reservationLengthDesc": "Adds an end time step when creating or editing a reservation"
+    "reservationLengthDesc": "Adds an end time step when creating or editing a reservation",
+    "logoutConfirmTitle": "Log out?",
+    "logoutConfirmMessage": "Are you sure you want to log out of your account?"
   },
   "platformAdmin": {
     "title": "Platform Admin",

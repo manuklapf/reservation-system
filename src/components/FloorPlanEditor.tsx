@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Plus, Trash2, Users, Pencil, X, Square } from 'lucide-react'
+import { Plus, Trash2, Users, Pencil, X, Square } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import { supabase } from '@/lib/supabase'
 import TableChip from './TableChip'

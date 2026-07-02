@@ -1,6 +1,6 @@
 'use client'
 
-import { Pencil } from 'lucide-react'
+import { Pencil } from '@/components/icons'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'

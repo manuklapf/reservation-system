@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
-import { CalendarCheck } from 'lucide-react'
+import { CalendarCheck } from '@/components/icons'
 
 interface Tenant {
   id: string

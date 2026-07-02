@@ -10,7 +10,7 @@ import {
   User,
   ClipboardList,
   UtensilsCrossed,
-} from 'lucide-react'
+} from '@/components/icons'
 import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
@@ -499,7 +499,7 @@ export default function ReservationCreateModal({
                 {step === (reservationLengthEnabled ? 4 : 3) && (
                   <div className="space-y-1/2 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                      <User className="h-5 w-5 text-blue-500" />
+                      <User className="h-5 w-5 text-blue-500" animate />
                       {stepTitles[reservationLengthEnabled ? 4 : 3]}
                     </p>
                     <input
@@ -516,7 +516,10 @@ export default function ReservationCreateModal({
                 {step === (reservationLengthEnabled ? 5 : 4) && (
                   <div className="space-y-6 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                      <ClipboardList className="h-5 w-5 text-blue-500" />
+                      <ClipboardList
+                        className="h-5 w-5 text-blue-500"
+                        animate
+                      />
                       {stepTitles[reservationLengthEnabled ? 5 : 4]}
                     </p>
                     <div>
@@ -549,7 +552,7 @@ export default function ReservationCreateModal({
                             : 'border-dashed border-gray-300 text-gray-400 hover:border-emerald-300 hover:text-emerald-500 hover:bg-emerald-50'
                         }`}
                       >
-                        <UtensilsCrossed className="h-4 w-4 shrink-0" />
+                        <UtensilsCrossed className="h-4 w-4 shrink-0" animate />
                         <span className="truncate">
                           {formData.table_ids.length > 0
                             ? formData.table_identifiers.join(', ')

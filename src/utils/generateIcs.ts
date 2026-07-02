@@ -1,8 +1,8 @@
 export interface IcsParams {
   id: string
   tenantName: string
-  date: string        // YYYY-MM-DD
-  time: string        // HH:MM
+  date: string // YYYY-MM-DD
+  time: string // HH:MM
   endTime?: string | null
   partySize: number
   notes?: string | null

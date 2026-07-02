@@ -1,6 +1,6 @@
 'use client'
 
-import { Users } from 'lucide-react'
+import { Users } from '@/components/icons'
 import PeoplePickerWheel from './PeoplePickerWheel'
 
 interface StepPersonsProps {
@@ -19,7 +19,7 @@ export default function StepPersons({
   return (
     <div className="min-w-full">
       <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-        <Users className="h-5 w-5 text-blue-500" />
+        <Users className="h-5 w-5 text-blue-500" animate />
         {title}
       </p>
       <PeoplePickerWheel

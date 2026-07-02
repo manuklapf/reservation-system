@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useI18n } from '@/contexts/I18nContext'
-import { Building2, LogOut, Plus, Users } from 'lucide-react'
+import { Building2, LogOut, Plus, Users } from '@/components/icons'
 
 type Tenant = {
   id: string
@@ -81,7 +81,12 @@ export default function PlatformAdminPage() {
 
   const handleSlugChange = (val: string) => {
     setSlugManual(true)
-    setSlug(val.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'))
+    setSlug(
+      val
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+    )
   }
 
   const handleAdd = async (e: React.FormEvent) => {
@@ -95,7 +100,13 @@ export default function PlatformAdminPage() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ restaurantName, slug, adminName, adminEmail, adminPassword }),
+      body: JSON.stringify({
+        restaurantName,
+        slug,
+        adminName,
+        adminEmail,
+        adminPassword,
+      }),
     })
     const data = await res.json()
     if (!res.ok) {
@@ -131,7 +142,10 @@ export default function PlatformAdminPage() {
               <h1 className="text-lg font-semibold">{t.title}</h1>
             </div>
             <button
-              onClick={async () => { await signOut(); router.push('/') }}
+              onClick={async () => {
+                await signOut()
+                router.push('/')
+              }}
               className="text-red-600 hover:text-red-700"
             >
               <LogOut className="h-4 w-4" />
@@ -143,7 +157,9 @@ export default function PlatformAdminPage() {
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Header row */}
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-700">{t.restaurants}</h2>
+          <h2 className="text-sm font-semibold text-gray-700">
+            {t.restaurants}
+          </h2>
           <button
             type="button"
             onClick={() => setShowForm(v => !v)}
@@ -157,7 +173,9 @@ export default function PlatformAdminPage() {
         {/* Create restaurant form */}
         {showForm && (
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-800 mb-4">{t.addRestaurant}</h3>
+            <h3 className="text-sm font-semibold text-gray-800 mb-4">
+              {t.addRestaurant}
+            </h3>
             <form onSubmit={handleAdd} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -262,17 +280,26 @@ export default function PlatformAdminPage() {
         {/* Restaurant list */}
         <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
           {fetching ? (
-            <p className="p-6 text-sm text-gray-400">{messages.common.loading}</p>
+            <p className="p-6 text-sm text-gray-400">
+              {messages.common.loading}
+            </p>
           ) : loadError ? (
             <p className="p-6 text-sm text-red-500">{loadError}</p>
           ) : tenants.length === 0 ? (
             <p className="p-6 text-sm text-gray-400">{t.noRestaurants}</p>
           ) : (
             tenants.map(tenant => (
-              <div key={tenant.id} className="flex items-center justify-between px-5 py-4 gap-4">
+              <div
+                key={tenant.id}
+                className="flex items-center justify-between px-5 py-4 gap-4"
+              >
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-800">{tenant.name}</p>
-                  <p className="text-xs text-gray-400 font-mono mt-0.5">/{tenant.slug}</p>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {tenant.name}
+                  </p>
+                  <p className="text-xs text-gray-400 font-mono mt-0.5">
+                    /{tenant.slug}
+                  </p>
                 </div>
                 <div className="flex items-center gap-4 shrink-0 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
@@ -280,7 +307,8 @@ export default function PlatformAdminPage() {
                     {tenant.staffCount} {t.staffCount}
                   </span>
                   <span>
-                    {t.createdAt} {new Date(tenant.created_at).toLocaleDateString()}
+                    {t.createdAt}{' '}
+                    {new Date(tenant.created_at).toLocaleDateString()}
                   </span>
                 </div>
               </div>

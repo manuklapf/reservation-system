@@ -17,7 +17,10 @@ async function verifyPlatformAdmin(
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
   if (!token) return false
 
-  const { data: { user }, error } = await admin.auth.getUser(token)
+  const {
+    data: { user },
+    error,
+  } = await admin.auth.getUser(token)
   if (error || !user?.email) return false
 
   const { data } = await admin
@@ -72,16 +75,28 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { restaurantName, slug: rawSlug, adminName, adminEmail, adminPassword } = body ?? {}
+  const {
+    restaurantName,
+    slug: rawSlug,
+    adminName,
+    adminEmail,
+    adminPassword,
+  } = body ?? {}
 
   if (!restaurantName || !adminName || !adminEmail || !adminPassword) {
     return NextResponse.json(
-      { error: 'restaurantName, adminName, adminEmail, and adminPassword are required' },
+      {
+        error:
+          'restaurantName, adminName, adminEmail, and adminPassword are required',
+      },
       { status: 400 }
     )
   }
   if (adminPassword.length < 6) {
-    return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Password must be at least 6 characters' },
+      { status: 400 }
+    )
   }
 
   const slug = rawSlug ? slugify(rawSlug) : slugify(restaurantName)
@@ -94,9 +109,10 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (tenantErr) {
-    const msg = tenantErr.message.includes('unique') || tenantErr.code === '23505'
-      ? `Slug "${slug}" is already taken. Try a different name or slug.`
-      : tenantErr.message
+    const msg =
+      tenantErr.message.includes('unique') || tenantErr.code === '23505'
+        ? `Slug "${slug}" is already taken. Try a different name or slug.`
+        : tenantErr.message
     return NextResponse.json({ error: msg }, { status: 400 })
   }
 

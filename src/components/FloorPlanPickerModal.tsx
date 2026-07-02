@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Check, Users } from 'lucide-react'
+import { X, Check, Users } from '@/components/icons'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import FloorDropdown from './FloorDropdown'
