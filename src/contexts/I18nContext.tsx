@@ -23,6 +23,27 @@ interface I18nContextType {
 
 const LANGUAGE_STORAGE_KEY = 'appLanguage'
 
+const SUPPORTED_LANGUAGES: Language[] = ['en', 'de']
+
+function detectDeviceLanguage(): Language {
+  if (typeof navigator === 'undefined') {
+    return 'en'
+  }
+
+  const candidates = navigator.languages?.length
+    ? navigator.languages
+    : [navigator.language]
+
+  for (const candidate of candidates) {
+    const base = candidate?.toLowerCase().split('-')[0] as Language | undefined
+    if (base && SUPPORTED_LANGUAGES.includes(base)) {
+      return base
+    }
+  }
+
+  return 'en'
+}
+
 const I18nContext = createContext<I18nContextType | undefined>(undefined)
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -36,6 +57,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
     if (savedLanguage === 'en' || savedLanguage === 'de') {
       setLanguageState(savedLanguage)
+    } else {
+      // No stored preference — fall back to the user's device language.
+      setLanguageState(detectDeviceLanguage())
     }
   }, [])
 
