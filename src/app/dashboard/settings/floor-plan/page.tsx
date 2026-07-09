@@ -276,6 +276,32 @@ export default function FloorPlanPage() {
     }
   }
 
+  const handleUpdateTable = async (
+    id: string,
+    identifier: string,
+    capacity: number
+  ) => {
+    if (!supabase) return
+    try {
+      setSaving(true)
+      setError('')
+      const { error } = await supabase
+        .from('tables')
+        .update({ table_identifier: identifier, capacity })
+        .eq('id', id)
+      if (error) throw error
+      await fetchTables()
+    } catch (err: any) {
+      setError(
+        err.message?.includes('duplicate')
+          ? t.errors.duplicateIdentifier
+          : t.errors.failedAdd
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleDeleteTable = async (id: string) => {
     if (!supabase) return
     try {
@@ -425,6 +451,7 @@ export default function FloorPlanPage() {
                       onAddTable={(identifier, capacity) =>
                         handleAddTable(identifier, capacity, floor.id)
                       }
+                      onUpdateTable={handleUpdateTable}
                       onDeleteTable={handleDeleteTable}
                       activeTableIds={activeTableIds}
                     />
