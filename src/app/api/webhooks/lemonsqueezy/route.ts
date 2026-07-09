@@ -24,12 +24,19 @@ function verifySignature(raw: string, signature: string, secret: string) {
 export async function POST(req: NextRequest) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET
   if (!secret) {
+    console.error('[LS webhook] LEMONSQUEEZY_WEBHOOK_SECRET is not set')
     return NextResponse.json({ error: 'Not configured' }, { status: 500 })
   }
 
   const raw = await req.text()
   const signature = req.headers.get('x-signature') ?? ''
-  if (!signature || !verifySignature(raw, signature, secret)) {
+  const validSig = signature && verifySignature(raw, signature, secret)
+  console.log('[LS webhook] received', {
+    hasSignature: Boolean(signature),
+    validSignature: Boolean(validSig),
+    bytes: raw.length,
+  })
+  if (!validSig) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
@@ -44,8 +51,16 @@ export async function POST(req: NextRequest) {
   const tenantId: string | undefined = event?.meta?.custom_data?.tenant_id
   const attributes = event?.data?.attributes ?? {}
 
+  console.log('[LS webhook] event', {
+    eventName,
+    tenantId,
+    status: attributes.status,
+    testMode: attributes.test_mode,
+  })
+
   if (!tenantId) {
     // Nothing we can map this to; acknowledge so LS stops retrying.
+    console.warn('[LS webhook] no tenant_id in meta.custom_data — ignoring')
     return NextResponse.json({ received: true, ignored: 'no tenant_id' })
   }
 
@@ -79,8 +94,10 @@ export async function POST(req: NextRequest) {
     .eq('id', tenantId)
 
   if (error) {
+    console.error('[LS webhook] tenant update failed', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  console.log('[LS webhook] tenant updated', { tenantId, planStatus })
   return NextResponse.json({ received: true, plan_status: planStatus })
 }

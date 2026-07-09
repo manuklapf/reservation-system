@@ -8,15 +8,23 @@
 ALTER TABLE tenants
   ADD COLUMN IF NOT EXISTS plan_status TEXT NOT NULL DEFAULT 'trial'
     CHECK (plan_status IN ('trial', 'active', 'expired')),
+  -- Nullable: once an account pays, the webhook clears this to NULL so the
+  -- account is unambiguously off trial. New tenants still get the default.
   ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMP WITH TIME ZONE
-    NOT NULL DEFAULT (NOW() + INTERVAL '14 days'),
+    DEFAULT (NOW() + INTERVAL '14 days'),
   ADD COLUMN IF NOT EXISTS ls_subscription_id TEXT,
   ADD COLUMN IF NOT EXISTS ls_customer_id TEXT;
 
--- Backfill existing tenants: give them a fresh 14-day trial from now.
+-- If this migration was run in an earlier form that made the column NOT NULL,
+-- drop the constraint so paid accounts can clear their trial deadline.
+ALTER TABLE tenants ALTER COLUMN trial_ends_at DROP NOT NULL;
+
+-- Backfill existing tenants: give any trial account without a deadline a fresh
+-- 14-day trial. Paid accounts intentionally have a NULL deadline, so skip them.
 UPDATE tenants
 SET trial_ends_at = NOW() + INTERVAL '14 days'
-WHERE trial_ends_at IS NULL;
+WHERE trial_ends_at IS NULL
+  AND plan_status = 'trial';
 
 -- Block guest reservation requests for locked (expired) accounts.
 -- Recreate the guest INSERT policy with a tenant-status check so the lock is
