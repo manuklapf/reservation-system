@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
 
   const admin = makeAdminClient()
   const update: Record<string, unknown> = { plan_status: planStatus }
+  // Once paid, the trial is over for good — clear the deadline so the account
+  // is unambiguously off trial (and can't fall back into a trial banner).
+  if (planStatus === 'active') update.trial_ends_at = null
   if (event?.data?.id) update.ls_subscription_id = String(event.data.id)
   if (attributes.customer_id != null) {
     update.ls_customer_id = String(attributes.customer_id)
