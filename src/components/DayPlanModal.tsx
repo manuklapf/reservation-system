@@ -243,7 +243,15 @@ export default function DayPlanModal({
       setAssignments(prev => {
         const prevIds = prev[reservationId] ?? getEffectiveTableIds(res)
         if (prevIds.includes(tableId)) return prev
-        return { ...prev, [reservationId]: [...prevIds, tableId] }
+        // Dragging out of the focused table moves the reservation rather than
+        // adding a second table to it.
+        const nextIds =
+          focusedTableId &&
+          focusedTableId !== tableId &&
+          prevIds.includes(focusedTableId)
+            ? prevIds.map(id => (id === focusedTableId ? tableId : id))
+            : [...prevIds, tableId]
+        return { ...prev, [reservationId]: nextIds }
       })
     if (conflicts.length > 0) {
       const names = conflicts
@@ -528,6 +536,7 @@ export default function DayPlanModal({
             {/* Floor plan */}
             <div
               ref={floorContainerRef}
+              onClick={() => setFocusedTableId(null)}
               className="flex min-h-0 flex-1 items-center justify-center bg-gray-50 p-3 lg:p-4"
             >
               {loadingFloors ? (
@@ -617,11 +626,10 @@ export default function DayPlanModal({
                       return (
                         <div
                           key={p.id}
-                          onClick={() =>
-                            setFocusedTableId(prev =>
-                              prev === p.id ? null : p.id
-                            )
-                          }
+                          onClick={e => {
+                            e.stopPropagation()
+                            setFocusedTableId(p.id)
+                          }}
                           onDragOver={e => {
                             e.preventDefault()
                             e.dataTransfer.dropEffect = 'move'

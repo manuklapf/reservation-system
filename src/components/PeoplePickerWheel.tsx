@@ -88,7 +88,7 @@ export default function PeoplePickerWheel({
   return (
     <div
       ref={containerRef}
-      className={`rounded-xl overflow-hidden ${
+      className={`rounded-xl overflow-hidden touch-none overscroll-contain ${
         transparentBackground ? 'bg-transparent' : 'bg-gray-100/60'
       }`}
     >

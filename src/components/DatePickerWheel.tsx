@@ -94,7 +94,6 @@ export default function DatePickerWheel({
 
   // ── Desktop wheel support ──────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null)
-  const hoveredColRef = useRef<'day' | 'month' | 'year' | null>(null)
   const pvRef = useRef(pv)
   const handleChangeRef = useRef(handleChange)
   const accumRef = useRef(0)
@@ -109,21 +108,16 @@ export default function DatePickerWheel({
     const el = containerRef.current
     if (!el) return
 
-    const onMouseMove = (e: MouseEvent) => {
-      const { left, width } = el.getBoundingClientRect()
-      const frac = (e.clientX - left) / width
-      if (frac < 1 / 3) hoveredColRef.current = 'day'
-      else if (frac < 2 / 3) hoveredColRef.current = 'month'
-      else hoveredColRef.current = 'year'
-    }
     const onMouseLeave = () => {
-      hoveredColRef.current = null
       accumRef.current = 0
     }
     const onWheel = (e: WheelEvent) => {
-      const col = hoveredColRef.current
-      if (!col) return
+      // The listener lives on the picker, so every event here is over it and
+      // must never reach the page behind the modal.
       e.preventDefault()
+      const { left, width } = el.getBoundingClientRect()
+      const frac = (e.clientX - left) / width
+      const col = frac < 1 / 3 ? 'day' : frac < 2 / 3 ? 'month' : 'year'
 
       const STEP_SIZE = 25
       accumRef.current += e.deltaY
@@ -155,11 +149,9 @@ export default function DatePickerWheel({
       }
     }
 
-    el.addEventListener('mousemove', onMouseMove)
     el.addEventListener('mouseleave', onMouseLeave)
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => {
-      el.removeEventListener('mousemove', onMouseMove)
       el.removeEventListener('mouseleave', onMouseLeave)
       el.removeEventListener('wheel', onWheel)
     }
@@ -168,7 +160,7 @@ export default function DatePickerWheel({
   return (
     <div
       ref={containerRef}
-      className={`rounded-xl overflow-hidden ${
+      className={`rounded-xl overflow-hidden touch-none overscroll-contain ${
         transparentBackground ? 'bg-transparent' : 'bg-gray-100/60'
       }`}
     >
