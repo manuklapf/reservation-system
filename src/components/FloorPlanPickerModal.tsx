@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Check, Users } from '@/components/icons'
+import { Check, Users } from '@/components/icons'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import FloorDropdown from './FloorDropdown'
+import ModalCloseButton from './ModalCloseButton'
 
 interface DBTable {
   id: string
@@ -152,23 +153,18 @@ export default function FloorPlanPickerModal({
   const floor = floors[activeIdx] ?? null
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-1 backdrop-blur-sm">
+      <ModalCloseButton onClose={onClose} />
+
       <div className="flex w-full max-w-4xl max-h-[90vh] flex-col rounded-2xl bg-white shadow-2xl">
         {/* Top bar */}
-        <div className="flex shrink-0 items-center gap-2 border-b border-gray-200 px-3 py-2">
+        <div className="flex shrink-0 items-center gap-2 border-b border-gray-200 py-2 px-3">
           <FloorDropdown
             floors={floors}
             activeIdx={activeIdx}
             onChange={setActiveIdx}
           />
           <div className="flex-1" />
-          <button
-            type="button"
-            onClick={onClose}
-            className="shrink-0 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
           <button
             type="button"
             onClick={() => {

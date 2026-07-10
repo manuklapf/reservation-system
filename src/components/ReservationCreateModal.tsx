@@ -19,6 +19,7 @@ import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
 import FloorPlanPickerModal from './FloorPlanPickerModal'
+import ModalCloseButton from './ModalCloseButton'
 
 interface Table {
   id: string
@@ -397,6 +398,8 @@ export default function ReservationCreateModal({
         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm"
         onClick={onClose}
       >
+        <ModalCloseButton onClose={onClose} />
+
         {/* Content — centered in full page */}
         <div
           className="relative w-full max-w-lg p-6 sm:p-4"

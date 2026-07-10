@@ -35,7 +35,7 @@ export default function UnplacedTablesPalette({
 
   return (
     <div className="flex-1 min-w-[180px]">
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center gap-2 mb-1.5">
         <p className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
           {t.unplacedTables}
         </p>

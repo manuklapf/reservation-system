@@ -22,6 +22,7 @@ import StepTime from './StepTime'
 import StepPersons from './StepPersons'
 import FloorPlanPickerModal from './FloorPlanPickerModal'
 import ConfirmDialog from './ConfirmDialog'
+import ModalCloseButton from './ModalCloseButton'
 import ReservationChip from './ReservationChip'
 
 interface Table {
@@ -425,6 +426,8 @@ export default function ReservationEditModal({
         className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-6 z-50 backdrop-blur-sm"
         onClick={onClose}
       >
+        <ModalCloseButton onClose={onClose} />
+
         <div
           className="relative w-full max-w-lg"
           onClick={e => e.stopPropagation()}

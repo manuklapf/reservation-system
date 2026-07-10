@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Trash2 } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import ModalCloseButton from '../ModalCloseButton'
 
 interface AddTableModalProps {
   mode: 'add' | 'edit'
@@ -47,6 +48,8 @@ export default function AddTableModal({
       // to a genuine new press on the backdrop, not the synthesized click.
       onPointerDown={onClose}
     >
+      <ModalCloseButton onClose={onClose} />
+
       <div
         className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-5 w-72 space-y-3"
         onClick={e => e.stopPropagation()}
@@ -99,19 +102,12 @@ export default function AddTableModal({
           />
         </div>
         {addError && <p className="text-xs text-red-500">{addError}</p>}
-        <div className="flex gap-2 pt-1">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            {t.cancel}
-          </button>
+        <div className="pt-1">
           <button
             type="button"
             disabled={saving || !newId.trim()}
             onClick={handleSubmit}
-            className="flex-1 py-2 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+            className="w-full py-2 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
           >
             {isEdit ? t.updateTableButton : t.addTableButton}
           </button>
