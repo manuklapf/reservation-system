@@ -26,6 +26,28 @@ interface UseFloorPlanStateArgs {
 
 const HISTORY_LIMIT = 50
 
+/**
+ * Applies `patch` to the item with `id`, returning the original array when the patch
+ * is a no-op. Pointer drags snap to the grid, so most moves land on the cell the item
+ * already occupies — without this they'd still allocate a new array and re-render.
+ */
+function patchById<T extends { id: string }>(
+  items: T[],
+  id: string,
+  patch: Partial<T>
+): T[] {
+  const index = items.findIndex(item => item.id === id)
+  if (index === -1) return items
+
+  const current = items[index]
+  const keys = Object.keys(patch) as (keyof T)[]
+  if (keys.every(key => current[key] === patch[key])) return items
+
+  const next = [...items]
+  next[index] = { ...current, ...patch }
+  return next
+}
+
 /** Owns the placed-tables/obstacles model for a floor: localStorage persistence, undo history, and selection. */
 export function useFloorPlanState({
   tenantId,
@@ -169,8 +191,23 @@ export function useFloorPlanState({
   useEffect(() => {
     onPlacedIdsChangeRef.current = onPlacedIdsChange
   })
+  // A drag moves a table, it doesn't add or remove one. Notifying on every
+  // `placed` change would re-render the whole page on each pointermove, and
+  // since that update is scheduled from this effect React counts it as a
+  // nested update — ~50 of them into a drag it throws "Maximum update depth".
+  const notifiedIdsRef = useRef<string[] | null>(null)
   useEffect(() => {
-    onPlacedIdsChangeRef.current?.(placed.map(p => p.id))
+    const ids = placed.map(p => p.id)
+    const prev = notifiedIdsRef.current
+    if (
+      prev &&
+      prev.length === ids.length &&
+      prev.every((id, i) => id === ids[i])
+    ) {
+      return
+    }
+    notifiedIdsRef.current = ids
+    onPlacedIdsChangeRef.current?.(ids)
   }, [placed])
 
   // Backspace removes selected item from canvas
@@ -236,7 +273,7 @@ export function useFloorPlanState({
   }
 
   const updatePlaced = (id: string, patch: Partial<PlacedTable>) => {
-    setPlaced(prev => prev.map(p => (p.id === id ? { ...p, ...patch } : p)))
+    setPlaced(prev => patchById(prev, id, patch))
   }
 
   const updatePlacedFromInteraction = (
@@ -276,7 +313,7 @@ export function useFloorPlanState({
   }
 
   const updateObstacle = (id: string, patch: Partial<Obstacle>) => {
-    setObstacles(prev => prev.map(o => (o.id === id ? { ...o, ...patch } : o)))
+    setObstacles(prev => patchById(prev, id, patch))
   }
 
   const updateObstacleFromInteraction = (

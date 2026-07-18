@@ -137,9 +137,16 @@ export default function FloorPlanEditor({
     ) {
       return null
     }
+    // The canvas is CSS-scaled to fit narrow viewports, so rect is in screen px
+    // while placements are stored in unscaled canvas px.
+    const scale = rect.width / CANVAS_W
     return {
-      x: snapG(Math.max(0, Math.min(CANVAS_W - 80, clientX - rect.left))),
-      y: snapG(Math.max(0, Math.min(CANVAS_H - 80, clientY - rect.top))),
+      x: snapG(
+        Math.max(0, Math.min(CANVAS_W - 80, (clientX - rect.left) / scale))
+      ),
+      y: snapG(
+        Math.max(0, Math.min(CANVAS_H - 80, (clientY - rect.top) / scale))
+      ),
     }
   }
 

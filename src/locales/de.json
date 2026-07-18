@@ -353,6 +353,8 @@
     "unplacedTables": "Tische",
     "objects": "Objekte",
     "addBlockHint": "Auf den Plan ziehen, um einen Block hinzuzufügen",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
     "addNewTable": "Neuen Tisch hinzufügen",
     "allPlaced": "Alle platziert ✓",
     "newTableModal": "Neuer Tisch",

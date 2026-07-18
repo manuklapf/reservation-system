@@ -16,6 +16,9 @@ import { useI18n } from '@/contexts/I18nContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 
+/** Fallback length for reservations stored without an end_time. */
+const DEFAULT_DURATION_MS = 60 * 60 * 1000
+
 // Intercepts CalendarKit's internal modal: forwards slot clicks to our handler
 // and suppresses the built-in form for event edits (handled by ReservationModal).
 function SlotClickBridge({
@@ -36,7 +39,7 @@ function SlotClickBridge({
     if (!event && initialDate) {
       onSelectSlot?.({
         start: initialDate,
-        end: new Date(initialDate.getTime() + 60 * 60 * 1000),
+        end: new Date(initialDate.getTime() + DEFAULT_DURATION_MS),
       })
     }
     onClose()
@@ -140,6 +143,13 @@ const colorPalettes: Record<string, Array<{ base: string; dark: string }>> = {
   ],
 }
 
+const reservationStart = (r: Reservation) => new Date(`${r.date}T${r.time}`)
+
+const reservationEnd = (r: Reservation) =>
+  r.end_time
+    ? new Date(`${r.date}T${r.end_time}`)
+    : new Date(reservationStart(r).getTime() + DEFAULT_DURATION_MS)
+
 function hashEventColor(
   id: string,
   palette: Array<{ base: string; dark: string }>
@@ -195,10 +205,8 @@ export default function CalendarKitCalendar({
 
   const events: CKEvent[] = useMemo(() => {
     return reservations.map(reservation => {
-      const start = new Date(`${reservation.date}T${reservation.time}`)
-      const end = reservation.end_time
-        ? new Date(`${reservation.date}T${reservation.end_time}`)
-        : new Date(start.getTime() + 60 * 60 * 1000)
+      const start = reservationStart(reservation)
+      const end = reservationEnd(reservation)
       const eventColor = hashEventColor(reservation.id, palette)
 
       return {
@@ -223,12 +231,23 @@ export default function CalendarKitCalendar({
     const reservation = event.reservation as Reservation
     if (!reservation?.id) return
 
+    // Moving a reservation must not stretch or shrink it: the library hands back
+    // an `end` that isn't always shifted along with `start`. Only a resize —
+    // which requires the reservation-length setting — may change the duration.
+    const durationMs =
+      reservationEnd(reservation).getTime() -
+      reservationStart(reservation).getTime()
+    const end = new Date(
+      event.start.getTime() +
+        (durationMs > 0 ? durationMs : DEFAULT_DURATION_MS)
+    )
+
     await supabase
       .from('reservations')
       .update({
         date: format(event.start, 'yyyy-MM-dd'),
         time: format(event.start, 'HH:mm'),
-        end_time: format(event.end, 'HH:mm'),
+        end_time: format(end, 'HH:mm'),
         updated_at: new Date().toISOString(),
       })
       .eq('id', reservation.id)
@@ -381,6 +400,11 @@ export default function CalendarKitCalendar({
 
         /* ── Hide create new button on mobile ──── */
         #ck-wrapper [class~="absolute"][class~="bottom-6"][class~="right-6"] { display: none !important; }
+
+        /* ── Fit month/week grids to narrow viewports ────────────────────── */
+        /* The library hardcodes min-w-[800px] on both grids below its own md */
+        /* breakpoint, which pushes them past the phone viewport. */
+        #ck-wrapper [class~="min-w-[800px]"] { min-width: 0 !important; }
 
         /* ── Timeslot grid lines ─────────────────────────────────────────── */
         #ck-wrapper [class~="border-dashed"] {

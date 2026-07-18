@@ -62,7 +62,11 @@ interface DayPlanModalProps {
 
 const CANVAS_W = 832
 const CANVAS_H = 480
-const ITEMS_PER_PAGE = 6
+/** Height of one reservation row incl. divider, in px — sets how many fit on a touch page. */
+const ROW_H = 58
+const MIN_ITEMS_PER_PAGE = 3
+/** Below lg the plan sits above the reservation list; cap how much height it may claim. */
+const MOBILE_PLAN_HEIGHT_RATIO = 0.6
 
 const shortName = (name: string) => {
   const parts = name.trim().split(/\s+/)
@@ -89,6 +93,7 @@ export default function DayPlanModal({
   const [saving, setSaving] = useState(false)
   const [scale, setScale] = useState(0.88)
   const [listPage, setListPage] = useState(0)
+  const [itemsPerPage, setItemsPerPage] = useState(6)
   const [isTouch, setIsTouch] = useState(false)
   const [touchDragState, setTouchDragState] = useState<{
     resId: string
@@ -113,6 +118,8 @@ export default function DayPlanModal({
   const floorPlanInnerRef = useRef<HTMLDivElement>(null)
   const floorRef = useRef<FloorPlan | null>(null)
   const floorContainerRef = useRef<HTMLDivElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
   const scaleRef = useRef(0.88)
   const latestHandleDropRef = useRef<(tableId: string, resId: string) => void>(
     () => {}
@@ -207,13 +214,37 @@ export default function DayPlanModal({
     setListPage(0)
   }, [focusedTableId])
 
-  // Scale floor plan to fill the container without overflow
+  // Fill the list with as many rows as its height allows rather than a fixed count
+  useEffect(() => {
+    if (!isOpen) return
+    const el = listRef.current
+    if (!el) return
+    const measure = () => {
+      const { height } = el.getBoundingClientRect()
+      setItemsPerPage(
+        Math.max(MIN_ITEMS_PER_PAGE, Math.floor(height / ROW_H)) || 1
+      )
+    }
+    const obs = new ResizeObserver(measure)
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [isOpen])
+
+  // Scale floor plan to fill the container without overflow.
+  // Below lg the container hugs the scaled canvas, so its own height is an
+  // output of the scale, not an input — the height budget comes from the body.
   useEffect(() => {
     if (!isOpen) return
     const el = floorContainerRef.current
-    if (!el) return
+    const body = bodyRef.current
+    if (!el || !body) return
     const measure = () => {
-      const { width, height } = el.getBoundingClientRect()
+      const { width } = el.getBoundingClientRect()
+      const bodyHeight = body.getBoundingClientRect().height
+      const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+      const height = isDesktop
+        ? bodyHeight
+        : bodyHeight * MOBILE_PLAN_HEIGHT_RATIO
       const s = Math.min((width - 32) / CANVAS_W, (height - 32) / CANVAS_H, 1.5)
       const ns = Math.max(s, 0.15)
       setScale(ns)
@@ -221,6 +252,7 @@ export default function DayPlanModal({
     }
     const obs = new ResizeObserver(measure)
     obs.observe(el)
+    obs.observe(body)
     return () => obs.disconnect()
   }, [isOpen])
 
@@ -449,11 +481,13 @@ export default function DayPlanModal({
         getEffectiveTableIds(r).includes(focusedTableId)
       )
     : sortedReservations
-  const totalPages = Math.ceil(displayedReservations.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(displayedReservations.length / itemsPerPage)
+  // A shrinking page count can strand listPage past the end
+  const safePage = Math.min(listPage, Math.max(0, totalPages - 1))
   const paginatedReservations = isTouch
     ? displayedReservations.slice(
-        listPage * ITEMS_PER_PAGE,
-        (listPage + 1) * ITEMS_PER_PAGE
+        safePage * itemsPerPage,
+        (safePage + 1) * itemsPerPage
       )
     : displayedReservations
 
@@ -507,15 +541,15 @@ export default function DayPlanModal({
       <div className="fixed inset-0 z-50 flex p-4 backdrop-blur-sm bg-black/60">
         <div className="flex h-full w-full flex-col bg-white">
           {/* Header */}
-          <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3 lg:px-6 lg:py-4">
-            <h3 className="text-base font-semibold text-gray-900 md:text-lg">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-gray-200 px-4 py-3 lg:px-6 lg:py-4">
+            <h3 className="whitespace-nowrap text-base font-semibold text-gray-900 md:text-lg">
               {new Date(date + 'T00:00:00').toLocaleDateString(locale, {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',
               })}
             </h3>
-            <div className="flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-3 sm:gap-4">
               <FloorDropdown
                 floors={floors}
                 activeIdx={activeFloorIdx}
@@ -532,12 +566,15 @@ export default function DayPlanModal({
           </div>
 
           {/* Body */}
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+          <div
+            ref={bodyRef}
+            className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row"
+          >
             {/* Floor plan */}
             <div
               ref={floorContainerRef}
               onClick={() => setFocusedTableId(null)}
-              className="flex min-h-0 flex-1 items-center justify-center bg-gray-50 p-3 lg:p-4"
+              className="flex min-h-0 flex-none items-center justify-center bg-gray-50 p-3 lg:flex-1 lg:p-4"
             >
               {loadingFloors ? (
                 <div className="flex h-32 items-center justify-center text-sm text-gray-400">
@@ -744,7 +781,7 @@ export default function DayPlanModal({
             </div>
 
             {/* Reservation list */}
-            <div className="flex min-h-[45vh] flex-none flex-col overflow-hidden border-t border-gray-200 max-h-[45vh] lg:max-h-none lg:w-64 lg:border-l lg:border-t-0">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-t border-gray-200 lg:w-64 lg:flex-none lg:border-l lg:border-t-0">
               <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-2.5">
                 {focusedTableId ? (
                   <>
@@ -767,17 +804,17 @@ export default function DayPlanModal({
                 {isTouch && totalPages > 1 && (
                   <div className="ml-auto flex items-center gap-0.5 pl-2">
                     <button
-                      onClick={() => setListPage(p => Math.max(0, p - 1))}
-                      disabled={listPage === 0}
+                      onClick={() => setListPage(Math.max(0, safePage - 1))}
+                      disabled={safePage === 0}
                       className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600 disabled:opacity-30"
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() =>
-                        setListPage(p => Math.min(totalPages - 1, p + 1))
+                        setListPage(Math.min(totalPages - 1, safePage + 1))
                       }
-                      disabled={listPage === totalPages - 1}
+                      disabled={safePage === totalPages - 1}
                       className="rounded p-1 text-gray-400 transition-colors hover:text-gray-600 disabled:opacity-30"
                     >
                       <ChevronRight className="h-4 w-4" />
@@ -787,7 +824,8 @@ export default function DayPlanModal({
               </div>
 
               <ul
-                className={`flex-1 divide-y divide-gray-100 ${isTouch ? 'overflow-hidden' : 'overflow-y-auto'}`}
+                ref={listRef}
+                className={`min-h-0 flex-1 divide-y divide-gray-100 ${isTouch ? 'overflow-hidden' : 'overflow-y-auto'}`}
               >
                 {displayedReservations.length === 0 ? (
                   <li className="flex h-16 items-center justify-center text-sm text-gray-400">

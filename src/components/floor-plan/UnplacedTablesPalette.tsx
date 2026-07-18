@@ -48,7 +48,7 @@ export default function UnplacedTablesPalette({
           <Plus className="h-4 w-4" />
         </button>
       </div>
-      <div className="grid grid-cols-8 sm:grid-cols-12 gap-1">
+      <div className="grid grid-cols-5 gap-3 sm:grid-cols-12 sm:gap-1">
         {unplaced.length === 0 ? (
           <p className="text-xs text-gray-400 italic col-span-full">
             {t.allPlaced}

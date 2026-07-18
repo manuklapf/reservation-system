@@ -254,7 +254,8 @@ export default function DashboardPage() {
     return true
   })
 
-  const todayISO = new Date().toISOString().split('T')[0]
+  const todayDate = new Date()
+  const todayISO = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`
   const dateFilterActive = !!(filterDateFrom || filterDateTo)
 
   // Group reservations by date, preserving sort order
@@ -430,7 +431,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              {filteredReservations.length === 0 ? (
+              {visibleDays.length === 0 ? (
                 <div className="bg-white shadow sm:rounded-md text-center py-8">
                   <p className="text-gray-500">{t.noReservations}</p>
                 </div>

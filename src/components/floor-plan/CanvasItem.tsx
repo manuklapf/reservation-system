@@ -6,6 +6,9 @@ import type { Rect } from './types'
 
 const CORNERS: Corner[] = ['nw', 'ne', 'sw', 'se']
 
+/** Resize-handle diameter, in screen px. */
+const HANDLE = 10
+
 interface DragState {
   mx0: number
   my0: number
@@ -23,6 +26,8 @@ interface CanvasItemProps {
   rect: Rect
   canvasW: number
   canvasH: number
+  /** Canvas zoom factor. Pointer deltas are screen px, so they divide by this to reach canvas px. */
+  scale?: number
   /** Minimum width/height enforced while resizing. */
   minSize?: number
   selected: boolean
@@ -44,6 +49,7 @@ export default function CanvasItem({
   rect,
   canvasW,
   canvasH,
+  scale = 1,
   minSize = 20,
   selected,
   zIndex,
@@ -90,10 +96,16 @@ export default function CanvasItem({
         const { mx0, my0, tx0, ty0 } = dragRef.current
         onChange({
           x: snapG(
-            Math.max(0, Math.min(canvasW - rect.w, tx0 + e.clientX - mx0))
+            Math.max(
+              0,
+              Math.min(canvasW - rect.w, tx0 + (e.clientX - mx0) / scale)
+            )
           ),
           y: snapG(
-            Math.max(0, Math.min(canvasH - rect.h, ty0 + e.clientY - my0))
+            Math.max(
+              0,
+              Math.min(canvasH - rect.h, ty0 + (e.clientY - my0) / scale)
+            )
           ),
         })
       }}
@@ -112,17 +124,18 @@ export default function CanvasItem({
             key={corner}
             style={{
               position: 'absolute',
-              width: 10,
-              height: 10,
+              // Counter-scale so handles stay ~10 screen px however far the canvas is zoomed out.
+              width: HANDLE / scale,
+              height: HANDLE / scale,
               backgroundColor: 'white',
-              border: '2px solid #1d4ed8',
+              border: `${2 / scale}px solid #1d4ed8`,
               borderRadius: '50%',
               zIndex: 20,
               cursor: `${corner}-resize`,
-              top: corner.startsWith('n') ? -5 : undefined,
-              bottom: corner.startsWith('s') ? -5 : undefined,
-              left: corner.endsWith('w') ? -5 : undefined,
-              right: corner.endsWith('e') ? -5 : undefined,
+              top: corner.startsWith('n') ? -HANDLE / 2 / scale : undefined,
+              bottom: corner.startsWith('s') ? -HANDLE / 2 / scale : undefined,
+              left: corner.endsWith('w') ? -HANDLE / 2 / scale : undefined,
+              right: corner.endsWith('e') ? -HANDLE / 2 / scale : undefined,
             }}
             onPointerDown={e => {
               e.stopPropagation()
@@ -145,8 +158,8 @@ export default function CanvasItem({
               onChange(
                 resizeFromCorner(
                   corner,
-                  e.clientX - mx0,
-                  e.clientY - my0,
+                  (e.clientX - mx0) / scale,
+                  (e.clientY - my0) / scale,
                   tx0,
                   ty0,
                   tw0,

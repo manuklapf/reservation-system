@@ -353,6 +353,8 @@
     "unplacedTables": "Tables",
     "objects": "Objects",
     "addBlockHint": "Drag onto the plan to add a block",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
     "addNewTable": "Add new table",
     "allPlaced": "All placed ✓",
     "newTableModal": "New table",

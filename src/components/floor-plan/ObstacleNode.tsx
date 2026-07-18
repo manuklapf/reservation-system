@@ -7,6 +7,7 @@ interface ObstacleNodeProps {
   obstacle: Obstacle
   canvasW: number
   canvasH: number
+  scale: number
   selected: boolean
   onSelect: () => void
   onInteractionStart: () => void
@@ -18,6 +19,7 @@ export default function ObstacleNode({
   obstacle: o,
   canvasW,
   canvasH,
+  scale,
   selected,
   onSelect,
   onInteractionStart,
@@ -29,6 +31,7 @@ export default function ObstacleNode({
       rect={o}
       canvasW={canvasW}
       canvasH={canvasH}
+      scale={scale}
       minSize={10}
       selected={selected}
       zIndex={selected ? 8 : 0}

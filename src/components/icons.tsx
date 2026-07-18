@@ -41,6 +41,7 @@ import { LayoutGrid as LayoutGridAnim } from '@/components/animate-ui/icons/layo
 import { List as ListAnim } from '@/components/animate-ui/icons/list'
 import { LogOut as LogOutAnim } from '@/components/animate-ui/icons/log-out'
 import { Mail as MailAnim } from '@/components/animate-ui/icons/mail'
+import { Minus as MinusAnim } from '@/components/animate-ui/icons/minus'
 import { Pencil as PencilAnim } from '@/components/animate-ui/icons/pencil'
 import { Plus as PlusAnim } from '@/components/animate-ui/icons/plus'
 import { Redo as RedoAnim } from '@/components/animate-ui/icons/redo'
@@ -145,6 +146,7 @@ export const LayoutGrid = hoverAnimated(LayoutGridAnim, 'LayoutGrid')
 export const List = hoverAnimated(ListAnim, 'List')
 export const LogOut = hoverAnimated(LogOutAnim, 'LogOut')
 export const Mail = hoverAnimated(MailAnim, 'Mail')
+export const Minus = hoverAnimated(MinusAnim, 'Minus')
 export const Pencil = hoverAnimated(PencilAnim, 'Pencil')
 export const Plus = hoverAnimated(PlusAnim, 'Plus')
 export const Redo = hoverAnimated(RedoAnim, 'Redo')

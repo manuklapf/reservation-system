@@ -9,6 +9,7 @@ interface PlacedTableNodeProps {
   dbTable: DBTable
   canvasW: number
   canvasH: number
+  scale: number
   selected: boolean
   isActive: boolean
   onSelect: () => void
@@ -22,6 +23,7 @@ export default function PlacedTableNode({
   dbTable: db,
   canvasW,
   canvasH,
+  scale,
   selected,
   isActive,
   onSelect,
@@ -34,6 +36,7 @@ export default function PlacedTableNode({
       rect={p}
       canvasW={canvasW}
       canvasH={canvasH}
+      scale={scale}
       minSize={20}
       selected={selected}
       zIndex={selected ? 10 : 1}
