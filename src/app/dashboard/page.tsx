@@ -293,22 +293,21 @@ export default function DashboardPage() {
           <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
         }
         right={
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center gap-2">
             <Button
               onClick={() => setMailboxOpen(true)}
               aria-label={t.mailbox}
               title={t.mailbox}
             >
-              {t.mailbox}
+              <Bell className="h-5 w-5"></Bell>
             </Button>
-            <Link
-              href="/dashboard/settings"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            <Button
+              onClick={() => router.push('/dashboard/settings')}
               aria-label={t.settings}
               title={t.settings}
             >
               <Settings className="h-5 w-5" />
-            </Link>
+            </Button>
           </div>
         }
       />
