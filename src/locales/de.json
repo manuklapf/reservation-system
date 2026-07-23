@@ -80,7 +80,7 @@
     "mailbox": "Reservierungsanfragen"
   },
   "mailbox": {
-    "title": "Reservierungsanfragen",
+    "title": "Anfragen",
     "empty": "Keine ausstehenden Reservierungsanfragen.",
     "approve": "Annehmen",
     "decline": "Ablehnen",

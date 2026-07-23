@@ -20,6 +20,7 @@ import ReservationRow from '@/components/ReservationRow'
 import RangePicker from '@/components/RangePicker'
 import DayPlanModal from '@/components/DayPlanModal'
 import MailboxPanel from '@/components/MailboxPanel'
+import NavBar from '@/components/NavBar'
 import { Reservation } from '@/types/reservation'
 import { useI18n, Language } from '@/contexts/I18nContext'
 import Button from '@/components/Button'
@@ -286,38 +287,31 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white sticky top-0" style={{ zIndex: 50 }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
-            </div>
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={() => setMailboxOpen(true)}
-                className="relative inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                aria-label={t.mailbox}
-                title={t.mailbox}
-              >
-                <Bell className="h-5 w-5" />
-                {pendingRequests.length > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
-                    {pendingRequests.length > 9 ? '9+' : pendingRequests.length}
-                  </span>
-                )}
-              </button>
-              <Link
-                href="/dashboard/settings"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                aria-label={t.settings}
-                title={t.settings}
-              >
-                <Settings className="h-5 w-5" />
-              </Link>
-            </div>
+      <NavBar
+        className="z-50"
+        left={
+          <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
+        }
+        right={
+          <div className="flex items-center space-x-1">
+            <Button
+              onClick={() => setMailboxOpen(true)}
+              aria-label={t.mailbox}
+              title={t.mailbox}
+            >
+              {t.mailbox}
+            </Button>
+            <Link
+              href="/dashboard/settings"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              aria-label={t.settings}
+              title={t.settings}
+            >
+              <Settings className="h-5 w-5" />
+            </Link>
           </div>
-        </div>
-      </nav>
+        }
+      />
 
       <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
@@ -507,8 +501,8 @@ export default function DashboardPage() {
       </main>
 
       {!showCalendar && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
-          <Button onClick={handleOpenNewModal}>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 h-12 w-72 sm:w-80">
+          <Button className="w-full h-full" onClick={handleOpenNewModal}>
             <Plus className="h-4 w-4" />
             {t.newReservation}
           </Button>

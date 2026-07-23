@@ -8,6 +8,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { Building2, LogOut, Plus, Users } from '@/components/icons'
 import { getAccountState } from '@/lib/trial'
 import Button from '@/components/Button'
+import NavBar from '@/components/NavBar'
 
 type PlanStatus = 'trial' | 'active' | 'expired'
 
@@ -165,25 +166,25 @@ export default function PlatformAdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-2 text-blue-600">
-              <Building2 className="h-5 w-5" />
-              <h1 className="text-lg font-semibold">{t.title}</h1>
-            </div>
-            <button
-              onClick={async () => {
-                await signOut()
-                router.push('/')
-              }}
-              className="text-red-600 hover:text-red-700"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+      <NavBar
+        left={
+          <div className="flex items-center gap-2 text-blue-600">
+            <Building2 className="h-5 w-5" />
+            <h1 className="text-lg font-semibold">{t.title}</h1>
           </div>
-        </div>
-      </nav>
+        }
+        right={
+          <button
+            onClick={async () => {
+              await signOut()
+              router.push('/')
+            }}
+            className="text-red-600 hover:text-red-700"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        }
+      />
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Header row */}

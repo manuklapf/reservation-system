@@ -12,6 +12,7 @@ import TableManagementPanel from '@/components/TableManagementPanel'
 import { useI18n } from '@/contexts/I18nContext'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import Button from '@/components/Button'
+import NavBar from '@/components/NavBar'
 
 type Tab = 'list' | 'calendar' | 'tables'
 
@@ -144,27 +145,28 @@ export default function DemoPage() {
         onCancel={() => setPendingDeleteId(null)}
       />
       {/* Nav */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-3">
-              <Link
-                href="/"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                aria-label={dt.backToHome}
-                title={dt.backToHome}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-              <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
-            </div>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="h-4 w-4" />
-              {t.newReservation}
-            </Button>
+      <NavBar
+        sticky={false}
+        left={
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              aria-label={dt.backToHome}
+              title={dt.backToHome}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
           </div>
-        </div>
-      </nav>
+        }
+        right={
+          <Button size="sm" onClick={openNew}>
+            <Plus className="h-4 w-4" />
+            {t.newReservation}
+          </Button>
+        }
+      />
 
       {/* Tabs */}
       <div className="bg-white border-b">

@@ -27,7 +27,6 @@ import { useI18n } from '@/contexts/I18nContext'
 import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
-import Button from './Button'
 
 interface ReservationRequestFormProps {
   tenantId: string
@@ -167,7 +166,12 @@ export default function ReservationRequestForm({
           {t.successTitle}
         </h2>
         <p className="text-gray-500 max-w-sm mb-8">{t.successMessage}</p>
-        <Button onClick={handleReset}>{t.newRequest}</Button>
+        <button
+          onClick={handleReset}
+          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full transition-colors"
+        >
+          {t.newRequest}
+        </button>
       </div>
     )
   }
@@ -186,7 +190,7 @@ export default function ReservationRequestForm({
           <button
             type="button"
             onClick={handlePrev}
-            className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 shadow-lg w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
             aria-label={messages.common.previous}
           >
             <ChevronLeft className="h-5 w-5 text-gray-600" />
@@ -198,12 +202,12 @@ export default function ReservationRequestForm({
           type="button"
           onClick={isLastStep ? handleSubmit : handleNext}
           disabled={loading || !canProceed}
-          className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 rounded-full shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
+          className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
             loading || !canProceed
-              ? 'bg-white text-gray-300 shadow-sm cursor-not-allowed'
+              ? 'text-gray-300 shadow-sm cursor-not-allowed'
               : isLastStep
                 ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                : 'bg-white hover:bg-gray-50 text-gray-600'
+                : 'hover:bg-gray-50 text-gray-600'
           }`}
           aria-label={isLastStep ? t.submit : messages.common.next}
         >

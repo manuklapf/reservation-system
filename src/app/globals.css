@@ -72,7 +72,7 @@ html[data-theme='brutalist'] .min-h-screen.bg-gray-50 {
 }
 
 .btn-primary {
-  background-color: var(--color-light-coral); /* grog light-coral */
+  background-color: var(--color-light-coral); /*  light-coral */
   color: #ffffff;
 }
 .btn-primary:hover:not(:disabled) {
@@ -89,7 +89,7 @@ html[data-theme='brutalist'] .min-h-screen.bg-gray-50 {
 }
 
 .btn-danger {
-  background-color: #dc5560; /* grog coral-red */
+  background-color: #dc5560; /*  coral-red */
   color: #ffffff;
 }
 .btn-danger:hover:not(:disabled) {
@@ -100,8 +100,8 @@ html[data-theme='brutalist'] .min-h-screen.bg-gray-50 {
    hard offset shadow, black border, and press-down hover, matching
    the account page's Save button. */
 html[data-theme='brutalist'] .btn {
-  border: 2px solid var(--color-border) !important;
-  box-shadow: var(--brutx-shadow) !important;
+  border: 2px solid var(--color-border);
+  box-shadow: var(--brutx-shadow);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -117,11 +117,11 @@ html[data-theme='brutalist'] .btn:disabled {
   transform: none;
 }
 html[data-theme='brutalist'] .btn-primary {
-  background-color: var(--color-accent) !important;
-  color: var(--color-accent-fg) !important;
+  background-color: var(--color-white) !important;
+  color: var(--color-black) !important;
 }
 html[data-theme='brutalist'] .btn-secondary {
-  background-color: #ffffff !important;
+  background-color: var(--color-white) !important;
   color: var(--color-text) !important;
 }
 html[data-theme='brutalist'] .btn-danger {
@@ -421,7 +421,6 @@ html[data-theme='brutalist'] .btn-danger {
 
 :root {
   /* -------------------------------------------------------------
-     grog.shop brand palette (raw reference tokens, verbatim).
      The semantic --color-* / --brutx-* tokens below are mapped
      onto these so the whole app re-skins from one place.
      ------------------------------------------------------------- */
@@ -447,7 +446,7 @@ html[data-theme='brutalist'] .btn-danger {
   --color-mandarin-orange: #f88d2a;
   --color-pear-green: #bed731;
 
-  /* Default theme — grog light-coral as the accent */
+  /* Default theme — light-coral as the accent */
   --color-bg: #f3f4f6;
   --color-surface: #ffffff;
   --color-surface-alt: #f9fafb;
@@ -470,7 +469,7 @@ html[data-theme='brutalist'] .btn-danger {
 }
 
 [data-theme='brutalist'] {
-  /* Base — grog black ink on white */
+  /* Base — black ink on white */
   --color-bg: #ffffff;
   --color-surface: #ffffff;
   --color-surface-alt: var(--color-lavender-blush);
@@ -479,7 +478,7 @@ html[data-theme='brutalist'] .btn-danger {
   --color-text: var(--color-black);
   --color-text-secondary: #333333;
   --color-text-muted: #555555;
-  /* Primary action: grog light-coral */
+  /* Primary action: light-coral */
   --color-accent: var(--color-light-coral);
   --color-accent-hover: #ef6b73;
   --color-accent-fg: var(--color-white);
@@ -491,12 +490,12 @@ html[data-theme='brutalist'] .btn-danger {
   --color-danger-fg: var(--color-white);
   --color-danger-subtle: #fde8ea;
   --color-danger-subtle-fg: #dc5560;
-  /* Nav: grog naples yellow */
+  /* Nav:  naples yellow */
   --color-nav-bg: var(--color-naples-yellow);
   /* Table zebra stripes */
   --color-stripe-a: var(--color-lavender-blush);
   --color-stripe-b: #eafaec;
-  /* grog extended palette (kept under the brutx-* names used app-wide) */
+  /*  extended palette (kept under the brutx-* names used app-wide) */
   --brutx-teal: var(--color-celadon);
   --brutx-yellow: var(--color-naples-yellow);
   --brutx-coral: var(--color-light-coral);
@@ -534,11 +533,11 @@ html[data-theme='brutalist'] * {
   font-family: 'Courier New Adjusted', Courier, monospace;
 }
 
-/* Remove all border-radius */
+/* Remove all border-radius except buttons */
 html[data-theme='brutalist']
   *:not(svg):not(path):not(circle):not(rect):not(polyline):not(line):not(g):not(
     defs
-  ):not(clipPath):not(.not-square) {
+  ):not(clipPath):not(.not-square):not(button):not(span) {
   border-radius: 0 !important;
 }
 
@@ -565,16 +564,16 @@ html[data-theme='brutalist'] .backdrop-blur-sm {
 
 /* Backgrounds */
 html[data-theme='brutalist'] .bg-white {
-  background-color: var(--color-surface);
+  background-color: var(--color-surface) !important;
 }
 html[data-theme='brutalist'] .bg-gray-50 {
-  background-color: var(--color-surface-alt);
+  background-color: var(--color-surface-alt) !important;
 }
 html[data-theme='brutalist'] .bg-gray-100 {
-  background-color: var(--color-bg);
+  background-color: var(--color-bg) !important;
 }
 html[data-theme='brutalist'] .bg-gray-200 {
-  background-color: var(--brutx-yellow);
+  background-color: var(--brutx-yellow) !important;
 }
 
 /* Text */
@@ -677,7 +676,7 @@ html[data-theme='brutalist'] .hover\:text-red-700:hover {
   color: var(--color-danger);
 }
 
-/* Success/active green → grog celadon/pistachio */
+/* Success/active green → celadon/pistachio */
 html[data-theme='brutalist'] .bg-green-100 {
   background-color: #e2f6e6;
   color: #2f7a44;
@@ -713,7 +712,6 @@ html[data-theme='brutalist'] .hover\:text-gray-600:hover {
 html[data-theme='brutalist'] nav {
   background-color: var(--color-nav-bg) !important;
   border-bottom: 2px solid var(--color-border) !important;
-  box-shadow: 0 2px 0 var(--color-border) !important;
 }
 
 /* Zebra-stripe table rows */

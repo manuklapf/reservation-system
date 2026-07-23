@@ -410,7 +410,7 @@ export default function ReservationCreateModal({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
+              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white shadow-none w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
               aria-label={common.previous}
             >
               <ChevronLeft className="h-5 w-5 text-gray-600" />
@@ -422,7 +422,7 @@ export default function ReservationCreateModal({
             type="button"
             onClick={isLastStep ? submitReservation : handleNext}
             disabled={loading || !canProceed}
-            className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 rounded-full shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
+            className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
               loading || !canProceed
                 ? 'bg-white text-gray-300 shadow-sm cursor-not-allowed'
                 : isLastStep

@@ -19,6 +19,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import Button from '@/components/Button'
+import NavBar from '@/components/NavBar'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import { supabase } from '@/lib/supabase'
@@ -60,32 +61,32 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link
-              href="/dashboard"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-              aria-label={st.backToDashboard}
-              title={st.backToDashboard}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <h1 className="text-xl font-semibold text-gray-900">{st.title}</h1>
-            <button
-              onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
-              className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-              aria-label={c.language}
-              title={c.language}
-            >
-              <Globe className="h-4 w-4" />
-              <span className="text-xs font-semibold uppercase">
-                {language}
-              </span>
-            </button>
-          </div>
-        </div>
-      </nav>
+      <NavBar
+        left={
+          <Link
+            href="/dashboard"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            aria-label={st.backToDashboard}
+            title={st.backToDashboard}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        }
+        center={
+          <h1 className="text-xl font-semibold text-gray-900">{st.title}</h1>
+        }
+        right={
+          <button
+            onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
+            className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            aria-label={c.language}
+            title={c.language}
+          >
+            <Globe className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase">{language}</span>
+          </button>
+        }
+      />
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="space-y-3">

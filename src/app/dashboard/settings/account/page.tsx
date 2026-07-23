@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft } from '@/components/icons'
+import NavBar from '@/components/NavBar'
 import AccountView, {
   defaultAccountLabels,
   type AccountSubscription,
@@ -217,21 +218,21 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <Link
-              href="/dashboard/settings"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-              aria-label={t.backToSettings}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
-            <div className="w-9" />
-          </div>
-        </div>
-      </nav>
+      <NavBar
+        left={
+          <Link
+            href="/dashboard/settings"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            aria-label={t.backToSettings}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        }
+        center={
+          <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
+        }
+        right={<div className="w-9" />}
+      />
 
       <AccountView
         theme="clean"

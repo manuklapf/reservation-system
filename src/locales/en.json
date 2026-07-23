@@ -77,10 +77,10 @@
     "filterDate": "Date",
     "clearFilters": "Clear filters",
     "settings": "Settings",
-    "mailbox": "Reservation requests"
+    "mailbox": "Requests"
   },
   "mailbox": {
-    "title": "Reservation Requests",
+    "title": "Requests",
     "empty": "No pending reservation requests.",
     "approve": "Approve",
     "decline": "Decline",
