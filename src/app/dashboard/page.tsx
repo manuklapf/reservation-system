@@ -286,10 +286,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav
-        className="bg-white shadow-sm border-b sticky top-0 m-1"
-        style={{ zIndex: 50 }}
-      >
+      <nav className="bg-white sticky top-0" style={{ zIndex: 50 }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">

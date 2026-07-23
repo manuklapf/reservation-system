@@ -12,6 +12,29 @@
 }
 
 /* ============================================================
+   APP BACKGROUND — seamless graph-paper pattern
+   The tile (978×978) is drawn on <body>; full-page wrappers are
+   made transparent below so the paper shows through behind cards.
+   ============================================================ */
+body {
+  min-height: 100vh;
+  background-color: #ffffff;
+  background-image: url('../assets/PATTERN_BLUE.png');
+  background-repeat: repeat;
+  background-size: 470px;
+}
+
+/* Let the paper show through the solid full-page wrappers.
+   Scoped to `.min-h-screen` so only page roots go transparent —
+   small `bg-gray-*` chips/hovers keep their fill. */
+.min-h-screen.bg-gray-100,
+.min-h-screen.bg-gray-50,
+html[data-theme='brutalist'] .min-h-screen.bg-gray-100,
+html[data-theme='brutalist'] .min-h-screen.bg-gray-50 {
+  background-color: transparent !important;
+}
+
+/* ============================================================
    SHARED BUTTON SYSTEM
    Every CTA-style button (<Button> component) renders these
    classes so all themes stay in one place instead of scattered
@@ -49,11 +72,11 @@
 }
 
 .btn-primary {
-  background-color: #2563eb; /* blue-600 */
+  background-color: var(--color-light-coral); /* grog light-coral */
   color: #ffffff;
 }
 .btn-primary:hover:not(:disabled) {
-  background-color: #1d4ed8; /* blue-700 */
+  background-color: #ef6b73; /* darker coral */
 }
 
 .btn-secondary {
@@ -66,11 +89,11 @@
 }
 
 .btn-danger {
-  background-color: #dc2626; /* red-600 */
+  background-color: #dc5560; /* grog coral-red */
   color: #ffffff;
 }
 .btn-danger:hover:not(:disabled) {
-  background-color: #b91c1c; /* red-700 */
+  background-color: #c9454f;
 }
 
 /* Brutalist theme: every .btn — regardless of variant — picks up the
@@ -397,7 +420,34 @@ html[data-theme='brutalist'] .btn-danger {
    ============================================================ */
 
 :root {
-  /* Default theme */
+  /* -------------------------------------------------------------
+     grog.shop brand palette (raw reference tokens, verbatim).
+     The semantic --color-* / --brutx-* tokens below are mapped
+     onto these so the whole app re-skins from one place.
+     ------------------------------------------------------------- */
+  --color-white: #fff;
+  --color-black: #090909;
+  --color-gray: #e4e4e4;
+  --color-lavender-blush: #fcf0f2;
+  --color-light-coral: #f38087;
+  --color-salmon-pink: #fc9fa5;
+  --color-pumpkin: #f88132;
+  --color-sandy-brown: #f99d5f;
+  --color-naples-yellow: #ffdc6c;
+  --color-amethyst: #8f61c5;
+  --color-lavender: #af86d7;
+  --color-wisteria: #c2a0ea;
+  --color-light-green: #77d87e;
+  --color-pistachio: #87cc8e;
+  --color-celadon: #93dba1;
+  --color-tea-green: #caf6cf;
+  --color-mixed: #c171a6;
+  --color-ice-blue: #b8dde1;
+  --color-lemon-yellow: #f9f5a9;
+  --color-mandarin-orange: #f88d2a;
+  --color-pear-green: #bed731;
+
+  /* Default theme — grog light-coral as the accent */
   --color-bg: #f3f4f6;
   --color-surface: #ffffff;
   --color-surface-alt: #f9fafb;
@@ -406,54 +456,54 @@ html[data-theme='brutalist'] .btn-danger {
   --color-text: #111827;
   --color-text-secondary: #374151;
   --color-text-muted: #6b7280;
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-accent-fg: #ffffff;
-  --color-accent-subtle: #eff6ff;
-  --color-accent-subtle-fg: #1d4ed8;
-  --color-danger: #dc2626;
-  --color-danger-hover: #b91c1c;
-  --color-danger-fg: #ffffff;
-  --color-danger-subtle: #fef2f2;
-  --color-danger-subtle-fg: #dc2626;
+  --color-accent: var(--color-light-coral);
+  --color-accent-hover: #ef6b73;
+  --color-accent-fg: var(--color-white);
+  --color-accent-subtle: var(--color-lavender-blush);
+  --color-accent-subtle-fg: #c85960;
+  --color-danger: #dc5560;
+  --color-danger-hover: #c9454f;
+  --color-danger-fg: var(--color-white);
+  --color-danger-subtle: #fde8ea;
+  --color-danger-subtle-fg: #dc5560;
   --color-nav-bg: #ffffff;
 }
 
 [data-theme='brutalist'] {
-  /* Base */
+  /* Base — grog black ink on white */
   --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-alt: #fffbe6;
-  --color-border: #000000;
-  --color-border-strong: #000000;
-  --color-text: #1a1a1a;
+  --color-surface-alt: var(--color-lavender-blush);
+  --color-border: var(--color-black);
+  --color-border-strong: var(--color-black);
+  --color-text: var(--color-black);
   --color-text-secondary: #333333;
   --color-text-muted: #555555;
-  /* Primary action: BrutX coral */
-  --color-accent: #ff6b6b;
-  --color-accent-hover: #e85555;
-  --color-accent-fg: #ffffff;
-  --color-accent-subtle: #ffe8e8;
-  --color-accent-subtle-fg: #c94040;
-  /* Danger: BrutX destructive */
-  --color-danger: #ef476f;
-  --color-danger-hover: #d03660;
-  --color-danger-fg: #ffffff;
-  --color-danger-subtle: #ffeef3;
-  --color-danger-subtle-fg: #ef476f;
-  /* Nav: BrutX yellow */
-  --color-nav-bg: #ffe66d;
+  /* Primary action: grog light-coral */
+  --color-accent: var(--color-light-coral);
+  --color-accent-hover: #ef6b73;
+  --color-accent-fg: var(--color-white);
+  --color-accent-subtle: var(--color-lavender-blush);
+  --color-accent-subtle-fg: #c85960;
+  /* Danger: deeper coral-red so delete stays distinct from the accent */
+  --color-danger: #dc5560;
+  --color-danger-hover: #c9454f;
+  --color-danger-fg: var(--color-white);
+  --color-danger-subtle: #fde8ea;
+  --color-danger-subtle-fg: #dc5560;
+  /* Nav: grog naples yellow */
+  --color-nav-bg: var(--color-naples-yellow);
   /* Table zebra stripes */
-  --color-stripe-a: #fffbe6;
-  --color-stripe-b: #e8fbfa;
-  /* BrutX extended palette */
-  --brutx-teal: #4ecdc4;
-  --brutx-yellow: #ffe66d;
-  --brutx-coral: #ff6b6b;
-  --brutx-green: #7fb069;
-  --brutx-pink: #e91e8c;
+  --color-stripe-a: var(--color-lavender-blush);
+  --color-stripe-b: #eafaec;
+  /* grog extended palette (kept under the brutx-* names used app-wide) */
+  --brutx-teal: var(--color-celadon);
+  --brutx-yellow: var(--color-naples-yellow);
+  --brutx-coral: var(--color-light-coral);
+  --brutx-green: var(--color-pistachio);
+  --brutx-pink: var(--color-mixed);
   /* Signature hard offset shadow */
-  --brutx-shadow: 3px 3px 0 #000000;
+  --brutx-shadow: 3px 3px 0 var(--color-black);
 }
 
 /* ============================================================
@@ -627,19 +677,19 @@ html[data-theme='brutalist'] .hover\:text-red-700:hover {
   color: var(--color-danger);
 }
 
-/* Success/active green → BrutX teal */
+/* Success/active green → grog celadon/pistachio */
 html[data-theme='brutalist'] .bg-green-100 {
-  background-color: #e8fbfa;
-  color: #1a6b66;
+  background-color: #e2f6e6;
+  color: #2f7a44;
 }
 html[data-theme='brutalist'] .text-green-800 {
-  color: #1a6b66;
+  color: #2f7a44;
 }
 html[data-theme='brutalist'] .text-green-600 {
-  color: var(--brutx-teal);
+  color: var(--brutx-green);
 }
 html[data-theme='brutalist'] .hover\:bg-green-50:hover {
-  background-color: #e8fbfa;
+  background-color: #eafaec;
 }
 
 /* Hover states: yellow family */
@@ -650,7 +700,7 @@ html[data-theme='brutalist'] .hover\:bg-gray-100:hover {
   background-color: var(--brutx-yellow);
 }
 html[data-theme='brutalist'] .hover\:bg-gray-300:hover {
-  background-color: #f5d000;
+  background-color: #f5c93a;
 }
 html[data-theme='brutalist'] .hover\:text-gray-800:hover {
   color: var(--color-text);
@@ -725,7 +775,7 @@ html[data-theme='brutalist'] .rbc-header {
 }
 
 html[data-theme='brutalist'] .rbc-today {
-  background-color: #e8fbfa;
+  background-color: #eafaec;
 }
 
 html[data-theme='brutalist'] .rbc-off-range-bg {
