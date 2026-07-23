@@ -12,6 +12,7 @@ export function makeAdminClient(): SupabaseClient {
 }
 
 export interface RequestStaff {
+  userId: string
   email: string
   tenantId: string
   role: string
@@ -41,5 +42,10 @@ export async function getRequestStaff(
     .single()
 
   if (!data?.tenant_id) return null
-  return { email: user.email, tenantId: data.tenant_id, role: data.role }
+  return {
+    userId: user.id,
+    email: user.email,
+    tenantId: data.tenant_id,
+    role: data.role,
+  }
 }

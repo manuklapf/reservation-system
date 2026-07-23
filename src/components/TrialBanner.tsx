@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { startCheckout } from '@/lib/startCheckout'
 import { Clock } from '@/components/icons'
+import Button from '@/components/Button'
 
 /**
  * Slim countdown banner shown while an account is in its trial period.
@@ -40,13 +41,9 @@ export default function TrialBanner() {
           <Clock className="h-4 w-4 shrink-0" />
           <span className="truncate">{label}</span>
         </div>
-        <button
-          onClick={handleUpgrade}
-          disabled={loading}
-          className="shrink-0 inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50 transition-colors"
-        >
+        <Button size="sm" onClick={handleUpgrade} disabled={loading}>
           {loading ? t.redirecting : t.upgrade}
-        </button>
+        </Button>
       </div>
     </div>
   )

@@ -11,6 +11,7 @@ import EnhancedCalendar from '@/components/EnhancedCalendar'
 import TableManagementPanel from '@/components/TableManagementPanel'
 import { useI18n } from '@/contexts/I18nContext'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import Button from '@/components/Button'
 
 type Tab = 'list' | 'calendar' | 'tables'
 
@@ -157,13 +158,10 @@ export default function DemoPage() {
               </Link>
               <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
             </div>
-            <button
-              onClick={openNew}
-              className="inline-flex whitespace-nowrap items-center gap-1.5 h-8 px-3 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
+            <Button size="sm" onClick={openNew}>
               <Plus className="h-4 w-4" />
               {t.newReservation}
-            </button>
+            </Button>
           </div>
         </div>
       </nav>

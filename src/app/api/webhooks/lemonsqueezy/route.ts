@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
 
   const eventName: string = event?.meta?.event_name ?? ''
   const tenantId: string | undefined = event?.meta?.custom_data?.tenant_id
+  const userId: string | undefined = event?.meta?.custom_data?.user_id
   const attributes = event?.data?.attributes ?? {}
 
   console.log('[LS webhook] event', {
@@ -99,5 +100,42 @@ export async function POST(req: NextRequest) {
   }
 
   console.log('[LS webhook] tenant updated', { tenantId, planStatus })
+
+  // Also mirror the full subscription record into the shared `subscriptions`
+  // table (same one the marketing site's checkout writes to), so accounts
+  // billed from inside the app show identical plan/renewal/payment details on
+  // the marketing site's account page. Only subscription_* events carry that
+  // full attribute set — order_created does not.
+  if (userId && eventName.startsWith('subscription_')) {
+    const { error: subError } = await admin.from('subscriptions').upsert(
+      {
+        user_id: userId,
+        user_email: attributes.user_email ?? null,
+        ls_subscription_id: String(event.data.id),
+        ls_customer_id:
+          attributes.customer_id != null ? String(attributes.customer_id) : null,
+        ls_order_id:
+          attributes.order_id != null ? String(attributes.order_id) : null,
+        ls_product_id:
+          attributes.product_id != null ? String(attributes.product_id) : null,
+        ls_variant_id:
+          attributes.variant_id != null ? String(attributes.variant_id) : null,
+        plan_name: attributes.product_name ?? attributes.variant_name ?? null,
+        status: attributes.status ?? 'unknown',
+        renews_at: attributes.renews_at ?? null,
+        ends_at: attributes.ends_at ?? null,
+        card_brand: attributes.card_brand ?? null,
+        card_last_four: attributes.card_last_four ?? null,
+        customer_portal_url: attributes.urls?.customer_portal ?? null,
+        update_payment_url: attributes.urls?.update_payment_method ?? null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id' }
+    )
+    if (subError) {
+      console.error('[LS webhook] subscriptions upsert failed', subError.message)
+    }
+  }
+
   return NextResponse.json({ received: true, plan_status: planStatus })
 }

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       attributes: {
         checkout_data: {
           email: staff.email,
-          custom: { tenant_id: staff.tenantId },
+          custom: { tenant_id: staff.tenantId, user_id: staff.userId },
         },
         product_options: {
           redirect_url: redirectUrl,

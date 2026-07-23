@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useI18n } from '@/contexts/I18nContext'
 import { Building2, LogOut, Plus, Users } from '@/components/icons'
 import { getAccountState } from '@/lib/trial'
+import Button from '@/components/Button'
 
 type PlanStatus = 'trial' | 'active' | 'expired'
 
@@ -190,14 +191,10 @@ export default function PlatformAdminPage() {
           <h2 className="text-sm font-semibold text-gray-700">
             {t.restaurants}
           </h2>
-          <button
-            type="button"
-            onClick={() => setShowForm(v => !v)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-          >
+          <Button onClick={() => setShowForm(v => !v)}>
             <Plus className="h-4 w-4" />
             {t.addRestaurant}
-          </button>
+          </Button>
         </div>
 
         {/* Create restaurant form */}
@@ -288,20 +285,12 @@ export default function PlatformAdminPage() {
               {addError && <p className="text-xs text-red-500">{addError}</p>}
 
               <div className="flex gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
-                >
+                <Button variant="secondary" onClick={() => setShowForm(false)}>
                   {messages.common.cancel}
-                </button>
-                <button
-                  type="submit"
-                  disabled={adding}
-                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
-                >
+                </Button>
+                <Button type="submit" disabled={adding}>
                   {adding ? t.adding : t.addButton}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

@@ -6,6 +6,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { startCheckout } from '@/lib/startCheckout'
 import { downloadReservationsXlsx } from '@/lib/exportReservations'
 import { Clock, ClipboardList, LogOut } from '@/components/icons'
+import Button from '@/components/Button'
 import { useRouter } from 'next/navigation'
 
 /**
@@ -55,21 +56,22 @@ export default function AccountGate() {
         <p className="mt-2 text-sm text-gray-500">{t.gateSubtitle}</p>
 
         <div className="mt-6 space-y-3">
-          <button
+          <Button
             onClick={handleUpgrade}
             disabled={upgrading}
-            className="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+            className="w-full"
           >
             {upgrading ? t.redirecting : t.upgradeCta}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={handleExport}
             disabled={exporting}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            className="w-full"
           >
             <ClipboardList className="h-4 w-4" />
             {exporting ? t.exporting : t.exportCta}
-          </button>
+          </Button>
         </div>
 
         {error && <p className="mt-4 text-xs text-red-500">{error}</p>}

@@ -22,6 +22,8 @@ interface UseFloorPlanStateArgs {
   initialObstacles?: Obstacle[]
   onLayoutChange?: (layout: PlacedTable[], obstacles: Obstacle[]) => void
   onPlacedIdsChange?: (ids: string[]) => void
+  /** Called when Backspace deletes the selected table (actually deletes the row, not just its placement). */
+  onDeleteTable?: (id: string) => void
 }
 
 const HISTORY_LIMIT = 50
@@ -57,6 +59,7 @@ export function useFloorPlanState({
   initialObstacles,
   onLayoutChange,
   onPlacedIdsChange,
+  onDeleteTable,
 }: UseFloorPlanStateArgs) {
   const storageKey = `floorplan_v1_${tenantId}_${floorId}`
   const obstacleKey = `floorplan_obs_v1_${tenantId}_${floorId}`
@@ -210,16 +213,22 @@ export function useFloorPlanState({
     onPlacedIdsChangeRef.current?.(ids)
   }, [placed])
 
-  // Backspace removes selected item from canvas
+  // Keep a stable ref so the keydown listener below never needs re-binding
+  const onDeleteTableRef = useRef(onDeleteTable)
+  useEffect(() => {
+    onDeleteTableRef.current = onDeleteTable
+  }, [onDeleteTable])
+
+  // Backspace deletes the selected table/obstacle
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Backspace') return
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if (selected) {
-        pushHistory()
-        setPlaced(prev => prev.filter(p => p.id !== selected))
+        const id = selected
         setSelected(null)
+        onDeleteTableRef.current?.(id)
       } else if (selectedObstacle) {
         pushHistory()
         setObstacles(prev => prev.filter(o => o.id !== selectedObstacle))
@@ -264,12 +273,6 @@ export function useFloorPlanState({
     ])
     setSelected(table.id)
     setSelectedObstacle(null)
-  }
-
-  const removeFromCanvas = (id: string) => {
-    pushHistory()
-    setPlaced(prev => prev.filter(p => p.id !== id))
-    setSelected(null)
   }
 
   const updatePlaced = (id: string, patch: Partial<PlacedTable>) => {
@@ -338,7 +341,6 @@ export function useFloorPlanState({
     selectObstacle,
     clearSelection,
     addToCanvas,
-    removeFromCanvas,
     updatePlaced,
     updatePlacedFromInteraction,
     addBlock,

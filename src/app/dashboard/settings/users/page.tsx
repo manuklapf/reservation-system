@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { ArrowLeft, Trash2, UserPlus } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import Button from '@/components/Button'
 
 type StaffMember = {
   id: string
@@ -186,13 +187,9 @@ export default function StaffManagementPage() {
               />
             </div>
             {addError && <p className="text-xs text-red-500">{addError}</p>}
-            <button
-              type="submit"
-              disabled={adding}
-              className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
-            >
+            <Button type="submit" disabled={adding}>
               {adding ? t.adding : t.addButton}
-            </button>
+            </Button>
           </form>
         </div>
 
@@ -233,15 +230,15 @@ export default function StaffManagementPage() {
                       {member.role === 'admin' ? t.roleAdmin : t.roleStaff}
                     </span>
                     {member.role !== 'admin' && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={() => handleRemove(member.id)}
                         disabled={removingId === member.id}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
                       >
                         <Trash2 className="h-3 w-3" />
                         {removingId === member.id ? t.removing : t.removeButton}
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </li>

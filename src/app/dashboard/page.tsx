@@ -22,6 +22,7 @@ import DayPlanModal from '@/components/DayPlanModal'
 import MailboxPanel from '@/components/MailboxPanel'
 import { Reservation } from '@/types/reservation'
 import { useI18n, Language } from '@/contexts/I18nContext'
+import Button from '@/components/Button'
 
 function CapacityRing({ used, total }: { used: number; total: number }) {
   const r = 10
@@ -510,13 +511,10 @@ export default function DashboardPage() {
 
       {!showCalendar && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
-          <button
-            onClick={handleOpenNewModal}
-            className="inline-flex whitespace-nowrap items-center gap-2 px-12 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
+          <Button onClick={handleOpenNewModal}>
             <Plus className="h-4 w-4" />
             {t.newReservation}
-          </button>
+          </Button>
         </div>
       )}
 

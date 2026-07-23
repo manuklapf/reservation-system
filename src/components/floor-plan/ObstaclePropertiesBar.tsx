@@ -2,6 +2,7 @@
 
 import { Trash2 } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import Button from '../Button'
 import type { Obstacle } from './types'
 
 interface ObstaclePropertiesBarProps {
@@ -84,13 +85,9 @@ export default function ObstaclePropertiesBar({
 
       {/* Delete */}
       <div className="flex gap-2 items-center shrink-0 self-center ml-auto">
-        <button
-          type="button"
-          onClick={onRemove}
-          className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
-        >
+        <Button variant="danger" size="sm" onClick={onRemove}>
           <Trash2 className="h-3 w-3" /> {t.remove}
-        </button>
+        </Button>
       </div>
     </div>
   )

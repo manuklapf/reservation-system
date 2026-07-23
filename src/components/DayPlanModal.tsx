@@ -15,6 +15,7 @@ import { Reservation } from '@/types/reservation'
 import { timesOverlap } from '@/utils/reservationConflictChecker'
 import ConfirmDialog from './ConfirmDialog'
 import FloorDropdown from './FloorDropdown'
+import Button from './Button'
 
 interface DBTable {
   id: string
@@ -884,12 +885,7 @@ export default function DayPlanModal({
 
           {/* Footer */}
           <div className="flex shrink-0 items-center justify-end gap-3 border-t border-gray-200 px-4 py-3 lg:px-6 lg:py-4">
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!hasChanges || saving}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
-            >
+            <Button onClick={handleSave} disabled={!hasChanges || saving}>
               {saving ? (
                 <>
                   <svg
@@ -920,7 +916,7 @@ export default function DayPlanModal({
                   {t.saveChanges}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

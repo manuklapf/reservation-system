@@ -1,41 +1,29 @@
 'use client'
 
+import { Trash2 } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import Button from '../Button'
 import { TABLE_COLORS } from './constants'
-import type { DBTable, PlacedTable } from './types'
+import type { PlacedTable } from './types'
 
 interface TablePropertiesBarProps {
   placedTable: PlacedTable
-  dbTable: DBTable
   onShapeChange: (shape: PlacedTable['shape']) => void
   onColorChange: (color: string) => void
-  onRemoveFromPlan: () => void
+  onDelete: () => void
 }
 
 export default function TablePropertiesBar({
   placedTable: sel,
-  dbTable: selDb,
   onShapeChange,
   onColorChange,
-  onRemoveFromPlan,
+  onDelete,
 }: TablePropertiesBarProps) {
   const { messages } = useI18n()
   const t = messages.floorPlanEditor
 
   return (
     <div className="flex items-start gap-4 px-4 py-3 border border-gray-200 rounded-xl bg-white flex-wrap">
-      {/* Name + seats */}
-      <div className="shrink-0 self-center">
-        <p className="text-xs font-bold text-gray-800">
-          {selDb.table_identifier}
-        </p>
-        <p className="text-xs text-gray-400">
-          {selDb.capacity} {t.seatsLabel}
-        </p>
-      </div>
-
-      <div className="w-px self-stretch bg-gray-100 shrink-0" />
-
       {/* Shape */}
       <div className="shrink-0">
         <p className="text-xs font-semibold text-gray-500 mb-1">
@@ -93,15 +81,11 @@ export default function TablePropertiesBar({
 
       <div className="w-px self-stretch bg-gray-100 shrink-0" />
 
-      {/* Actions */}
+      {/* Delete */}
       <div className="flex gap-2 items-center shrink-0 self-center ml-auto">
-        <button
-          type="button"
-          onClick={onRemoveFromPlan}
-          className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
-        >
-          {t.remove}
-        </button>
+        <Button variant="danger" size="sm" onClick={onDelete}>
+          <Trash2 className="h-3 w-3" /> {t.deleteTable}
+        </Button>
       </div>
     </div>
   )

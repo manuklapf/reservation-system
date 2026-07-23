@@ -11,6 +11,7 @@ import {
   EyeOff,
 } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import Button from './Button'
 
 interface TableItem {
   id: string
@@ -110,13 +111,9 @@ export default function TableManagementPanel({
             disabled={saving}
             min="1"
           />
-          <button
-            onClick={onAdd}
-            disabled={saving}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
+          <Button onClick={onAdd} disabled={saving}>
             {saving ? t.adding : t.addTable}
-          </button>
+          </Button>
         </div>
       </div>
 

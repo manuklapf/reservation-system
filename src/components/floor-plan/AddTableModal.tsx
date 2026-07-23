@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Trash2 } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import Button from '../Button'
 import ModalCloseButton from '../ModalCloseButton'
 
 interface AddTableModalProps {
@@ -111,14 +112,13 @@ export default function AddTableModal({
         </div>
         {addError && <p className="text-xs text-red-500">{addError}</p>}
         <div className="pt-1">
-          <button
-            type="button"
+          <Button
             disabled={saving || !newId.trim()}
             onClick={handleSubmit}
-            className="w-full py-2 text-sm font-semibold rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+            className="w-full"
           >
             {isEdit ? t.updateTableButton : t.addTableButton}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

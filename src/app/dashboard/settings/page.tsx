@@ -13,10 +13,12 @@ import {
   Copy,
   Code2,
   Globe,
+  User,
 } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import Button from '@/components/Button'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
 import { supabase } from '@/lib/supabase'
@@ -69,28 +71,32 @@ export default function SettingsPage() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
-                className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                aria-label={c.language}
-                title={c.language}
-              >
-                <Globe className="h-4 w-4" />
-                <span className="text-xs font-semibold uppercase">
-                  {language}
-                </span>
-              </button>
-              <h1 className="text-xl font-semibold text-gray-900">
-                {st.title}
-              </h1>
-            </div>
+            <h1 className="text-xl font-semibold text-gray-900">{st.title}</h1>
+            <button
+              onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
+              className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              aria-label={c.language}
+              title={c.language}
+            >
+              <Globe className="h-4 w-4" />
+              <span className="text-xs font-semibold uppercase">
+                {language}
+              </span>
+            </button>
           </div>
         </div>
       </nav>
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="space-y-3">
+          {/* Account */}
+          <Link
+            href="/dashboard/settings/account"
+            className="flex items-center justify-center gap-2 px-4 py-3 mb-4 rounded-xl shadow-sm border border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold"
+          >
+            <User className="h-4 w-4" />
+            {st.myAccount}
+          </Link>
           {/* Admin-only quick links */}
           {isAdmin && (
             <div className="flex gap-3 mb-4">
@@ -377,14 +383,14 @@ export default function SettingsPage() {
             </AccordionItem>
           )}
 
-          <button
-            type="button"
+          <Button
+            variant="danger"
             onClick={() => setLogoutConfirmOpen(true)}
-            className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm bg-red-600 text-white hover:bg-red-700 transition-colors text-sm font-semibold"
+            className="w-full mt-2"
           >
             <LogOut className="h-4 w-4" />
             {st.signOut}
-          </button>
+          </Button>
         </div>
       </main>
 

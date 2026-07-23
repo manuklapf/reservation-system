@@ -1,6 +1,7 @@
 'use client'
 
 import { useI18n } from '@/contexts/I18nContext'
+import Button from './Button'
 
 interface Props {
   isOpen: boolean
@@ -37,24 +38,12 @@ export default function ConfirmDialog({
         <p className="text-base font-semibold text-gray-900">{title}</p>
         <p className="text-sm text-gray-500 leading-relaxed">{message}</p>
         <div className="flex gap-2 justify-end pt-1">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             {cancelLabel ?? messages.common.cancel}
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors ${
-              danger
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-blue-500 hover:bg-blue-600'
-            }`}
-          >
+          </Button>
+          <Button variant={danger ? 'danger' : 'primary'} onClick={onConfirm}>
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

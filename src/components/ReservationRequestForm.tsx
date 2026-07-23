@@ -27,6 +27,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import StepDate from './StepDate'
 import StepTime from './StepTime'
 import StepPersons from './StepPersons'
+import Button from './Button'
 
 interface ReservationRequestFormProps {
   tenantId: string
@@ -166,12 +167,7 @@ export default function ReservationRequestForm({
           {t.successTitle}
         </h2>
         <p className="text-gray-500 max-w-sm mb-8">{t.successMessage}</p>
-        <button
-          onClick={handleReset}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full transition-colors"
-        >
-          {t.newRequest}
-        </button>
+        <Button onClick={handleReset}>{t.newRequest}</Button>
       </div>
     )
   }

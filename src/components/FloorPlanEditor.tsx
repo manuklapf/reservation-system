@@ -1,19 +1,18 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
+import { Plus } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import { useFloorPlanState } from '@/hooks/useFloorPlanState'
 import { useTableColors } from '@/hooks/useTableColors'
+import Button from './Button'
 import AddTableModal from './floor-plan/AddTableModal'
-import { CANVAS_H, CANVAS_W } from './floor-plan/constants'
 import FloorHeader from './floor-plan/FloorHeader'
 import FloorPlanCanvas from './floor-plan/FloorPlanCanvas'
-import { snapG } from './floor-plan/geometry'
 import ObjectsPalette from './floor-plan/ObjectsPalette'
 import ObstaclePropertiesBar from './floor-plan/ObstaclePropertiesBar'
 import TablePropertiesBar from './floor-plan/TablePropertiesBar'
 import type { DBTable, Obstacle, PlacedTable } from './floor-plan/types'
-import UnplacedTablesPalette from './floor-plan/UnplacedTablesPalette'
 import ConfirmDialog from './ConfirmDialog'
 
 interface Props {
@@ -72,8 +71,6 @@ export default function FloorPlanEditor({
     obstacles,
     selected,
     selectedObstacle,
-    canRevert,
-    revert,
     pushHistory,
     armPendingHistory,
     clearPendingHistory,
@@ -81,7 +78,6 @@ export default function FloorPlanEditor({
     selectObstacle,
     clearSelection,
     addToCanvas,
-    removeFromCanvas,
     updatePlaced,
     updatePlacedFromInteraction,
     addBlock,
@@ -96,6 +92,7 @@ export default function FloorPlanEditor({
     initialObstacles,
     onLayoutChange,
     onPlacedIdsChange,
+    onDeleteTable,
   })
 
   const { getTableColor, saveTableColor } = useTableColors(allTables)
@@ -108,93 +105,6 @@ export default function FloorPlanEditor({
   const [tableModal, setTableModal] = useState<
     { mode: 'add' } | { mode: 'edit'; table: DBTable } | null
   >(null)
-
-  // Track dragging table for drag and drop
-  const [draggedTableId, setDraggedTableId] = useState<string | null>(null)
-  // Track dragging a new block from the objects palette
-  const [draggingBlock, setDraggingBlock] = useState(false)
-  // Track the position of the drag preview over the canvas
-  const [dragPreviewPos, setDragPreviewPos] = useState<{
-    x: number
-    y: number
-  } | null>(null)
-  const canvasRef = useRef<HTMLDivElement>(null)
-  // Holds the table mid-drag so drag-end doesn't depend on state having flushed yet
-  const dragTableRef = useRef<DBTable | null>(null)
-
-  const placedIds = new Set(placed.map(p => p.id))
-  const unplaced = tables.filter(t => t.is_active && !placedIds.has(t.id))
-
-  // Resolves a pointer position to a snapped canvas-local position, or null if outside the canvas.
-  const canvasPosFromPointer = (clientX: number, clientY: number) => {
-    const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return null
-    if (
-      clientX < rect.left ||
-      clientX > rect.right ||
-      clientY < rect.top ||
-      clientY > rect.bottom
-    ) {
-      return null
-    }
-    // The canvas is CSS-scaled to fit narrow viewports, so rect is in screen px
-    // while placements are stored in unscaled canvas px.
-    const scale = rect.width / CANVAS_W
-    return {
-      x: snapG(
-        Math.max(0, Math.min(CANVAS_W - 80, (clientX - rect.left) / scale))
-      ),
-      y: snapG(
-        Math.max(0, Math.min(CANVAS_H - 80, (clientY - rect.top) / scale))
-      ),
-    }
-  }
-
-  const handleTableDragStart = (table: DBTable) => {
-    dragTableRef.current = table
-    setDraggedTableId(table.id)
-    setDragPreviewPos(null)
-  }
-
-  const handleTableDragMove = (clientX: number, clientY: number) => {
-    setDragPreviewPos(canvasPosFromPointer(clientX, clientY))
-  }
-
-  const handleTableDragEnd = (clientX: number, clientY: number) => {
-    const table = dragTableRef.current
-    const pos = canvasPosFromPointer(clientX, clientY)
-    if (table && pos) addToCanvas(table, getTableColor(table), pos)
-    dragTableRef.current = null
-    setDraggedTableId(null)
-    setDragPreviewPos(null)
-  }
-
-  const handleTableDragCancel = () => {
-    dragTableRef.current = null
-    setDraggedTableId(null)
-    setDragPreviewPos(null)
-  }
-
-  const handleBlockDragStart = () => {
-    setDraggingBlock(true)
-    setDragPreviewPos(null)
-  }
-
-  const handleBlockDragMove = (clientX: number, clientY: number) => {
-    setDragPreviewPos(canvasPosFromPointer(clientX, clientY))
-  }
-
-  const handleBlockDragEnd = (clientX: number, clientY: number) => {
-    const pos = canvasPosFromPointer(clientX, clientY)
-    if (pos) addBlock(pos)
-    setDraggingBlock(false)
-    setDragPreviewPos(null)
-  }
-
-  const handleBlockDragCancel = () => {
-    setDraggingBlock(false)
-    setDragPreviewPos(null)
-  }
 
   const handleTableModalSubmit = async (
     identifier: string,
@@ -213,11 +123,8 @@ export default function FloorPlanEditor({
   }
 
   const handleDeleteTable = (id: string) => {
-    setPendingConfirm({
-      title: t.deleteTableTitle,
-      message: t.deleteTableConfirm,
-      onConfirm: () => onDeleteTable(id),
-    })
+    clearSelection()
+    onDeleteTable(id)
   }
 
   const handleRequestDeleteFloor = () => {
@@ -230,7 +137,6 @@ export default function FloorPlanEditor({
   }
 
   const sel = placed.find(p => p.id === selected) ?? null
-  const selDb = tables.find(t => t.id === selected) ?? null
   const selObs = obstacles.find(o => o.id === selectedObstacle) ?? null
 
   return (
@@ -239,40 +145,25 @@ export default function FloorPlanEditor({
         floorName={floorName}
         onRenameFloor={onRenameFloor}
         onDeleteFloor={onDeleteFloor ? handleRequestDeleteFloor : undefined}
-        canRevert={canRevert}
-        onRevert={revert}
       />
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-start gap-5">
-          <UnplacedTablesPalette
-            unplaced={unplaced}
-            getTableColor={getTableColor}
-            onAddNew={() => setTableModal({ mode: 'add' })}
-            onEditTable={table => setTableModal({ mode: 'edit', table })}
-            onTableDragStart={handleTableDragStart}
-            onTableDragMove={handleTableDragMove}
-            onTableDragEnd={handleTableDragEnd}
-            onTableDragCancel={handleTableDragCancel}
-          />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" onClick={() => setTableModal({ mode: 'add' })}>
+            <Plus className="h-4 w-4" />
+            {t.addNewTable}
+          </Button>
 
-          <ObjectsPalette
-            onBlockDragStart={handleBlockDragStart}
-            onBlockDragMove={handleBlockDragMove}
-            onBlockDragEnd={handleBlockDragEnd}
-            onBlockDragCancel={handleBlockDragCancel}
-          />
+          <ObjectsPalette onAddBlock={() => addBlock()} />
         </div>
 
         <FloorPlanCanvas
-          canvasRef={canvasRef}
           tables={tables}
           placed={placed}
           obstacles={obstacles}
           selected={selected}
           selectedObstacle={selectedObstacle}
           activeTableIds={activeTableIds}
-          getTableColor={getTableColor}
           onCanvasClick={clearSelection}
           onSelectTable={selectTable}
           onSelectObstacle={selectObstacle}
@@ -280,9 +171,6 @@ export default function FloorPlanEditor({
           onInteractionEnd={clearPendingHistory}
           onTableChange={updatePlacedFromInteraction}
           onObstacleChange={updateObstacleFromInteraction}
-          draggedTableId={draggedTableId}
-          draggingBlock={draggingBlock}
-          dragPreviewPos={dragPreviewPos}
         />
       </div>
 
@@ -312,10 +200,9 @@ export default function FloorPlanEditor({
         />
       )}
 
-      {sel && selDb && (
+      {sel && (
         <TablePropertiesBar
           placedTable={sel}
-          dbTable={selDb}
           onShapeChange={shape => {
             pushHistory()
             updatePlaced(sel.id, { shape })
@@ -325,7 +212,7 @@ export default function FloorPlanEditor({
             updatePlaced(sel.id, { color })
             saveTableColor(sel.id, color)
           }}
-          onRemoveFromPlan={() => removeFromCanvas(sel.id)}
+          onDelete={() => handleDeleteTable(sel.id)}
         />
       )}
 

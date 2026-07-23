@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Minus, Plus } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import { CANVAS_H, CANVAS_W, GRID } from './constants'
-import GhostPreview from './GhostPreview'
 import ObstacleNode from './ObstacleNode'
 import PlacedTableNode from './PlacedTableNode'
 import type { DBTable, Obstacle, PlacedTable } from './types'
@@ -14,14 +13,12 @@ const MAX_ZOOM = 3
 const ZOOM_STEP = 0.5
 
 interface FloorPlanCanvasProps {
-  canvasRef: React.RefObject<HTMLDivElement | null>
   tables: DBTable[]
   placed: PlacedTable[]
   obstacles: Obstacle[]
   selected: string | null
   selectedObstacle: string | null
   activeTableIds?: Set<string>
-  getTableColor: (t: DBTable) => string
   onCanvasClick: () => void
   onSelectTable: (id: string) => void
   onSelectObstacle: (id: string) => void
@@ -29,20 +26,15 @@ interface FloorPlanCanvasProps {
   onInteractionEnd: () => void
   onTableChange: (id: string, patch: Partial<PlacedTable>) => void
   onObstacleChange: (id: string, patch: Partial<Obstacle>) => void
-  draggedTableId: string | null
-  draggingBlock: boolean
-  dragPreviewPos: { x: number; y: number } | null
 }
 
 export default function FloorPlanCanvas({
-  canvasRef,
   tables,
   placed,
   obstacles,
   selected,
   selectedObstacle,
   activeTableIds,
-  getTableColor,
   onCanvasClick,
   onSelectTable,
   onSelectObstacle,
@@ -50,16 +42,9 @@ export default function FloorPlanCanvas({
   onInteractionEnd,
   onTableChange,
   onObstacleChange,
-  draggedTableId,
-  draggingBlock,
-  dragPreviewPos,
 }: FloorPlanCanvasProps) {
   const { messages } = useI18n()
   const labels = messages.floorPlanEditor
-
-  const draggedTable = draggedTableId
-    ? tables.find(t => t.id === draggedTableId)
-    : undefined
 
   // Shrink the canvas to fit narrow viewports; never enlarge it past its native size.
   const shellRef = useRef<HTMLDivElement>(null)
@@ -114,7 +99,6 @@ export default function FloorPlanCanvas({
           }}
         >
           <div
-            ref={canvasRef}
             className="absolute left-0 top-0 border-2 border-gray-300 rounded-xl select-none"
             style={{
               width: CANVAS_W,
@@ -147,37 +131,6 @@ export default function FloorPlanCanvas({
                 onInteractionEnd={onInteractionEnd}
               />
             ))}
-
-            {/* Drag preview - shows table being dragged on canvas */}
-            {draggedTableId && dragPreviewPos && (
-              <GhostPreview
-                x={dragPreviewPos.x}
-                y={dragPreviewPos.y}
-                backgroundColor={
-                  draggedTable ? getTableColor(draggedTable) : '#gray'
-                }
-              >
-                <span
-                  style={{
-                    color: 'white',
-                    fontSize: '10px',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {draggedTable?.table_identifier}
-                </span>
-              </GhostPreview>
-            )}
-
-            {/* Drag preview - shows the block being dragged onto the canvas */}
-            {draggingBlock && dragPreviewPos && (
-              <GhostPreview
-                x={dragPreviewPos.x}
-                y={dragPreviewPos.y}
-                backgroundColor="#000000"
-                borderRadius={2}
-              />
-            )}
 
             {placed.map(p => {
               const db = tables.find(t => t.id === p.id)

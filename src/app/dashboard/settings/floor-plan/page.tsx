@@ -376,6 +376,7 @@ export default function FloorPlanPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <h1 className="text-xl font-semibold text-gray-900">{fps.title}</h1>
+            <div className="w-9" />
           </div>
         </div>
       </nav>
