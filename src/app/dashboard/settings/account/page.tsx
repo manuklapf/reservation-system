@@ -9,16 +9,12 @@ import { ArrowLeft } from '@/components/icons'
 import Button from '@/components/Button'
 import NavBar from '@/components/NavBar'
 import AccountView, {
-  defaultAccountLabels,
   type AccountSubscription,
-  type AccountViewLabels,
   type PlanStatusKind,
 } from '@/components/account/AccountView'
 
-// Thin adapter around the shared <AccountView> component (also used by the
-// marketing site). It sources data from the app's auth context + supabase and
-// wires the edit/cancel actions to the app's API routes, translating labels
-// through the app's i18n messages.
+// Thin adapter around <AccountView>. It sources data from the app's auth
+// context + supabase and wires the edit/cancel actions to the app's API routes.
 
 interface SubscriptionRow {
   status: string
@@ -107,63 +103,6 @@ export default function AccountPage() {
     loadSubscription()
   }, [loadSubscription])
 
-  const labels: AccountViewLabels = useMemo(
-    () => ({
-      ...defaultAccountLabels,
-      eyebrow: t.eyebrow,
-      title: t.title,
-      emailLabel: t.emailLabel,
-      organizationLabel: t.restaurantLabel,
-      roleLabel: t.roleLabel,
-      planLabel: t.planLabel,
-      trialDaysLeft: t.trialDaysLeft,
-      profile: t.profile,
-      profileDesc: t.profileDesc,
-      nameLabel: t.nameLabel,
-      changeEmail: t.changeEmail,
-      changeEmailDesc: t.changeEmailDesc,
-      newEmailLabel: t.newEmailLabel,
-      emailChangeNotice: t.emailChangeNotice,
-      updateEmail: t.updateEmail,
-      changePassword: t.changePassword,
-      changePasswordDesc: t.changePasswordDesc,
-      currentPasswordLabel: t.currentPasswordLabel,
-      newPasswordLabel: t.newPasswordLabel,
-      confirmPasswordLabel: t.confirmPasswordLabel,
-      updatePassword: t.updatePassword,
-      passwordMismatch: t.passwordMismatch,
-      passwordChanged: t.passwordChanged,
-      subscription: t.subscription,
-      subscriptionActive: t.subscriptionActive,
-      subscriptionTrial: t.subscriptionTrial,
-      subscriptionNone: t.subscriptionNone,
-      planField: t.planField,
-      statusField: t.statusField,
-      renewsOn: t.renewsOn,
-      accessUntil: t.accessUntil,
-      paymentMethodField: t.paymentMethodField,
-      manageSubscription: t.manageSubscription,
-      updatePayment: t.updatePayment,
-      openApp: t.openApp,
-      subscribeCta: t.subscribeCta,
-      cancelSubscription: t.cancelSubscription,
-      cancelModalTitle: t.cancelModalTitle,
-      cancelModalBody: t.cancelModalBody,
-      cancelReasonLabel: t.cancelReasonLabel,
-      cancelReasonPlaceholder: t.cancelReasonPlaceholder,
-      cancelConfirm: t.cancelConfirm,
-      keepSubscription: t.keepSubscription,
-      cancelScheduledNotice: t.cancelScheduledNotice,
-      save: t.save,
-      saving: t.saving,
-      saved: t.saved,
-      genericError: t.genericError,
-      loginRequired: t.loginRequired,
-      backLink: t.backLink,
-    }),
-    [t]
-  )
-
   const subscription: AccountSubscription = useMemo(() => {
     if (sub && ACTIVE_LS_STATUSES.has(sub.status)) {
       const kind: PlanStatusKind =
@@ -217,7 +156,7 @@ export default function AccountPage() {
       : t.roleStaff
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background/40">
       <NavBar
         left={
           <Button
@@ -234,9 +173,7 @@ export default function AccountPage() {
       />
 
       <AccountView
-        theme="clean"
         showHeader={false}
-        labels={labels}
         email={user.email ?? ''}
         organizationName={tenantName}
         roleLabel={roleLabel}

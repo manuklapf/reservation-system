@@ -2,6 +2,7 @@
 
 import { X } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import Button from './Button'
 
 interface ModalCloseButtonProps {
   onClose: () => void
@@ -15,7 +16,7 @@ interface ModalCloseButtonProps {
 export default function ModalCloseButton({ onClose }: ModalCloseButtonProps) {
   const { messages } = useI18n()
   return (
-    <button
+    <Button
       type="button"
       onClick={e => {
         e.stopPropagation()
@@ -24,9 +25,9 @@ export default function ModalCloseButton({ onClose }: ModalCloseButtonProps) {
       onPointerDown={e => e.stopPropagation()}
       aria-label={messages.common.close}
       title={messages.common.close}
-      className="fixed right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-gray-500 shadow-lg transition-colors hover:bg-gray-50 hover:text-gray-700"
+      className="fixed right-4 top-4 z-10 items-center justify-center"
     >
       <X className="h-5 w-5" />
-    </button>
+    </Button>
   )
 }

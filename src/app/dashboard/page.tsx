@@ -45,7 +45,7 @@ function CapacityRing({ used, total }: { used: number; total: number }) {
         cy="12"
         r={r}
         fill="none"
-        stroke="#e5e7eb"
+        stroke="#afafaf"
         strokeWidth="4"
       />
       <circle
@@ -286,7 +286,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <NavBar
         className="z-50"
         left={
@@ -321,7 +321,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setShowCalendar(prev => !prev)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-accent-background hover:text-gray-800"
                 aria-label={showCalendar ? t.reservations : t.calendarView}
                 title={showCalendar ? t.reservations : t.calendarView}
               >
@@ -338,7 +338,7 @@ export default function DashboardPage() {
                     className={`relative inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
                       activeFilterCount > 0
                         ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
+                        : 'text-gray-500 hover:bg-accent-background hover:text-gray-800'
                     }`}
                     aria-label={t.filter}
                     title={t.filter}
@@ -436,7 +436,7 @@ export default function DashboardPage() {
                     <div key={day}>
                       <div className="flex items-center justify-between mb-2 px-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">
                             {new Date(day + 'T00:00:00').toLocaleDateString(
                               language === 'de' ? 'de-DE' : 'en-US',
                               {
@@ -473,7 +473,7 @@ export default function DashboardPage() {
                         </div>
                         <button
                           onClick={() => setDayPlanDate(day)}
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-accent-background hover:text-gray-800 transition-colors"
                           title="Edit day plan"
                         >
                           <LayoutDashboard className="h-4 w-4" />

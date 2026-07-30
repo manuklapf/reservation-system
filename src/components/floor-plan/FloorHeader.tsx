@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { MoreVertical, Pencil, Trash2 } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
+import Button from '../Button'
 
 interface FloorHeaderProps {
   floorName: string
@@ -64,20 +65,13 @@ export default function FloorHeader({
       )}
 
       <div className="relative ml-auto shrink-0" ref={menuRef}>
-        <button
-          type="button"
-          onClick={() => setMenuOpen(o => !o)}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors"
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          aria-label={t.floorOptions}
-        >
+        <Button onClick={() => setMenuOpen(o => !o)} className="inline-flex">
           <MoreVertical className="h-4 w-4" />
-        </button>
+        </Button>
         {menuOpen && (
           <div
             role="menu"
-            className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-gray-200 bg-white py-1 shadow-lg z-20 overflow-hidden"
+            className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-gray-200 bg-white z-20 overflow-hidden"
           >
             <button
               type="button"
@@ -87,7 +81,7 @@ export default function FloorHeader({
                 setDraftName(floorName)
                 setEditingName(true)
               }}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-800 transition-colors"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-accent-background hover:text-gray-800 transition-colors"
             >
               <Pencil className="h-3.5 w-3.5 text-gray-400" />
               {t.rename}

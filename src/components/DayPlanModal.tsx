@@ -559,7 +559,7 @@ export default function DayPlanModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-accent-background hover:text-gray-800"
               >
                 <X className="h-5 w-5" />
               </button>

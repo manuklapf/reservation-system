@@ -121,7 +121,7 @@ export default function StaffManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background/40">
       <NavBar
         left={
           <Button

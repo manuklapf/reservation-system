@@ -19,6 +19,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import AccordionItem from '@/components/AccordionItem'
 import ConfirmDialog from '@/components/ConfirmDialog'
 import Button from '@/components/Button'
+import Switch from '@/components/Switch'
 import NavBar from '@/components/NavBar'
 import { useTheme, Theme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
@@ -60,7 +61,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background/40">
       <NavBar
         left={
           <Button
@@ -77,7 +78,7 @@ export default function SettingsPage() {
         right={
           <button
             onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
-            className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-accent-background hover:text-gray-800"
             aria-label={c.language}
             title={c.language}
           >
@@ -259,21 +260,11 @@ export default function SettingsPage() {
                       {label}
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={prefs[key]}
-                    onClick={() => setPrefs({ ...prefs, [key]: !prefs[key] })}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                      prefs[key] ? 'bg-blue-600' : 'bg-gray-200'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                        prefs[key] ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
+                  <Switch
+                    checked={prefs[key]}
+                    onChange={value => setPrefs({ ...prefs, [key]: value })}
+                    aria-label={label}
+                  />
                 </label>
               ))}
             </div>
@@ -306,7 +297,7 @@ export default function SettingsPage() {
                             setEmbedCopied(true)
                             setTimeout(() => setEmbedCopied(false), 2000)
                           }}
-                          className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+                          className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded border border-gray-200 text-gray-600 hover:bg-accent-background transition-colors"
                         >
                           {embedCopied ? (
                             <>
@@ -356,30 +347,13 @@ export default function SettingsPage() {
                     {st.reservationLengthDesc}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={prefs.reservationLengthEnabled}
-                  onClick={() =>
-                    setPrefs({
-                      ...prefs,
-                      reservationLengthEnabled: !prefs.reservationLengthEnabled,
-                    })
+                <Switch
+                  checked={prefs.reservationLengthEnabled}
+                  onChange={value =>
+                    setPrefs({ ...prefs, reservationLengthEnabled: value })
                   }
-                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    prefs.reservationLengthEnabled
-                      ? 'bg-blue-600'
-                      : 'bg-gray-200'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                      prefs.reservationLengthEnabled
-                        ? 'translate-x-6'
-                        : 'translate-x-1'
-                    }`}
-                  />
-                </button>
+                  aria-label={st.reservationLength}
+                />
               </label>
             </AccordionItem>
           )}

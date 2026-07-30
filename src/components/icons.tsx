@@ -9,8 +9,8 @@
  * Icons animate-ui does not ship (Mail, Globe, Eye, Info, …) have hand-authored
  * animated equivalents under `@/components/animate-ui/icons/`.
  *
- * Plus, X, ArrowLeft, and MoreVertical are exceptions: they render as plain
- * static SVGs (no animation).
+ * Plus, X, ArrowLeft, MoreVertical, Check, ChevronLeft, and ChevronRight are
+ * exceptions: they render as plain static SVGs (no animation).
  *
  * Usage stays identical to lucide-react:
  *   import { LogOut, Bell } from '@/components/icons'
@@ -22,10 +22,7 @@ import { Bell as BellAnim } from '@/components/animate-ui/icons/bell'
 import { Building2 as Building2Anim } from '@/components/animate-ui/icons/building-2'
 import { CalendarCheck as CalendarCheckAnim } from '@/components/animate-ui/icons/calendar-check'
 import { CalendarDays as CalendarDaysAnim } from '@/components/animate-ui/icons/calendar-days'
-import { Check as CheckAnim } from '@/components/animate-ui/icons/check'
 import { ChevronDown as ChevronDownAnim } from '@/components/animate-ui/icons/chevron-down'
-import { ChevronLeft as ChevronLeftAnim } from '@/components/animate-ui/icons/chevron-left'
-import { ChevronRight as ChevronRightAnim } from '@/components/animate-ui/icons/chevron-right'
 import { ChevronUp as ChevronUpAnim } from '@/components/animate-ui/icons/chevron-up'
 import { ClipboardList as ClipboardListAnim } from '@/components/animate-ui/icons/clipboard-list'
 import { Clock as ClockAnim } from '@/components/animate-ui/icons/clock'
@@ -198,14 +195,68 @@ function MoreVertical({ size = 28, ...props }: StaticIconProps) {
   )
 }
 
+function Check({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m4 12 5 5L20 6" />
+    </svg>
+  )
+}
+
+function ChevronLeft({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  )
+}
+
+function ChevronRight({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  )
+}
+
 export const Bell = hoverAnimated(BellAnim, 'Bell')
 export const Building2 = hoverAnimated(Building2Anim, 'Building2')
 export const CalendarCheck = hoverAnimated(CalendarCheckAnim, 'CalendarCheck')
 export const CalendarDays = hoverAnimated(CalendarDaysAnim, 'CalendarDays')
-export const Check = hoverAnimated(CheckAnim, 'Check')
 export const ChevronDown = hoverAnimated(ChevronDownAnim, 'ChevronDown')
-export const ChevronLeft = hoverAnimated(ChevronLeftAnim, 'ChevronLeft')
-export const ChevronRight = hoverAnimated(ChevronRightAnim, 'ChevronRight')
 export const ChevronUp = hoverAnimated(ChevronUpAnim, 'ChevronUp')
 export const ClipboardList = hoverAnimated(ClipboardListAnim, 'ClipboardList')
 export const Clock = hoverAnimated(ClockAnim, 'Clock')
@@ -244,4 +295,4 @@ export const UtensilsCrossed = hoverAnimated(
   UtensilsCrossedAnim,
   'UtensilsCrossed'
 )
-export { Plus, X, ArrowLeft, MoreVertical }
+export { Plus, X, ArrowLeft, MoreVertical, Check, ChevronLeft, ChevronRight }

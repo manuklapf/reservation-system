@@ -19,7 +19,11 @@
 body {
   min-height: 100vh;
   background-color: #ffffff;
-  background-image: url('../assets/PATTERN_BLUE.png');
+  /* A white wash sits over the pattern so the image reads at lower opacity.
+     (Setting `opacity` on <body> would fade the whole page, not just the art.) */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
+    url('../assets/PATTERN_BLUE.png');
   background-repeat: repeat;
   background-size: 470px;
 }
@@ -71,31 +75,6 @@ html[data-theme='brutalist'] .min-h-screen.bg-gray-50 {
   gap: 0.375rem;
 }
 
-.btn-primary {
-  background-color: var(--color-light-coral); /*  light-coral */
-  color: #ffffff;
-}
-.btn-primary:hover:not(:disabled) {
-  background-color: #ef6b73; /* darker coral */
-}
-
-.btn-secondary {
-  background-color: #ffffff;
-  color: #374151; /* gray-700 */
-  border-color: #d1d5db; /* gray-300 */
-}
-.btn-secondary:hover:not(:disabled) {
-  background-color: #f9fafb; /* gray-50 */
-}
-
-.btn-danger {
-  background-color: #dc5560; /*  coral-red */
-  color: #ffffff;
-}
-.btn-danger:hover:not(:disabled) {
-  background-color: #c9454f;
-}
-
 /* Brutalist theme: every .btn — regardless of variant — picks up the
    hard offset shadow, black border, and press-down hover, matching
    the account page's Save button. */
@@ -108,6 +87,7 @@ html[data-theme='brutalist'] .btn {
 }
 html[data-theme='brutalist'] .btn,
 .hover-transform {
+  will-change: transform, box-shadow;
   transition:
     transform 150ms,
     box-shadow 150ms;
@@ -121,8 +101,8 @@ html[data-theme='brutalist'] .btn:disabled {
   transform: none;
 }
 html[data-theme='brutalist'] .btn-primary {
-  background-color: var(--color-white) !important;
-  color: var(--color-black) !important;
+  background-color: var(--color-white);
+  color: var(--color-black);
 }
 html[data-theme='brutalist'] .btn-secondary {
   background-color: var(--color-white) !important;
@@ -131,6 +111,96 @@ html[data-theme='brutalist'] .btn-secondary {
 html[data-theme='brutalist'] .btn-danger {
   background-color: var(--color-danger) !important;
   color: var(--color-danger-fg) !important;
+}
+
+/* ============================================================
+   ACCOUNT VIEW
+   Styling for src/components/account/AccountView.tsx. Single
+   appearance — no theme variants.
+   ============================================================ */
+.account-page {
+  @apply mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8;
+}
+.account-eyebrow {
+  @apply inline-block text-xs font-semibold uppercase tracking-wide text-blue-600;
+}
+.account-title {
+  @apply text-2xl font-semibold text-gray-900 mt-2;
+}
+.account-subtitle {
+  @apply text-gray-500 mt-1 text-sm break-all;
+}
+.account-card {
+  @apply bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-4;
+}
+.account-card-title {
+  @apply text-lg font-semibold text-gray-900 mb-6;
+}
+.account-overview-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4;
+}
+.account-overview-label {
+  @apply text-xs font-semibold uppercase tracking-wide text-gray-500 mb-0.5;
+}
+.account-overview-value {
+  @apply text-sm font-medium text-gray-900 break-all;
+}
+.account-badge {
+  @apply inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full;
+}
+.account-badge-active {
+  @apply bg-green-100 text-green-800 ring-1 ring-inset ring-green-600/20;
+}
+.account-badge-trial {
+  @apply bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-600/20;
+}
+.account-badge-expired {
+  @apply bg-red-100 text-red-800 ring-1 ring-inset ring-red-600/20;
+}
+.account-badge-none {
+  @apply bg-gray-100 text-gray-700 ring-1 ring-inset ring-gray-500/20;
+}
+.account-field-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+.account-input {
+  @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+.account-textarea {
+  @apply account-input min-h-[96px] resize-y;
+}
+.account-help-text {
+  @apply text-xs text-gray-500;
+}
+.account-menu-panel {
+  @apply absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden;
+}
+.account-menu-item-danger {
+  @apply w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors;
+}
+.account-divider {
+  @apply flex flex-wrap gap-3 pt-4 mt-2 border-t border-gray-200;
+}
+.account-feedback-error {
+  @apply text-sm font-medium text-red-600;
+}
+.account-feedback-success {
+  @apply inline-flex items-center gap-1.5 text-sm font-medium text-green-700;
+}
+.account-notice-warn {
+  @apply bg-amber-50 border border-amber-200 rounded-lg p-5;
+}
+.account-modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4;
+}
+.account-modal-panel {
+  @apply w-full max-w-md bg-white rounded-xl shadow-xl border border-gray-200 p-6;
+}
+.account-modal-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+.account-modal-text {
+  @apply text-sm text-gray-500 mt-2;
 }
 
 /* Custom Calendar Styling */
@@ -445,8 +515,9 @@ html[data-theme='brutalist'] .btn-danger {
   --color-celadon: #93dba1;
   --color-tea-green: #caf6cf;
   --color-mixed: #c171a6;
-  --color-ice-blue: #b8dde1;
-  --color-lemon-yellow: #f9f5a9;
+  /* RGB channels (not hex) so Tailwind can inject opacity: bg-background/80 */
+  --color-ice-blue: 184 221 225;
+  --color-lemon-yellow: 249 245 169;
   --color-mandarin-orange: #f88d2a;
   --color-pear-green: #bed731;
 
@@ -617,9 +688,6 @@ html[data-theme='brutalist'] .bg-blue-600 {
 }
 html[data-theme='brutalist'] .hover\:bg-blue-700:hover {
   background-color: var(--color-accent-hover);
-}
-html[data-theme='brutalist'] .text-blue-600 {
-  color: var(--brutx-coral);
 }
 html[data-theme='brutalist'] .hover\:text-blue-800:hover {
   color: var(--color-accent-hover);

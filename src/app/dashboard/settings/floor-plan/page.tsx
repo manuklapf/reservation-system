@@ -384,7 +384,7 @@ export default function FloorPlanPage() {
         right={<div className="w-9" />}
       />
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto bg-background/40">
         <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           {/* Total capacity header */}
           <div className="mb-8 flex gap-2 p-4 bg-white rounded-lg border border-gray-200">
@@ -465,7 +465,7 @@ export default function FloorPlanPage() {
               <button
                 type="button"
                 onClick={addFloor}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-colors text-sm font-medium"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:text-gray-900 hover:bg-blue-50 transition-colors text-sm font-medium"
               >
                 <Plus className="h-4 w-4" />
                 {fps.addFloor}

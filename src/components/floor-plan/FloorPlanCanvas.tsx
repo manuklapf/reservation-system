@@ -162,7 +162,7 @@ export default function FloorPlanCanvas({
           type="button"
           onClick={() => applyZoom(zoom + ZOOM_STEP)}
           disabled={zoom >= MAX_ZOOM}
-          className="flex h-9 w-9 items-center justify-center text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-800 disabled:opacity-30"
+          className="flex h-9 w-9 items-center justify-center text-gray-700 transition-colors hover:bg-accent-background hover:text-gray-800 disabled:opacity-30"
           title={labels.zoomIn}
           aria-label={labels.zoomIn}
         >
@@ -173,7 +173,7 @@ export default function FloorPlanCanvas({
           type="button"
           onClick={() => applyZoom(zoom - ZOOM_STEP)}
           disabled={zoom <= MIN_ZOOM}
-          className="flex h-9 w-9 items-center justify-center text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-800 disabled:opacity-30"
+          className="flex h-9 w-9 items-center justify-center text-gray-700 transition-colors hover:bg-accent-background hover:text-gray-800 disabled:opacity-30"
           title={labels.zoomOut}
           aria-label={labels.zoomOut}
         >

@@ -81,7 +81,7 @@ export default function RangePicker({
       <div className="mb-2 flex items-center justify-between">
         <button
           onClick={prevMonth}
-          className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          className="rounded p-1 text-gray-500 hover:bg-accent-background hover:text-gray-800"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -93,7 +93,7 @@ export default function RangePicker({
         </span>
         <button
           onClick={nextMonth}
-          className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          className="rounded p-1 text-gray-500 hover:bg-accent-background hover:text-gray-800"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -125,7 +125,7 @@ export default function RangePicker({
                   ? 'rounded-full bg-blue-600 font-semibold text-white'
                   : isIn
                     ? 'bg-blue-100 text-blue-800'
-                    : 'rounded-full text-gray-700 hover:bg-gray-100 hover:text-gray-800',
+                    : 'rounded-full text-gray-700 hover:bg-accent-background hover:text-gray-800',
               ].join(' ')}
             >
               {date.getDate()}

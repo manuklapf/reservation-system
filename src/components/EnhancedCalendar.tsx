@@ -156,7 +156,7 @@ export default function EnhancedCalendar({
           <div className="flex items-center space-x-2">
             <button
               onClick={goToBack}
-              className="px-3 py-1 bg-gray-200 hover:bg-gray-100 rounded text-sm font-medium"
+              className="px-3 py-1 bg-gray-200 hover:bg-accent-background rounded text-sm font-medium"
               aria-label={common.previous}
             >
               ←
@@ -169,7 +169,7 @@ export default function EnhancedCalendar({
             </button>
             <button
               onClick={goToNext}
-              className="px-3 py-1 bg-gray-200 hover:bg-gray-100 rounded text-sm font-medium"
+              className="px-3 py-1 bg-gray-200 hover:bg-accent-background rounded text-sm font-medium"
               aria-label={common.next}
             >
               →
@@ -191,7 +191,7 @@ export default function EnhancedCalendar({
                 className={`px-3 py-1 rounded text-sm font-medium ${
                   view === v
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-100 hover:text-gray-800 text-gray-700'
+                    : 'bg-gray-200 hover:bg-accent-background hover:text-gray-800 text-gray-700'
                 }`}
               >
                 {label}

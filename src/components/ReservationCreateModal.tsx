@@ -20,6 +20,7 @@ import StepTime from './StepTime'
 import StepPersons from './StepPersons'
 import FloorPlanPickerModal from './FloorPlanPickerModal'
 import ModalCloseButton from './ModalCloseButton'
+import Button from '@/components/Button'
 
 interface Table {
   id: string
@@ -407,57 +408,55 @@ export default function ReservationCreateModal({
         >
           {/* Left arrow */}
           {step > 0 && (
-            <button
-              type="button"
-              onClick={handlePrev}
-              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white shadow-none w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors"
-              aria-label={common.previous}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
+            <div className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10">
+              <Button onClick={handlePrev} aria-label={common.previous}>
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            </div>
           )}
 
           {/* Right arrow / submit */}
-          <button
-            type="button"
-            onClick={isLastStep ? submitReservation : handleNext}
-            disabled={loading || !canProceed}
-            className={`absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 shadow-lg w-11 h-11 flex items-center justify-center transition-colors ${
-              loading || !canProceed
-                ? 'bg-white text-gray-300 shadow-sm cursor-not-allowed'
-                : isLastStep
-                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                  : 'bg-white hover:bg-gray-50 text-gray-600'
-            }`}
-            aria-label={isLastStep ? t.createReservation : common.next}
-          >
-            {loading ? (
-              <svg
-                className="h-4 w-4 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            ) : isLastStep ? (
-              <Check className="h-5 w-5" />
-            ) : (
-              <ChevronRight className="h-5 w-5" />
-            )}
-          </button>
+          <div className="absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10">
+            <Button
+              onClick={isLastStep ? submitReservation : handleNext}
+              disabled={loading || !canProceed}
+              className={`${
+                loading || !canProceed
+                  ? 'cursor-not-allowed'
+                  : isLastStep
+                    ? '!bg-background'
+                    : ''
+              }`}
+              aria-label={isLastStep ? t.createReservation : common.next}
+            >
+              {loading ? (
+                <svg
+                  className="h-4 w-4 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              ) : isLastStep ? (
+                <Check className="h-5 w-5" />
+              ) : (
+                <ChevronRight className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
 
           {/* Content box */}
           <div className="bg-white rounded-xl shadow-2xl w-full overflow-y-auto transform transition-all">
@@ -502,7 +501,7 @@ export default function ReservationCreateModal({
                 {step === (reservationLengthEnabled ? 4 : 3) && (
                   <div className="space-y-1/2 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                      <User className="h-5 w-5 text-blue-500" animate />
+                      <User className="h-5 w-5 text-yellow-500" animate />
                       {stepTitles[reservationLengthEnabled ? 4 : 3]}
                     </p>
                     <input
@@ -519,10 +518,7 @@ export default function ReservationCreateModal({
                 {step === (reservationLengthEnabled ? 5 : 4) && (
                   <div className="space-y-6 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                      <ClipboardList
-                        className="h-5 w-5 text-blue-500"
-                        animate
-                      />
+                      <ClipboardList className="h-5 w-5 text-red-500" animate />
                       {stepTitles[reservationLengthEnabled ? 5 : 4]}
                     </p>
                     <div>
