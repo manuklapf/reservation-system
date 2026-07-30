@@ -180,22 +180,22 @@ export default function MailboxPanel({
                     </div>
                   </div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-blue-700">
                       {formatDate(r.date)}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-700">
+                    <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-violet-700">
                       {r.time.slice(0, 5)}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-600">
+                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-blue-600">
                       {r.party_size} {t.guests}
                     </span>
                     {r.customer_email && (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-600">
                         {r.customer_email}
                       </span>
                     )}
                     {r.customer_phone && (
-                      <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                      <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-amber-700">
                         {r.customer_phone}
                       </span>
                     )}

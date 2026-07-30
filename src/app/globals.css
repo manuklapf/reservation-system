@@ -608,11 +608,11 @@ html[data-theme='brutalist'] * {
   font-family: 'Courier New Adjusted', Courier, monospace;
 }
 
-/* Remove all border-radius except buttons */
+/* Remove all border-radius */
 html[data-theme='brutalist']
   *:not(svg):not(path):not(circle):not(rect):not(polyline):not(line):not(g):not(
     defs
-  ):not(clipPath):not(.not-square):not(button):not(span) {
+  ):not(clipPath):not(.not-square):not(button):not(span):not(p) {
   border-radius: 0 !important;
 }
 

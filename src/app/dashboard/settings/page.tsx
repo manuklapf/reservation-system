@@ -225,27 +225,27 @@ export default function SettingsPage() {
                   {
                     key: 'showTime',
                     label: dl.time,
-                    color: 'bg-violet-100 text-violet-700',
+                    color: 'bg-violet-100 text-violet-800',
                   },
                   {
                     key: 'showPartySize',
                     label: dl.guestCount,
-                    color: 'bg-blue-50 text-blue-600',
+                    color: 'bg-blue-50 text-blue-800',
                   },
                   {
                     key: 'showTable',
                     label: dl.table,
-                    color: 'bg-emerald-50 text-emerald-700',
+                    color: 'bg-emerald-50 text-emerald-800',
                   },
                   {
                     key: 'showPhone',
                     label: dl.phoneNumber,
-                    color: 'bg-amber-50 text-amber-700',
+                    color: 'bg-amber-50 text-amber-800',
                   },
                   {
                     key: 'showNotes',
                     label: dl.notes,
-                    color: 'bg-gray-100 text-gray-600',
+                    color: 'bg-gray-100 text-gray-800',
                   },
                 ] as { key: keyof typeof prefs; label: string; color: string }[]
               ).map(({ key, label, color }) => (
@@ -255,7 +255,7 @@ export default function SettingsPage() {
                 >
                   <div className="flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${color}`}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black ${color}`}
                     >
                       {label}
                     </span>
