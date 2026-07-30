@@ -9,13 +9,15 @@
  * Icons animate-ui does not ship (Mail, Globe, Eye, Info, …) have hand-authored
  * animated equivalents under `@/components/animate-ui/icons/`.
  *
+ * Plus, X, ArrowLeft, and MoreVertical are exceptions: they render as plain
+ * static SVGs (no animation).
+ *
  * Usage stays identical to lucide-react:
  *   import { LogOut, Bell } from '@/components/icons'
  */
 
 import * as React from 'react'
 
-import { ArrowLeft as ArrowLeftAnim } from '@/components/animate-ui/icons/arrow-left'
 import { Bell as BellAnim } from '@/components/animate-ui/icons/bell'
 import { Building2 as Building2Anim } from '@/components/animate-ui/icons/building-2'
 import { CalendarCheck as CalendarCheckAnim } from '@/components/animate-ui/icons/calendar-check'
@@ -29,7 +31,6 @@ import { ClipboardList as ClipboardListAnim } from '@/components/animate-ui/icon
 import { Clock as ClockAnim } from '@/components/animate-ui/icons/clock'
 import { Code2 as Code2Anim } from '@/components/animate-ui/icons/code-2'
 import { Copy as CopyAnim } from '@/components/animate-ui/icons/copy'
-import { EllipsisVertical as EllipsisVerticalAnim } from '@/components/animate-ui/icons/ellipsis-vertical'
 import { Eye as EyeAnim } from '@/components/animate-ui/icons/eye'
 import { EyeOff as EyeOffAnim } from '@/components/animate-ui/icons/eye-off'
 import { Globe as GlobeAnim } from '@/components/animate-ui/icons/globe'
@@ -43,7 +44,6 @@ import { LogOut as LogOutAnim } from '@/components/animate-ui/icons/log-out'
 import { Mail as MailAnim } from '@/components/animate-ui/icons/mail'
 import { Minus as MinusAnim } from '@/components/animate-ui/icons/minus'
 import { Pencil as PencilAnim } from '@/components/animate-ui/icons/pencil'
-import { Plus as PlusAnim } from '@/components/animate-ui/icons/plus'
 import { Redo as RedoAnim } from '@/components/animate-ui/icons/redo'
 import { Settings as SettingsAnim } from '@/components/animate-ui/icons/settings'
 import { SlidersHorizontal as SlidersHorizontalAnim } from '@/components/animate-ui/icons/sliders-horizontal'
@@ -55,7 +55,6 @@ import { UserCheck as UserCheckAnim } from '@/components/animate-ui/icons/user-c
 import { UserPlus as UserPlusAnim } from '@/components/animate-ui/icons/user-plus'
 import { Users as UsersAnim } from '@/components/animate-ui/icons/users'
 import { UtensilsCrossed as UtensilsCrossedAnim } from '@/components/animate-ui/icons/utensils-crossed'
-import { X as XAnim } from '@/components/animate-ui/icons/x'
 
 /**
  * Wrap an animate-ui icon so it animates on hover by default. Callers can still
@@ -116,7 +115,89 @@ function hoverAnimated<T extends React.ComponentType<any>>(
   return Wrapped as unknown as T
 }
 
-export const ArrowLeft = hoverAnimated(ArrowLeftAnim, 'ArrowLeft')
+type StaticIconProps = React.SVGProps<SVGSVGElement> & { size?: number }
+
+function Plus({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <line x1={12} y1={19} x2={12} y2={5} />
+      <line x1={5} y1={12} x2={19} y2={12} />
+    </svg>
+  )
+}
+
+function X({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <line x1={18} y1={6} x2={6} y2={18} />
+      <line x1={6} y1={6} x2={18} y2={18} />
+    </svg>
+  )
+}
+
+function ArrowLeft({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M19 12H5" />
+      <path d="m12 19-7-7 7-7" />
+    </svg>
+  )
+}
+
+function MoreVertical({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx={12} cy={19} r={1} />
+      <circle cx={12} cy={12} r={1} />
+      <circle cx={12} cy={5} r={1} />
+    </svg>
+  )
+}
+
 export const Bell = hoverAnimated(BellAnim, 'Bell')
 export const Building2 = hoverAnimated(Building2Anim, 'Building2')
 export const CalendarCheck = hoverAnimated(CalendarCheckAnim, 'CalendarCheck')
@@ -130,8 +211,6 @@ export const ClipboardList = hoverAnimated(ClipboardListAnim, 'ClipboardList')
 export const Clock = hoverAnimated(ClockAnim, 'Clock')
 export const Code2 = hoverAnimated(Code2Anim, 'Code2')
 export const Copy = hoverAnimated(CopyAnim, 'Copy')
-// animate-ui names this "EllipsisVertical"; the app uses lucide's "MoreVertical".
-export const MoreVertical = hoverAnimated(EllipsisVerticalAnim, 'MoreVertical')
 export const Eye = hoverAnimated(EyeAnim, 'Eye')
 export const EyeOff = hoverAnimated(EyeOffAnim, 'EyeOff')
 export const Globe = hoverAnimated(GlobeAnim, 'Globe')
@@ -148,7 +227,6 @@ export const LogOut = hoverAnimated(LogOutAnim, 'LogOut')
 export const Mail = hoverAnimated(MailAnim, 'Mail')
 export const Minus = hoverAnimated(MinusAnim, 'Minus')
 export const Pencil = hoverAnimated(PencilAnim, 'Pencil')
-export const Plus = hoverAnimated(PlusAnim, 'Plus')
 export const Redo = hoverAnimated(RedoAnim, 'Redo')
 export const Settings = hoverAnimated(SettingsAnim, 'Settings')
 export const SlidersHorizontal = hoverAnimated(
@@ -166,4 +244,4 @@ export const UtensilsCrossed = hoverAnimated(
   UtensilsCrossedAnim,
   'UtensilsCrossed'
 )
-export const X = hoverAnimated(XAnim, 'X')
+export { Plus, X, ArrowLeft, MoreVertical }

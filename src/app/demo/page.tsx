@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { CalendarDays, List, Table2, Plus, ArrowLeft } from '@/components/icons'
 import { useDemo } from '@/contexts/DemoContext'
 import { Reservation } from '@/types/reservation'
@@ -27,6 +27,7 @@ export default function DemoPage() {
     updateTable,
     deleteTable,
   } = useDemo()
+  const router = useRouter()
   const { messages } = useI18n()
   const t = messages.dashboard
   const st = messages.setupPage
@@ -149,14 +150,13 @@ export default function DemoPage() {
         sticky={false}
         left={
           <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            <Button
+              onClick={() => router.push('/')}
               aria-label={dt.backToHome}
               title={dt.backToHome}
             >
               <ArrowLeft className="h-5 w-5" />
-            </Link>
+            </Button>
             <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
           </div>
         }

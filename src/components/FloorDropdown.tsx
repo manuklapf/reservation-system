@@ -53,7 +53,7 @@ export default function FloorDropdown({
                 className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors ${
                   i === activeIdx
                     ? 'bg-gray-100 font-semibold text-gray-900'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800'
                 }`}
               >
                 {f.name}

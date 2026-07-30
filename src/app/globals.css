@@ -105,11 +105,15 @@ html[data-theme='brutalist'] .btn {
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+html[data-theme='brutalist'] .btn,
+.hover-transform {
   transition:
     transform 150ms,
     box-shadow 150ms;
 }
-html[data-theme='brutalist'] .btn:hover:not(:disabled) {
+html[data-theme='brutalist'] .btn:hover:not(:disabled),
+.hover-transform:hover:not(:disabled) {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 #000 !important;
 }
@@ -692,6 +696,9 @@ html[data-theme='brutalist'] .hover\:bg-green-50:hover {
 }
 
 /* Hover states: yellow family */
+html[data-theme='brutalist'] .hover\:bg-gray-25:hover {
+  background-color: #f7f7f7;
+}
 html[data-theme='brutalist'] .hover\:bg-gray-50:hover {
   background-color: var(--brutx-yellow);
 }

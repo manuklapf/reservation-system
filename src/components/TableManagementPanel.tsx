@@ -212,7 +212,7 @@ export default function TableManagementPanel({
                           <button
                             onClick={onCancel}
                             disabled={saving}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:text-gray-400"
                             aria-label={t.cancel}
                             title={t.cancel}
                           >
@@ -236,7 +236,7 @@ export default function TableManagementPanel({
                               )
                             }}
                             disabled={saving}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800 disabled:text-gray-400"
                             aria-label={tmp.actions}
                           >
                             <MoreVertical className="h-4 w-4" />
@@ -252,7 +252,7 @@ export default function TableManagementPanel({
                                   onEdit(table)
                                   setOpenMenuId(null)
                                 }}
-                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-800"
                               >
                                 <Pencil className="h-3.5 w-3.5 text-gray-400" />
                                 {t.editTable}
@@ -262,7 +262,7 @@ export default function TableManagementPanel({
                                   onToggleActive(table.id, table.is_active)
                                   setOpenMenuId(null)
                                 }}
-                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-800"
                               >
                                 {table.is_active ? (
                                   <EyeOff className="h-3.5 w-3.5 text-gray-400" />

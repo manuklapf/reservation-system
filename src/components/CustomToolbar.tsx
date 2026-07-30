@@ -36,7 +36,7 @@ export function CustomToolbar({
         className={`px-3 py-1 rounded text-sm font-medium ${
           view === targetView
             ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            : 'bg-gray-200 hover:bg-gray-100 hover:text-gray-800 text-gray-700'
         }`}
       >
         {label}
@@ -51,7 +51,7 @@ export function CustomToolbar({
       <div className="flex items-center space-x-2">
         <button
           onClick={() => onNavigate('PREV')}
-          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
+          className="px-3 py-1 bg-gray-200 hover:bg-gray-100 rounded text-sm font-medium"
           aria-label={common.previous}
         >
           ←
@@ -64,7 +64,7 @@ export function CustomToolbar({
         </button>
         <button
           onClick={() => onNavigate('NEXT')}
-          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
+          className="px-3 py-1 bg-gray-200 hover:bg-gray-100 rounded text-sm font-medium"
           aria-label={common.next}
         >
           →

@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import Link from 'next/link'
 import { ArrowLeft, Trash2, UserPlus } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import Button from '@/components/Button'
@@ -24,6 +24,7 @@ async function getToken(): Promise<string | null> {
 }
 
 export default function StaffManagementPage() {
+  const router = useRouter()
   const { user, isAdmin } = useAuth()
   const { messages } = useI18n()
   const t = messages.staffManagement
@@ -123,13 +124,12 @@ export default function StaffManagementPage() {
     <div className="min-h-screen bg-gray-100">
       <NavBar
         left={
-          <Link
-            href="/dashboard/settings"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          <Button
+            onClick={() => router.push('/dashboard/settings')}
             aria-label={t.backToSettings}
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </Button>
         }
         center={
           <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>

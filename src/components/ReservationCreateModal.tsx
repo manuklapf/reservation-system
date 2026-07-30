@@ -410,10 +410,10 @@ export default function ReservationCreateModal({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white shadow-none w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
+              className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white shadow-none w-11 h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors"
               aria-label={common.previous}
             >
-              <ChevronLeft className="h-5 w-5 text-gray-600" />
+              <ChevronLeft className="h-5 w-5" />
             </button>
           )}
 

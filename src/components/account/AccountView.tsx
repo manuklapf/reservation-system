@@ -328,7 +328,7 @@ const clean: StyleMap = {
   },
   collapsible: 'border border-gray-200 rounded-xl overflow-hidden mb-3',
   collapsibleHeader:
-    'w-full flex items-center justify-between px-6 py-4 bg-white hover:bg-gray-50 text-left transition-colors',
+    'w-full flex items-center justify-between px-6 py-4 bg-white hover:bg-gray-100 text-left transition-colors',
   collapsibleTitle: 'text-base font-semibold text-gray-900',
   collapsibleDesc: 'text-sm text-gray-500 mt-0.5',
   collapsibleBody: 'border-t border-gray-200 bg-gray-50 px-6 py-6',
@@ -337,7 +337,7 @@ const clean: StyleMap = {
     'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
   helpText: 'text-xs text-gray-500',
   menuButton:
-    'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors',
+    'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors',
   menuPanel:
     'absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden',
   menuItemDanger:
@@ -873,7 +873,7 @@ export default function AccountView(props: AccountViewProps) {
             <h2 className={styles.cardTitle}>{t.subscription}</h2>
             {hasSubscription && canCancel && (
               <div className="relative" ref={menuRef}>
-                <button
+                <Button
                   type="button"
                   onClick={() => setMenuOpen(o => !o)}
                   className={styles.menuButton}
@@ -882,7 +882,7 @@ export default function AccountView(props: AccountViewProps) {
                   aria-label={t.cancelSubscription}
                 >
                   <EllipsisIcon className="h-5 w-5" />
-                </button>
+                </Button>
                 {menuOpen && (
                   <div className={styles.menuPanel} role="menu">
                     <button

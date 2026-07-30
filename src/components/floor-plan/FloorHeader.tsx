@@ -87,7 +87,7 @@ export default function FloorHeader({
                 setDraftName(floorName)
                 setEditingName(true)
               }}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-800 transition-colors"
             >
               <Pencil className="h-3.5 w-3.5 text-gray-400" />
               {t.rename}

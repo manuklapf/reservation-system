@@ -32,7 +32,7 @@ export default function TableSetupPage() {
           <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
           <Link
             href="/dashboard"
-            className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-100 rounded-lg transition-colors"
           >
             {t.backToDashboard}
           </Link>

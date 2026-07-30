@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import Link from 'next/link'
 import { ArrowLeft, Plus, Info } from '@/components/icons'
+import Button from '@/components/Button'
 import FloorPlanEditor from '@/components/FloorPlanEditor'
 import NavBar from '@/components/NavBar'
 import { useI18n } from '@/contexts/I18nContext'
@@ -46,6 +47,7 @@ type Floor = {
 }
 
 export default function FloorPlanPage() {
+  const router = useRouter()
   const { user, tenantId, isAdmin } = useAuth()
   const { messages } = useI18n()
   const t = messages.setupPage
@@ -369,13 +371,12 @@ export default function FloorPlanPage() {
       <NavBar
         className="shrink-0"
         left={
-          <Link
-            href="/dashboard/settings"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          <Button
+            onClick={() => router.push('/dashboard/settings')}
             aria-label={fps.backToSettings}
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </Button>
         }
         center={
           <h1 className="text-xl font-semibold text-gray-900">{fps.title}</h1>

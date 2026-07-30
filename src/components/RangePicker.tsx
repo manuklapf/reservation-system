@@ -79,8 +79,11 @@ export default function RangePicker({
   return (
     <div className="select-none">
       <div className="mb-2 flex items-center justify-between">
-        <button onClick={prevMonth} className="rounded p-1 hover:bg-gray-100">
-          <ChevronLeft className="h-4 w-4 text-gray-500" />
+        <button
+          onClick={prevMonth}
+          className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+        >
+          <ChevronLeft className="h-4 w-4" />
         </button>
         <span className="text-sm font-semibold text-gray-800">
           {firstDay.toLocaleDateString(locale, {
@@ -88,8 +91,11 @@ export default function RangePicker({
             year: 'numeric',
           })}
         </span>
-        <button onClick={nextMonth} className="rounded p-1 hover:bg-gray-100">
-          <ChevronRight className="h-4 w-4 text-gray-500" />
+        <button
+          onClick={nextMonth}
+          className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+        >
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
       <div className="mb-1 grid grid-cols-7 text-center">
@@ -119,7 +125,7 @@ export default function RangePicker({
                   ? 'rounded-full bg-blue-600 font-semibold text-white'
                   : isIn
                     ? 'bg-blue-100 text-blue-800'
-                    : 'rounded-full hover:bg-gray-100 text-gray-700',
+                    : 'rounded-full text-gray-700 hover:bg-gray-100 hover:text-gray-800',
               ].join(' ')}
             >
               {date.getDate()}

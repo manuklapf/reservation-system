@@ -1,12 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft } from '@/components/icons'
+import Button from '@/components/Button'
 import NavBar from '@/components/NavBar'
 import AccountView, {
   defaultAccountLabels,
@@ -220,13 +220,12 @@ export default function AccountPage() {
     <div className="min-h-screen bg-gray-100">
       <NavBar
         left={
-          <Link
-            href="/dashboard/settings"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          <Button
+            onClick={() => router.push('/dashboard/settings')}
             aria-label={t.backToSettings}
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </Button>
         }
         center={
           <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>

@@ -63,14 +63,13 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-gray-100">
       <NavBar
         left={
-          <Link
-            href="/dashboard"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+          <Button
+            onClick={() => router.push('/dashboard')}
             aria-label={st.backToDashboard}
             title={st.backToDashboard}
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </Button>
         }
         center={
           <h1 className="text-xl font-semibold text-gray-900">{st.title}</h1>
@@ -93,9 +92,9 @@ export default function SettingsPage() {
           {/* Account */}
           <Link
             href="/dashboard/settings/account"
-            className="flex items-center justify-center gap-2 px-4 py-3 mb-4 rounded-xl shadow-sm border border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold"
+            className="hover-transform flex items-center justify-center gap-2 px-4 py-3 mb-4 rounded-xl shadow-sm border text-sm font-semibold bg-white text-gray-900"
           >
-            <User className="h-4 w-4" />
+            <User className="h-4 w-4 text-blue-500" />
             {st.myAccount}
           </Link>
           {/* Admin-only quick links */}
@@ -103,21 +102,22 @@ export default function SettingsPage() {
             <div className="flex gap-3 mb-4">
               <Link
                 href="/dashboard/settings/floor-plan"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold"
+                className="hover-transform flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border text-sm font-semibold bg-white text-gray-900"
               >
-                <LayoutDashboard className="h-4 w-4" />
+                <LayoutDashboard className="h-4 w-4 text-red-500" />
                 {st.openFloorPlanEditor}
               </Link>
               <Link
                 href="/dashboard/settings/users"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border border-blue-300 text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm font-semibold"
+                className="hover-transform flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border text-sm font-semibold bg-white text-gray-900"
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-4 w-4 text-yellow-500" />
                 {st.manageStaff}
               </Link>
             </div>
           )}
-          <AccordionItem title={st.appearance} description={st.appearanceDesc}>
+          {/* 30/07/2026: Theming will be reintroduced later, one theme for now */}
+          {/* <AccordionItem title={st.appearance} description={st.appearanceDesc}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(
                 [
@@ -212,7 +212,7 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
-          </AccordionItem>
+          </AccordionItem> */}
 
           <AccordionItem
             title={st.dashboardDisplay}

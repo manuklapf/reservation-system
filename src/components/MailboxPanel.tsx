@@ -139,7 +139,7 @@ export default function MailboxPanel({
           </div>
           <button
             onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-800 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
