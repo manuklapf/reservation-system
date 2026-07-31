@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronDown } from '@/components/icons'
+import Button from '@/components/Button'
 
 interface FloorItem {
   id: string
@@ -12,12 +13,16 @@ interface FloorDropdownProps {
   floors: FloorItem[]
   activeIdx: number
   onChange: (idx: number) => void
+  /** Open the menu above the trigger — for triggers near the bottom of the
+   *  screen, e.g. in a modal footer, where opening down would run off-screen. */
+  openUp?: boolean
 }
 
 export default function FloorDropdown({
   floors,
   activeIdx,
   onChange,
+  openUp = false,
 }: FloorDropdownProps) {
   const [open, setOpen] = useState(false)
 
@@ -25,23 +30,23 @@ export default function FloorDropdown({
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium text-gray-700 shadow-sm transition-colors"
-      >
+      <Button variant="secondary" onClick={() => setOpen(o => !o)}>
         {floors[activeIdx]?.name}
         <ChevronDown
           className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`}
         />
-      </button>
+      </Button>
       {open && (
         <>
           <div
             className="fixed inset-0 z-[55]"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute left-0 top-full z-[56] mt-1 min-w-[120px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
+          <div
+            className={`absolute left-0 z-[56] min-w-[120px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ${
+              openUp ? 'bottom-full mb-1' : 'top-full mt-1'
+            }`}
+          >
             {floors.map((f, i) => (
               <button
                 key={f.id}

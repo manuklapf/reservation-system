@@ -16,6 +16,7 @@ import { timesOverlap } from '@/utils/reservationConflictChecker'
 import ConfirmDialog from './ConfirmDialog'
 import FloorDropdown from './FloorDropdown'
 import Button from './Button'
+import ModalCloseButton from './ModalCloseButton'
 
 interface DBTable {
   id: string
@@ -63,6 +64,10 @@ interface DayPlanModalProps {
 
 const CANVAS_W = 832
 const CANVAS_H = 480
+/** Backdrop gutter (`p-4`) — the plan's width budget starts from the viewport. */
+const OVERLAY_PAD = 16
+/** Reservation list width beside the plan on desktop — keep in sync with `lg:w-64`. */
+const LIST_W = 256
 /** Height of one reservation row incl. divider, in px — sets how many fit on a touch page. */
 const ROW_H = 58
 const MIN_ITEMS_PER_PAGE = 3
@@ -118,7 +123,6 @@ export default function DayPlanModal({
   const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const floorPlanInnerRef = useRef<HTMLDivElement>(null)
   const floorRef = useRef<FloorPlan | null>(null)
-  const floorContainerRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
   const scaleRef = useRef(0.88)
@@ -231,30 +235,37 @@ export default function DayPlanModal({
     return () => obs.disconnect()
   }, [isOpen])
 
-  // Scale floor plan to fill the container without overflow.
-  // Below lg the container hugs the scaled canvas, so its own height is an
-  // output of the scale, not an input — the height budget comes from the body.
+  // Scale the floor plan to fill the space it's given, edge to edge.
+  // The plan's container now hugs the scaled canvas on both axes, so its size
+  // is an *output* of the scale — measuring it here would feed back into
+  // itself. The budget comes from the viewport and the body's height instead.
   useEffect(() => {
     if (!isOpen) return
-    const el = floorContainerRef.current
     const body = bodyRef.current
-    if (!el || !body) return
+    if (!body) return
     const measure = () => {
-      const { width } = el.getBoundingClientRect()
       const bodyHeight = body.getBoundingClientRect().height
       const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+      // Width left for the plan: the viewport minus the backdrop's gutters,
+      // minus the reservation list sitting beside it on desktop.
+      const width =
+        window.innerWidth - OVERLAY_PAD * 2 - (isDesktop ? LIST_W : 0)
       const height = isDesktop
         ? bodyHeight
         : bodyHeight * MOBILE_PLAN_HEIGHT_RATIO
-      const s = Math.min((width - 32) / CANVAS_W, (height - 32) / CANVAS_H, 1.5)
+      const s = Math.min(width / CANVAS_W, height / CANVAS_H, 1.5)
       const ns = Math.max(s, 0.15)
       setScale(ns)
       scaleRef.current = ns
     }
+    measure()
     const obs = new ResizeObserver(measure)
-    obs.observe(el)
     obs.observe(body)
-    return () => obs.disconnect()
+    window.addEventListener('resize', measure)
+    return () => {
+      obs.disconnect()
+      window.removeEventListener('resize', measure)
+    }
   }, [isOpen])
 
   const tableMap = new Map(tables.map(t => [t.id, t]))
@@ -539,10 +550,16 @@ export default function DayPlanModal({
         onCancel={() => setPendingConfirm(null)}
       />
 
-      <div className="fixed inset-0 z-50 flex p-4 backdrop-blur-sm bg-black/60">
-        <div className="flex h-full w-full flex-col bg-white">
-          {/* Header */}
-          <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-gray-200 px-4 py-3 lg:px-6 lg:py-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center py-3 px-2 backdrop-blur-sm bg-black/60">
+        <ModalCloseButton onClose={onClose} />
+
+        {/* Below lg the modal fills the screen; from lg it hugs its content, so
+            once the plan is capped by the available height the modal stops
+            widening instead of padding the plan out with empty space. */}
+        <div className="flex h-full w-full flex-col bg-white lg:w-auto lg:max-w-full">
+          {/* Header — left-aligned and padded on the right to clear the
+              viewport-pinned close button. */}
+          <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-gray-200 py-3 pl-4 pr-16 lg:py-4 lg:pl-6">
             <h3 className="whitespace-nowrap text-base font-semibold text-gray-900 md:text-lg">
               {new Date(date + 'T00:00:00').toLocaleDateString(locale, {
                 weekday: 'long',
@@ -550,20 +567,6 @@ export default function DayPlanModal({
                 day: 'numeric',
               })}
             </h3>
-            <div className="ml-auto flex items-center gap-3 sm:gap-4">
-              <FloorDropdown
-                floors={floors}
-                activeIdx={activeFloorIdx}
-                onChange={setActiveFloorIdx}
-              />
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-accent hover:text-gray-800"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
           </div>
 
           {/* Body */}
@@ -571,18 +574,18 @@ export default function DayPlanModal({
             ref={bodyRef}
             className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row"
           >
-            {/* Floor plan */}
+            {/* Floor plan — sized exactly to the scaled canvas, so there is no
+                filler around it to show a background through. */}
             <div
-              ref={floorContainerRef}
               onClick={() => setFocusedTableId(null)}
-              className="flex min-h-0 flex-none items-center justify-center bg-gray-50 p-3 lg:flex-1 lg:p-4"
+              className="flex min-h-0 flex-none items-center justify-center"
             >
               {loadingFloors ? (
-                <div className="flex h-32 items-center justify-center text-sm text-gray-400">
+                <div className="flex h-32 w-64 items-center justify-center text-sm text-gray-400">
                   {t.loading}
                 </div>
               ) : floors.length === 0 ? (
-                <div className="flex h-32 items-center justify-center text-sm text-gray-400">
+                <div className="flex h-32 w-64 items-center justify-center text-sm text-gray-400">
                   {t.noFloorPlan}
                 </div>
               ) : (
@@ -605,7 +608,6 @@ export default function DayPlanModal({
                       transform: `scale(${scale})`,
                       transformOrigin: 'top left',
                       borderRadius: 12,
-                      border: '2px solid #e5e7eb',
                       backgroundImage: [
                         'linear-gradient(to right, #e5e7eb 1px, transparent 1px)',
                         'linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)',
@@ -870,7 +872,7 @@ export default function DayPlanModal({
                                 ),
                               }))
                             }}
-                            className="ml-auto mt-0.5 shrink-0 rounded-full p-1 text-gray-300 transition-colors hover:bg-danger-soft hover:text-danger-ink"
+                            className="ml-auto mt-0.5 shrink-0 rounded-md p-1 text-gray-800 transition-colors hover:bg-danger hover:text-danger-ink"
                             title={t.removeFromTable}
                           >
                             <X className="h-3.5 w-3.5" />
@@ -883,9 +885,21 @@ export default function DayPlanModal({
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="flex shrink-0 items-center justify-end gap-3 border-t border-gray-200 px-4 py-3 lg:px-6 lg:py-4">
-            <Button onClick={handleSave} disabled={!hasChanges || saving}>
+          {/* Footer — `ml-auto` on the save button rather than
+              `justify-between`, so it stays right-aligned on the single-floor
+              case where FloorDropdown renders nothing. */}
+          <div className="flex shrink-0 items-center gap-3 border-t border-gray-200 px-4 py-3 lg:px-6 lg:py-4">
+            <FloorDropdown
+              floors={floors}
+              activeIdx={activeFloorIdx}
+              onChange={setActiveFloorIdx}
+              openUp
+            />
+            <Button
+              className="ml-auto"
+              onClick={handleSave}
+              disabled={!hasChanges || saving}
+            >
               {saving ? (
                 <>
                   <svg

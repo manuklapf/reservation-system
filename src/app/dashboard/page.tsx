@@ -473,10 +473,10 @@ export default function DashboardPage() {
                         </div>
                         <button
                           onClick={() => setDayPlanDate(day)}
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-accent hover:text-gray-800 transition-colors"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-accent hover:text-gray-800 transition-colors"
                           title="Edit day plan"
                         >
-                          <LayoutDashboard className="h-4 w-4" />
+                          <LayoutDashboard className="h-5 w-5" />
                         </button>
                       </div>
                       <div className="bg-white shadow overflow-hidden sm:rounded-md">
