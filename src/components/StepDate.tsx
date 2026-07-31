@@ -19,7 +19,7 @@ export default function StepDate({
   return (
     <div className="min-w-full">
       <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-        <CalendarDays className="h-5 w-5 text-green-500" animate />
+        <CalendarDays className="h-5 w-5 text-success-strong" animate />
         {title}
       </p>
       <DatePickerWheel

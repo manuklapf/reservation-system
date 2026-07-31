@@ -35,9 +35,9 @@ export default function TrialBanner() {
       : t.bannerDaysLeft.replace('{days}', String(trialDaysLeft))
 
   return (
-    <div className="bg-amber-50 border-b border-amber-200">
+    <div className="bg-warning-soft border-b border-warning/45">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-amber-800 text-sm min-w-0">
+        <div className="flex items-center gap-2 text-warning-ink text-sm min-w-0">
           <Clock className="h-4 w-4 shrink-0" />
           <span className="truncate">{label}</span>
         </div>

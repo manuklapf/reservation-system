@@ -275,7 +275,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen paper-plain flex items-center justify-center">
         <div className="text-xl">{common.loading}</div>
       </div>
     )
@@ -286,7 +286,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen paper-plain">
       <NavBar
         className="z-50"
         left={
@@ -321,7 +321,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setShowCalendar(prev => !prev)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-accent-background hover:text-gray-800"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-accent hover:text-gray-800"
                 aria-label={showCalendar ? t.reservations : t.calendarView}
                 title={showCalendar ? t.reservations : t.calendarView}
               >
@@ -337,15 +337,15 @@ export default function DashboardPage() {
                     onClick={() => setFilterOpen(prev => !prev)}
                     className={`relative inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
                       activeFilterCount > 0
-                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                        : 'text-gray-500 hover:bg-accent-background hover:text-gray-800'
+                        ? 'bg-background text-gray-900 hover:text-gray-700 hover:bg-accent'
+                        : 'text-gray-500 hover:bg-accent hover:text-gray-800'
                     }`}
                     aria-label={t.filter}
                     title={t.filter}
                   >
                     <SlidersHorizontal className="h-5 w-5" />
                     {activeFilterCount > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-[10px] font-bold text-success-fg">
                         {activeFilterCount}
                       </span>
                     )}
@@ -363,14 +363,14 @@ export default function DashboardPage() {
                             value={filterGuestName}
                             onChange={e => setFilterGuestName(e.target.value)}
                             placeholder={t.filterGuestName}
-                            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent-strong"
                           />
                         </div>
                         <div>
                           <label className="mb-2 block text-xs font-medium text-gray-700">
                             {t.filterDate}
                             {(filterDateFrom || filterDateTo) && (
-                              <span className="ml-2 font-normal text-blue-600">
+                              <span className="ml-2 font-normal text-accent-ink">
                                 {filterDateFrom.split('-').reverse().join('.')}
                                 {filterDateTo && filterDateTo !== filterDateFrom
                                   ? ` – ${filterDateTo.split('-').reverse().join('.')}`
@@ -473,7 +473,7 @@ export default function DashboardPage() {
                         </div>
                         <button
                           onClick={() => setDayPlanDate(day)}
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-accent-background hover:text-gray-800 transition-colors"
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:bg-accent hover:text-gray-800 transition-colors"
                           title="Edit day plan"
                         >
                           <LayoutDashboard className="h-4 w-4" />

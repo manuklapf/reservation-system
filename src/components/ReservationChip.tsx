@@ -25,11 +25,11 @@ export default function ReservationChip({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full flex-col items-start overflow-hidden rounded-xl px-4 py-3 text-left transition-colors ${
+      className={`flex w-full flex-col items-start overflow-hidden rounded-xl px-4 py-3 text-left border-2 border-black transition-colors ${
         active ? activeClass : inactiveClass
       }`}
     >
-      <span className="mb-0.5 flex w-full min-w-0 items-center gap-1 text-xs font-medium opacity-70">
+      <span className="mb-0.5 flex w-full min-w-0 items-center gap-1 text-xs font-medium">
         <span className="shrink-0">{icon}</span>
         <span className="truncate">{label}</span>
       </span>

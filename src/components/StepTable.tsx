@@ -34,7 +34,7 @@ export default function StepTable({
   return (
     <div className="min-w-full">
       <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-        <UtensilsCrossed className="h-5 w-5 text-emerald-600" />
+        <UtensilsCrossed className="h-5 w-5 text-success-ink" />
         {title}
       </p>
 
@@ -55,8 +55,8 @@ export default function StepTable({
               onClick={() => onChange(table.id)}
               className={`flex flex-col items-center justify-center rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-colors ${
                 value === table.id
-                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 hover:bg-emerald-50'
+                  ? 'border-success bg-success-soft text-success-ink'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-success/60 hover:bg-success-soft'
               }`}
             >
               <span className="text-base font-bold">

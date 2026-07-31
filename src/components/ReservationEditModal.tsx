@@ -24,6 +24,7 @@ import FloorPlanPickerModal from './FloorPlanPickerModal'
 import ConfirmDialog from './ConfirmDialog'
 import ModalCloseButton from './ModalCloseButton'
 import ReservationChip from './ReservationChip'
+import Button from '@/components/Button'
 
 interface Table {
   id: string
@@ -427,59 +428,62 @@ export default function ReservationEditModal({
         onClick={onClose}
       >
         <ModalCloseButton onClose={onClose} />
-
         <div
-          className="relative w-full max-w-lg"
+          className="relative w-full max-w-lg p-6 sm:p-4"
           onClick={e => e.stopPropagation()}
         >
           {/* Delete button — left side */}
           {onDelete && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={loading}
-              className="absolute left-0.5 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10 bg-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center text-red-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              aria-label={t.deleteReservation}
-              title={t.deleteReservation}
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
+            <div className="absolute left-0.5 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10">
+              <Button
+                variant="danger"
+                onClick={handleDelete}
+                disabled={loading}
+                className={loading ? 'cursor-not-allowed' : ''}
+                aria-label={t.deleteReservation}
+                title={t.deleteReservation}
+              >
+                <Trash2 className="h-5 w-5" />
+              </Button>
+            </div>
           )}
 
           {/* Submit button — right side */}
-          <button
-            form="edit-reservation-form"
-            type="submit"
-            disabled={loading}
-            className="absolute right-0.5 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg w-11 h-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label={t.updateReservation}
-            title={t.updateReservation}
-          >
-            {loading ? (
-              <svg
-                className="h-4 w-4 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            ) : (
-              <Check className="h-5 w-5" />
-            )}
-          </button>
+          <div className="absolute right-0.5 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10">
+            <Button
+              form="edit-reservation-form"
+              type="submit"
+              disabled={loading}
+              className={loading ? 'cursor-not-allowed' : '!bg-background'}
+              aria-label={t.updateReservation}
+              title={t.updateReservation}
+            >
+              {loading ? (
+                <svg
+                  className="h-4 w-4 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+              ) : (
+                <Check className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
 
           <div className="bg-white rounded-xl shadow-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all">
             <div className="p-8">
@@ -501,7 +505,7 @@ export default function ReservationEditModal({
                     name="customer_name"
                     id="customer_name"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors"
                     placeholder={t.customerNamePlaceholder}
                     value={formData.customer_name}
                     onChange={handleChange}
@@ -524,8 +528,8 @@ export default function ReservationEditModal({
                         label={t.date}
                         value={formData.date.split('-').reverse().join('.')}
                         active={activeStep === 'date'}
-                        activeClass="bg-blue-500 text-white"
-                        inactiveClass="bg-blue-100 text-blue-700 hover:bg-blue-200"
+                        activeClass="bg-success text-success-fg"
+                        inactiveClass="bg-success/50 text-success-fg hover:bg-success/60"
                         onClick={() =>
                           setActiveStep(prev =>
                             prev === 'date' ? null : 'date'
@@ -539,8 +543,8 @@ export default function ReservationEditModal({
                         }
                         value={formData.time?.slice(0, 5)}
                         active={activeStep === 'time'}
-                        activeClass="bg-violet-500 text-white"
-                        inactiveClass="bg-violet-100 text-violet-700 hover:bg-violet-200"
+                        activeClass="bg-info text-info-fg"
+                        inactiveClass="bg-info-soft text-info-fg hover:bg-info/35"
                         onClick={() =>
                           setActiveStep(prev =>
                             prev === 'time' ? null : 'time'
@@ -553,10 +557,10 @@ export default function ReservationEditModal({
                           label={t.steps.endTime}
                           value={formData.end_time?.slice(0, 5) || '—'}
                           active={activeStep === 'end_time'}
-                          activeClass="bg-violet-500 text-white"
+                          activeClass="bg-info text-info-fg"
                           inactiveClass={
                             formData.end_time
-                              ? 'bg-violet-100 text-violet-700 hover:bg-violet-200'
+                              ? 'bg-info-soft text-info-ink hover:bg-info/35'
                               : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                           }
                           onClick={() =>
@@ -575,8 +579,8 @@ export default function ReservationEditModal({
                             : t.people
                         }`}
                         active={activeStep === 'persons'}
-                        activeClass="bg-red-500 text-white"
-                        inactiveClass="bg-red-50 text-red-600 hover:bg-red-100"
+                        activeClass="bg-danger text-danger-fg"
+                        inactiveClass="bg-danger-soft text-danger-fg hover:bg-danger/35"
                         onClick={() =>
                           setActiveStep(prev =>
                             prev === 'persons' ? null : 'persons'
@@ -588,11 +592,11 @@ export default function ReservationEditModal({
                         label={t.table}
                         value={tableLabel}
                         active={showFloorPicker}
-                        activeClass="bg-emerald-500 text-white"
+                        activeClass="bg-warning text-warning-fg"
                         inactiveClass={
                           hasTableSelection
-                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                            ? 'bg-warning-soft text-warning-fg hover:bg-warning/35'
+                            : 'bg-gray-100 text-warning-fg hover:bg-gray-200'
                         }
                         onClick={() => {
                           setActiveStep(null)
@@ -605,7 +609,7 @@ export default function ReservationEditModal({
 
                 {/* Inline step panels */}
                 {activeStep === 'date' && (
-                  <div className="rounded-xl !bg-blue-100 p-4">
+                  <div className="rounded-xl bg-success-soft border-2 border-black p-4">
                     <StepDate
                       title={t.date}
                       value={formData.date}
@@ -615,7 +619,7 @@ export default function ReservationEditModal({
                   </div>
                 )}
                 {activeStep === 'time' && (
-                  <div className="rounded-xl bg-violet-100 p-4">
+                  <div className="rounded-xl bg-info-soft border-2 border-black p-4">
                     <StepTime
                       title={
                         reservationLengthEnabled ? t.steps.startTime : t.time
@@ -628,7 +632,7 @@ export default function ReservationEditModal({
                   </div>
                 )}
                 {activeStep === 'end_time' && (
-                  <div className="rounded-xl bg-violet-100 p-4">
+                  <div className="rounded-xl bg-info-soft border-2 border-black p-4">
                     <StepTime
                       title={t.steps.endTime}
                       value={formData.end_time || formData.time}
@@ -641,7 +645,7 @@ export default function ReservationEditModal({
                   </div>
                 )}
                 {activeStep === 'persons' && (
-                  <div className="rounded-xl !bg-red-50 p-4">
+                  <div className="rounded-xl !bg-danger-soft border-2 border-black p-4">
                     <StepPersons
                       title={t.partySize}
                       value={formData.party_size}
@@ -680,7 +684,7 @@ export default function ReservationEditModal({
                           name="notes"
                           id="notes"
                           rows={3}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors resize-none"
                           value={formData.notes}
                           onChange={handleChange}
                           placeholder={t.specialNotesPlaceholder}
@@ -697,16 +701,16 @@ export default function ReservationEditModal({
                           type="tel"
                           name="customer_phone"
                           id="customer_phone"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors"
                           placeholder={t.phonePlaceholder}
                           value={formData.customer_phone}
                           onChange={handleChange}
                         />
                       </div>
                       {reservation.approved_by && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
-                          <UserCheck className="h-4 w-4 text-green-600 shrink-0" />
-                          <p className="text-sm text-green-800">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-success-soft rounded-lg">
+                          <UserCheck className="h-4 w-4 text-success-ink shrink-0" />
+                          <p className="text-sm text-success-ink">
                             <span className="font-semibold">
                               {t.approvedBy}:
                             </span>{' '}

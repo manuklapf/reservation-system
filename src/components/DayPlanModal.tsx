@@ -559,7 +559,7 @@ export default function DayPlanModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-accent-background hover:text-gray-800"
+                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-accent hover:text-gray-800"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -786,7 +786,7 @@ export default function DayPlanModal({
               <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-2.5">
                 {focusedTableId ? (
                   <>
-                    <span className="text-sm font-semibold text-amber-700">
+                    <span className="text-sm font-semibold text-warning-ink">
                       {tableMap.get(focusedTableId)?.table_identifier ??
                         focusedTableId}
                     </span>
@@ -846,7 +846,7 @@ export default function DayPlanModal({
                       <GripVertical className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-300" />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-baseline justify-between gap-1">
-                          <span className="text-xs font-semibold text-violet-700">
+                          <span className="text-xs font-semibold text-info-ink">
                             {r.time.slice(0, 5)}
                           </span>
                           <span className="flex items-center gap-0.5 text-xs text-gray-400">
@@ -870,7 +870,7 @@ export default function DayPlanModal({
                                 ),
                               }))
                             }}
-                            className="ml-auto mt-0.5 shrink-0 rounded-full p-1 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                            className="ml-auto mt-0.5 shrink-0 rounded-full p-1 text-gray-300 transition-colors hover:bg-danger-soft hover:text-danger-ink"
                             title={t.removeFromTable}
                           >
                             <X className="h-3.5 w-3.5" />

@@ -26,14 +26,14 @@ export default function LoginPage() {
             <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
               {t.setupRequired}
             </h2>
-            <div className="mt-4 p-6 bg-yellow-50 border border-yellow-200 rounded-md">
-              <h3 className="text-lg font-medium text-yellow-800 mb-2">
+            <div className="mt-4 p-6 bg-warning-soft border border-warning/45 rounded-md">
+              <h3 className="text-lg font-medium text-warning-ink mb-2">
                 {t.supabaseMissing}
               </h3>
-              <p className="text-sm text-yellow-700 mb-4">
+              <p className="text-sm text-warning-ink mb-4">
                 {t.setupDescription}
               </p>
-              <div className="text-left text-sm text-yellow-700 space-y-2">
+              <div className="text-left text-sm text-warning-ink space-y-2">
                 <p>
                   <strong>{t.steps}</strong>
                 </p>
@@ -99,7 +99,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-accent-strong focus:border-accent-strong focus:z-10 sm:text-sm"
                 placeholder={t.emailAddress}
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-accent-strong focus:border-accent-strong focus:z-10 sm:text-sm"
                 placeholder={t.password}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -124,7 +124,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
+            <div className="text-danger-ink text-sm text-center">{error}</div>
           )}
 
           <div>

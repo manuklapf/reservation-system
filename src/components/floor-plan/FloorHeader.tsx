@@ -56,7 +56,7 @@ export default function FloorHeader({
               setEditingName(false)
             }
           }}
-          className="text-xl font-bold text-gray-900 border-b-2 border-blue-400 bg-transparent outline-none p-0 pb-0.5 w-full min-w-0"
+          className="text-xl font-bold text-gray-900 border-b-2 border-accent-strong/60 bg-transparent outline-none p-0 pb-0.5 w-full min-w-0"
         />
       ) : (
         <h2 className="text-xl font-bold text-gray-900 leading-tight">
@@ -71,7 +71,7 @@ export default function FloorHeader({
         {menuOpen && (
           <div
             role="menu"
-            className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-gray-200 bg-white z-20 overflow-hidden"
+            className="absolute right-0 top-full mt-1 w-40 rounded-lg shadow bg-white z-20 overflow-hidden"
           >
             <button
               type="button"
@@ -81,7 +81,7 @@ export default function FloorHeader({
                 setDraftName(floorName)
                 setEditingName(true)
               }}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-accent-background hover:text-gray-800 transition-colors"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-accent hover:text-gray-800 transition-colors"
             >
               <Pencil className="h-3.5 w-3.5 text-gray-400" />
               {t.rename}
@@ -94,7 +94,7 @@ export default function FloorHeader({
                   setMenuOpen(false)
                   onDeleteFloor()
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger-ink hover:bg-danger-soft transition-colors"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 {messages.common.delete}

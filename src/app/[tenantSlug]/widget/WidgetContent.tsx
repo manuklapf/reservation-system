@@ -47,7 +47,7 @@ export default function WidgetContent({ tenantSlug }: { tenantSlug: string }) {
         href={`/${tenantSlug}/request`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-full shadow-md transition-colors"
+        className="inline-flex items-center gap-2 px-5 py-3 bg-accent hover:bg-accent-hover active:bg-accent-strong text-accent-fg text-sm font-semibold rounded-full shadow-md transition-colors"
       >
         <CalendarCheck className="h-4 w-4" />
         {t.title}

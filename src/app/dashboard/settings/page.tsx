@@ -78,7 +78,7 @@ export default function SettingsPage() {
         right={
           <button
             onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
-            className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-accent-background hover:text-gray-800"
+            className="inline-flex items-center gap-1 h-8 px-2 rounded-md text-gray-500 hover:bg-accent hover:text-gray-800"
             aria-label={c.language}
             title={c.language}
           >
@@ -95,7 +95,7 @@ export default function SettingsPage() {
             href="/dashboard/settings/account"
             className="hover-transform flex items-center justify-center gap-2 px-4 py-3 mb-4 rounded-xl shadow-sm border text-sm font-semibold bg-white text-gray-900"
           >
-            <User className="h-4 w-4 text-blue-500" />
+            <User className="h-4 w-4 text-warning" />
             {st.myAccount}
           </Link>
           {/* Admin-only quick links */}
@@ -105,14 +105,14 @@ export default function SettingsPage() {
                 href="/dashboard/settings/floor-plan"
                 className="hover-transform flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border text-sm font-semibold bg-white text-gray-900"
               >
-                <LayoutDashboard className="h-4 w-4 text-red-500" />
+                <LayoutDashboard className="h-4 w-4 text-danger" />
                 {st.openFloorPlanEditor}
               </Link>
               <Link
                 href="/dashboard/settings/users"
                 className="hover-transform flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-sm border text-sm font-semibold bg-white text-gray-900"
               >
-                <Users className="h-4 w-4 text-yellow-500" />
+                <Users className="h-4 w-4 text-success" />
                 {st.manageStaff}
               </Link>
             </div>
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                     description: st.themeDefaultDesc,
                     preview: (
                       <div className="flex gap-2 mb-3">
-                        <div className="h-5 w-5 rounded bg-blue-600" />
+                        <div className="h-5 w-5 rounded bg-accent" />
                         <div className="h-5 w-5 rounded bg-gray-100 border border-gray-300" />
                         <div className="h-5 w-5 rounded bg-white border border-gray-200" />
                       </div>
@@ -193,7 +193,7 @@ export default function SettingsPage() {
                   onClick={() => setTheme(thm.id)}
                   className={`relative p-4 border-2 text-left transition-colors bg-white hover:bg-gray-50 ${
                     theme === thm.id
-                      ? 'border-blue-600'
+                      ? 'border-accent-strong'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
@@ -208,7 +208,7 @@ export default function SettingsPage() {
                     {thm.description}
                   </p>
                   {theme === thm.id && (
-                    <Check className="absolute top-3 right-3 h-4 w-4 text-blue-600" />
+                    <Check className="absolute top-3 right-3 h-4 w-4 text-accent-ink" />
                   )}
                 </button>
               ))}
@@ -225,22 +225,22 @@ export default function SettingsPage() {
                   {
                     key: 'showTime',
                     label: dl.time,
-                    color: 'bg-violet-100 text-violet-800',
+                    color: 'bg-info-soft text-gray-800',
                   },
                   {
                     key: 'showPartySize',
                     label: dl.guestCount,
-                    color: 'bg-blue-50 text-blue-800',
+                    color: 'bg-accent-soft text-gray-800',
                   },
                   {
                     key: 'showTable',
                     label: dl.table,
-                    color: 'bg-emerald-50 text-emerald-800',
+                    color: 'bg-success-soft text-gray-800',
                   },
                   {
                     key: 'showPhone',
                     label: dl.phoneNumber,
-                    color: 'bg-amber-50 text-amber-800',
+                    color: 'bg-warning-soft text-gray-800',
                   },
                   {
                     key: 'showNotes',
@@ -297,11 +297,11 @@ export default function SettingsPage() {
                             setEmbedCopied(true)
                             setTimeout(() => setEmbedCopied(false), 2000)
                           }}
-                          className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded border border-gray-200 text-gray-600 hover:bg-accent-background transition-colors"
+                          className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded border border-gray-200 text-gray-600 hover:bg-accent transition-colors"
                         >
                           {embedCopied ? (
                             <>
-                              <Check className="h-3 w-3 text-green-600" />
+                              <Check className="h-3 w-3 text-success-ink" />
                               {wr.widgetEmbedCopied}
                             </>
                           ) : (
@@ -321,7 +321,7 @@ export default function SettingsPage() {
                         href={formUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline break-all"
+                        className="inline-flex items-center gap-1.5 text-sm text-accent-ink hover:underline break-all"
                       >
                         <Code2 className="h-4 w-4 shrink-0" />
                         {formUrl}

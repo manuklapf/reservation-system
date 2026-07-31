@@ -170,7 +170,7 @@ export default function DatePickerWheel({
             <Picker.Item key={d} value={d}>
               {({ selected }) => (
                 <div
-                  className={`font-bold ${selected ? '!text-green-600' : ''}`}
+                  className={`font-bold ${selected ? '!text-success-strong' : ''}`}
                 >
                   {d}
                 </div>
@@ -183,7 +183,7 @@ export default function DatePickerWheel({
             <Picker.Item key={i} value={String(i)}>
               {({ selected }) => (
                 <div
-                  className={`font-bold ${selected ? '!text-green-600' : ''}`}
+                  className={`font-bold ${selected ? '!text-success-strong' : ''}`}
                 >
                   {m}
                 </div>
@@ -196,7 +196,7 @@ export default function DatePickerWheel({
             <Picker.Item key={y} value={y}>
               {({ selected }) => (
                 <div
-                  className={`font-bold ${selected ? '!text-green-600' : ''}`}
+                  className={`font-bold ${selected ? '!text-success-strong' : ''}`}
                 >
                   {y}
                 </div>

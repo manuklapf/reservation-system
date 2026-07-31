@@ -159,8 +159,8 @@ export default function ReservationRequestForm({
   if (submitted) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-          <CalendarCheck className="h-10 w-10 text-green-600" />
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/35">
+          <CalendarCheck className="h-10 w-10 text-success-ink" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-3">
           {t.successTitle}
@@ -168,7 +168,7 @@ export default function ReservationRequestForm({
         <p className="text-gray-500 max-w-sm mb-8">{t.successMessage}</p>
         <button
           onClick={handleReset}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-full transition-colors"
+          className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-accent-fg text-sm font-medium rounded-full transition-colors"
         >
           {t.newRequest}
         </button>
@@ -206,7 +206,7 @@ export default function ReservationRequestForm({
             loading || !canProceed
               ? 'text-gray-300 shadow-sm cursor-not-allowed'
               : isLastStep
-                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                ? 'bg-accent hover:bg-accent-hover text-accent-fg'
                 : 'hover:bg-gray-50 text-gray-600'
           }`}
           aria-label={isLastStep ? t.submit : messages.common.next}
@@ -267,13 +267,13 @@ export default function ReservationRequestForm({
             {step === 3 && (
               <div className="space-y-4 px-1">
                 <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                  <User className="h-5 w-5 text-blue-500" />
+                  <User className="h-5 w-5 text-accent-ink" />
                   {stepTitles[3]}
                 </p>
                 <input
                   type="text"
                   autoFocus
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors"
                   placeholder={t.customerNamePlaceholder}
                   value={formData.customer_name}
                   onChange={e =>
@@ -285,7 +285,7 @@ export default function ReservationRequestForm({
                 />
                 <input
                   type="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors"
                   placeholder={t.emailPlaceholder}
                   value={formData.customer_email}
                   onChange={e =>
@@ -303,7 +303,7 @@ export default function ReservationRequestForm({
             {step === 4 && (
               <div className="space-y-5 px-1">
                 <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                  <ClipboardList className="h-5 w-5 text-blue-500" />
+                  <ClipboardList className="h-5 w-5 text-accent-ink" />
                   {stepTitles[4]}
                 </p>
                 <div>
@@ -313,7 +313,7 @@ export default function ReservationRequestForm({
                   <input
                     type="tel"
                     autoFocus
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors"
                     placeholder={t.phonePlaceholder}
                     value={formData.customer_phone}
                     onChange={e =>
@@ -330,7 +330,7 @@ export default function ReservationRequestForm({
                   </label>
                   <textarea
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors resize-none"
                     placeholder={t.specialNotesPlaceholder}
                     value={formData.notes}
                     onChange={e =>
@@ -342,7 +342,9 @@ export default function ReservationRequestForm({
             )}
 
             {error && (
-              <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
+              <p className="mt-4 text-sm text-danger-ink text-center">
+                {error}
+              </p>
             )}
 
             {/* Progress dots */}
@@ -352,9 +354,9 @@ export default function ReservationRequestForm({
                   key={i}
                   className={`rounded-full transition-all duration-300 ${
                     i === step
-                      ? 'w-5 h-2 bg-blue-500'
+                      ? 'w-5 h-2 bg-accent'
                       : i < step
-                        ? 'w-2 h-2 bg-blue-300'
+                        ? 'w-2 h-2 bg-accent/60'
                         : 'w-2 h-2 bg-gray-200'
                   }`}
                 />

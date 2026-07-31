@@ -178,7 +178,7 @@ export default function DemoPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-accent-strong text-accent-ink'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -199,7 +199,7 @@ export default function DemoPage() {
                 <p className="text-gray-500 mb-3">{t.noReservations}</p>
                 <button
                   onClick={openNew}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  className="text-accent-ink hover:text-accent-ink text-sm font-medium"
                 >
                   {t.createFirstReservation}
                 </button>

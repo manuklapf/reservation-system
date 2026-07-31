@@ -20,7 +20,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    // data-theme is set here as well as in ThemeContext: the context can only
+    // stamp it after hydration, which paints one frame of the wrong skin
+    // first. Brutalist is the default theme, so render it server-side.
+    <html lang="en" data-theme="brutalist">
       <body className={inter.className}>
         <ThemeProvider>
           <DisplayPrefsProvider>

@@ -168,7 +168,7 @@ export default function PlatformAdminPage() {
     <div className="min-h-screen bg-gray-100">
       <NavBar
         left={
-          <div className="flex items-center gap-2 text-blue-600">
+          <div className="flex items-center gap-2 text-accent-ink">
             <Building2 className="h-5 w-5" />
             <h1 className="text-lg font-semibold">{t.title}</h1>
           </div>
@@ -179,7 +179,7 @@ export default function PlatformAdminPage() {
               await signOut()
               router.push('/')
             }}
-            className="text-red-600 hover:text-red-700"
+            className="text-danger-ink hover:text-danger-ink"
           >
             <LogOut className="h-4 w-4" />
           </button>
@@ -216,7 +216,7 @@ export default function PlatformAdminPage() {
                     value={restaurantName}
                     onChange={e => handleNameChange(e.target.value)}
                     placeholder={t.restaurantNamePlaceholder}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
                   />
                 </div>
                 <div>
@@ -229,7 +229,7 @@ export default function PlatformAdminPage() {
                     value={slug}
                     onChange={e => handleSlugChange(e.target.value)}
                     placeholder={t.slugPlaceholder}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
                   />
                   <p className="text-xs text-gray-400 mt-1">{t.slugHint}</p>
                 </div>
@@ -250,7 +250,7 @@ export default function PlatformAdminPage() {
                       value={adminName}
                       onChange={e => setAdminName(e.target.value)}
                       placeholder={t.adminNamePlaceholder}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
                     />
                   </div>
                   <div>
@@ -263,7 +263,7 @@ export default function PlatformAdminPage() {
                       value={adminEmail}
                       onChange={e => setAdminEmail(e.target.value)}
                       placeholder={t.adminEmailPlaceholder}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
                     />
                   </div>
                 </div>
@@ -278,12 +278,14 @@ export default function PlatformAdminPage() {
                     value={adminPassword}
                     onChange={e => setAdminPassword(e.target.value)}
                     placeholder={t.adminPasswordPlaceholder}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
                   />
                 </div>
               </div>
 
-              {addError && <p className="text-xs text-red-500">{addError}</p>}
+              {addError && (
+                <p className="text-xs text-danger-ink">{addError}</p>
+              )}
 
               <div className="flex gap-2 pt-1">
                 <Button variant="secondary" onClick={() => setShowForm(false)}>
@@ -304,7 +306,7 @@ export default function PlatformAdminPage() {
               {messages.common.loading}
             </p>
           ) : loadError ? (
-            <p className="p-6 text-sm text-red-500">{loadError}</p>
+            <p className="p-6 text-sm text-danger-ink">{loadError}</p>
           ) : tenants.length === 0 ? (
             <p className="p-6 text-sm text-gray-400">{t.noRestaurants}</p>
           ) : (
@@ -312,16 +314,22 @@ export default function PlatformAdminPage() {
               const state = getAccountState(tenant)
               const badge =
                 state.mode === 'active'
-                  ? { text: t.planActive, cls: 'bg-green-100 text-green-700' }
+                  ? {
+                      text: t.planActive,
+                      cls: 'bg-success/35 text-success-ink',
+                    }
                   : state.mode === 'trial'
                     ? {
                         text: t.planTrial.replace(
                           '{days}',
                           String(state.daysLeft)
                         ),
-                        cls: 'bg-amber-100 text-amber-700',
+                        cls: 'bg-warning/25 text-warning-ink',
                       }
-                    : { text: t.planExpired, cls: 'bg-red-100 text-red-700' }
+                    : {
+                        text: t.planExpired,
+                        cls: 'bg-danger/35 text-danger-ink',
+                      }
               return (
                 <div
                   key={tenant.id}
@@ -355,7 +363,7 @@ export default function PlatformAdminPage() {
                           planStatus: e.target.value as PlanStatus,
                         })
                       }
-                      className="text-xs border border-gray-300 rounded-md px-2 py-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+                      className="text-xs border border-gray-300 rounded-md px-2 py-1 text-gray-600 focus:outline-none focus:ring-2 focus:ring-accent-strong/60 disabled:opacity-50"
                       aria-label={t.planLabel}
                     >
                       <option value="trial">{t.planOptionTrial}</option>

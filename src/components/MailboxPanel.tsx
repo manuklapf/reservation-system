@@ -129,17 +129,17 @@ export default function MailboxPanel({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-blue-600" />
+            <Mail className="h-5 w-5 text-accent-ink" />
             <h2 className="text-lg font-semibold text-gray-900">{t.title}</h2>
             {requests.length > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-bold text-white">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-accent-fg">
                 {requests.length}
               </span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-accent-background hover:text-gray-800 transition-colors"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-accent hover:text-gray-800 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -165,14 +165,14 @@ export default function MailboxPanel({
                     <div className="flex gap-1.5 shrink-0">
                       <button
                         onClick={() => handleApprove(r)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-700 hover:bg-green-500 hover:text-white transition-colors"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-success/35 text-success-ink hover:bg-success-hover hover:text-success-fg transition-colors"
                         title={t.approve}
                       >
                         <Check className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDecline(r)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-colors"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-danger-soft text-danger-ink hover:bg-danger-hover hover:text-danger-fg transition-colors"
                         title={t.decline}
                       >
                         <X className="h-4 w-4" />
@@ -180,13 +180,13 @@ export default function MailboxPanel({
                     </div>
                   </div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-blue-700">
+                    <span className="inline-flex items-center rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-accent-ink">
                       {formatDate(r.date)}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-violet-700">
+                    <span className="inline-flex items-center rounded-full bg-info-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-info-ink">
                       {r.time.slice(0, 5)}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-blue-600">
+                    <span className="inline-flex items-center rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-accent-ink">
                       {r.party_size} {t.guests}
                     </span>
                     {r.customer_email && (
@@ -195,7 +195,7 @@ export default function MailboxPanel({
                       </span>
                     )}
                     {r.customer_phone && (
-                      <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-amber-700">
+                      <span className="inline-flex items-center rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-warning-ink">
                         {r.customer_phone}
                       </span>
                     )}

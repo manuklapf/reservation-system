@@ -127,7 +127,7 @@ export default function TimePickerWheel({
             <Picker.Item key={h} value={h}>
               {({ selected }) => (
                 <div
-                  className={`font-bold ${selected ? 'text-violet-600' : ''}`}
+                  className={`font-bold ${selected ? 'text-info-strong' : ''}`}
                 >
                   {h}
                 </div>
@@ -140,7 +140,7 @@ export default function TimePickerWheel({
             <Picker.Item key={m} value={m}>
               {({ selected }) => (
                 <div
-                  className={`font-bold ${selected ? 'text-violet-600' : ''}`}
+                  className={`font-bold ${selected ? 'text-info-strong' : ''}`}
                 >
                   {m}
                 </div>

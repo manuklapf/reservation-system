@@ -49,7 +49,7 @@ export default function AccountGate() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-warning/25 text-warning-ink">
           <Clock className="h-6 w-6" />
         </div>
         <h1 className="text-lg font-semibold text-gray-900">{t.gateTitle}</h1>
@@ -74,7 +74,7 @@ export default function AccountGate() {
           </Button>
         </div>
 
-        {error && <p className="mt-4 text-xs text-red-500">{error}</p>}
+        {error && <p className="mt-4 text-xs text-danger-ink">{error}</p>}
 
         <button
           onClick={async () => {

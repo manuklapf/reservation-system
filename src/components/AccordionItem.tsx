@@ -19,11 +19,11 @@ export default function AccordionItem({
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="rounded-lg overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(prev => !prev)}
-        className="w-full flex items-center justify-between px-6 py-4 bg-white hover:bg-accent-background text-left transition-colors"
+        className="w-full flex items-center justify-between px-6 py-4 bg-white shadow hover:bg-accent text-left transition-colors"
         aria-expanded={open}
       >
         <div>
@@ -37,7 +37,7 @@ export default function AccordionItem({
         )}
       </button>
       {open && (
-        <div className="border-t border-gray-200 bg-accent-background px-6 py-6">
+        <div className="border-t border-gray-200 bg-accent px-6 py-6">
           {children}
         </div>
       )}

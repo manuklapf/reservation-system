@@ -141,7 +141,7 @@ export default function StaffManagementPage() {
         {/* Add new staff member */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <UserPlus className="h-4 w-4 text-blue-500" />
+            <UserPlus className="h-4 w-4 text-accent-ink" />
             {t.addStaff}
           </h2>
           <form onSubmit={handleAdd} className="space-y-3">
@@ -156,7 +156,7 @@ export default function StaffManagementPage() {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder={t.namePlaceholder}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
                 />
               </div>
               <div>
@@ -169,7 +169,7 @@ export default function StaffManagementPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder={t.emailPlaceholder}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
                 />
               </div>
             </div>
@@ -184,10 +184,10 @@ export default function StaffManagementPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder={t.passwordPlaceholder}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
               />
             </div>
-            {addError && <p className="text-xs text-red-500">{addError}</p>}
+            {addError && <p className="text-xs text-danger-ink">{addError}</p>}
             <Button type="submit" disabled={adding}>
               {adding ? t.adding : t.addButton}
             </Button>
@@ -202,7 +202,7 @@ export default function StaffManagementPage() {
           {loading ? (
             <p className="text-sm text-gray-400">{messages.common.loading}</p>
           ) : loadError ? (
-            <p className="text-sm text-red-500">{loadError}</p>
+            <p className="text-sm text-danger-ink">{loadError}</p>
           ) : staff.length === 0 ? (
             <p className="text-sm text-gray-400">{t.noStaff}</p>
           ) : (
@@ -224,7 +224,7 @@ export default function StaffManagementPage() {
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                         member.role === 'admin'
-                          ? 'bg-blue-100 text-blue-700'
+                          ? 'bg-accent/50 text-accent-ink'
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >

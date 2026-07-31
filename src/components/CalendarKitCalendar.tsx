@@ -97,25 +97,27 @@ const germanTranslations = {
 const calendarThemes: Record<string, CalendarTheme> = {
   default: {
     colors: {
-      primary: '#2563eb',
+      // Lemon-yellow is too light to carry white text or thin lines, so
+      // `primary` is its dark gold shade (--color-lemon-yellow-strong).
+      primary: '#a89c1a',
       background: '#ffffff',
-      foreground: '#111827',
-      border: '#e5e7eb',
-      muted: '#f9fafb',
-      accent: '#eff6ff',
-      secondary: '#6b7280',
+      foreground: '#11262b',
+      border: '#cbe3e6',
+      muted: '#e3f2f4',
+      accent: '#fdfce6',
+      secondary: '#587a81',
     },
     fontFamily: 'inherit',
     borderRadius: '0.5rem',
   },
   brutalist: {
     colors: {
-      primary: '#ff6b6b',
+      primary: '#a89c1a',
       background: '#ffffff',
-      foreground: '#1a1a1a',
+      foreground: '#090909',
       border: '#000000',
-      muted: '#fffbe6',
-      accent: '#ffe66d',
+      muted: '#fdfce6',
+      accent: '#f9f5a9',
       secondary: '#555555',
     },
     fontFamily: "'Courier New', Courier, monospace",
@@ -125,21 +127,23 @@ const calendarThemes: Record<string, CalendarTheme> = {
 
 // Color palettes per theme — each reservation gets a deterministic color from its ID hash
 const colorPalettes: Record<string, Array<{ base: string; dark: string }>> = {
+  // Event pills render white text, so each fruit color contributes its
+  // deep shade rather than the pastel main.
   default: [
-    { base: '#2563eb', dark: '#1d4ed8' }, // blue
-    { base: '#7c3aed', dark: '#6d28d9' }, // violet
-    { base: '#0891b2', dark: '#0e7490' }, // cyan
-    { base: '#059669', dark: '#047857' }, // emerald
-    { base: '#d97706', dark: '#b45309' }, // amber
-    { base: '#dc2626', dark: '#b91c1c' }, // red
+    { base: '#3e7b82', dark: '#2b5f66' }, // ice-blue
+    { base: '#a89c1a', dark: '#857b12' }, // lemon-yellow
+    { base: '#d14550', dark: '#b0333d' }, // peach-red
+    { base: '#7b5891', dark: '#5a3d6b' }, // grape-purple
+    { base: '#be6708', dark: '#965005' }, // mandarin-orange
+    { base: '#3e9448', dark: '#2a7333' }, // pear-green
   ],
   brutalist: [
-    { base: '#ff6b6b', dark: '#e85555' }, // coral
-    { base: '#4ecdc4', dark: '#38b2aa' }, // teal
-    { base: '#7fb069', dark: '#5a8f50' }, // green
-    { base: '#e91e8c', dark: '#c51878' }, // pink
-    { base: '#6c5ce7', dark: '#5a4dd4' }, // purple
-    { base: '#f39c12', dark: '#d68910' }, // orange
+    { base: '#3e7b82', dark: '#2b5f66' }, // ice-blue
+    { base: '#a89c1a', dark: '#857b12' }, // lemon-yellow
+    { base: '#d14550', dark: '#b0333d' }, // peach-red
+    { base: '#7b5891', dark: '#5a3d6b' }, // grape-purple
+    { base: '#be6708', dark: '#965005' }, // mandarin-orange
+    { base: '#3e9448', dark: '#2a7333' }, // pear-green
   ],
 }
 

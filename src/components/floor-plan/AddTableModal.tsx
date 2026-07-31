@@ -64,7 +64,7 @@ export default function AddTableModal({
             <button
               type="button"
               onClick={onDelete}
-              className="flex items-center justify-center h-7 w-7 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              className="flex items-center justify-center h-7 w-7 rounded-lg text-danger-ink hover:bg-danger-soft transition-colors"
               title={t.deleteTable}
               aria-label={t.deleteTable}
             >
@@ -89,7 +89,7 @@ export default function AddTableModal({
             maxLength={20}
             // text-base below sm: Safari zooms the page when focusing an input
             // whose font-size is under 16px, and this one is autofocused.
-            className="w-full px-3 py-2 text-base sm:text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 text-base sm:text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
           />
         </div>
         <div>
@@ -107,10 +107,10 @@ export default function AddTableModal({
             value={newCap}
             onChange={e => setNewCap(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-            className="w-full px-3 py-2 text-base sm:text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 text-base sm:text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-strong/60"
           />
         </div>
-        {addError && <p className="text-xs text-red-500">{addError}</p>}
+        {addError && <p className="text-xs text-danger-ink">{addError}</p>}
         <div className="pt-1">
           <Button
             disabled={saving || !newId.trim()}

@@ -9,8 +9,9 @@
  * Icons animate-ui does not ship (Mail, Globe, Eye, Info, …) have hand-authored
  * animated equivalents under `@/components/animate-ui/icons/`.
  *
- * Plus, X, ArrowLeft, MoreVertical, Check, ChevronLeft, and ChevronRight are
- * exceptions: they render as plain static SVGs (no animation).
+ * Plus, X, ArrowLeft, MoreVertical, Check, ChevronLeft, ChevronRight,
+ * ChevronDown, and ChevronUp are exceptions: they render as plain static SVGs
+ * (no animation).
  *
  * Usage stays identical to lucide-react:
  *   import { LogOut, Bell } from '@/components/icons'
@@ -22,8 +23,6 @@ import { Bell as BellAnim } from '@/components/animate-ui/icons/bell'
 import { Building2 as Building2Anim } from '@/components/animate-ui/icons/building-2'
 import { CalendarCheck as CalendarCheckAnim } from '@/components/animate-ui/icons/calendar-check'
 import { CalendarDays as CalendarDaysAnim } from '@/components/animate-ui/icons/calendar-days'
-import { ChevronDown as ChevronDownAnim } from '@/components/animate-ui/icons/chevron-down'
-import { ChevronUp as ChevronUpAnim } from '@/components/animate-ui/icons/chevron-up'
 import { ClipboardList as ClipboardListAnim } from '@/components/animate-ui/icons/clipboard-list'
 import { Clock as ClockAnim } from '@/components/animate-ui/icons/clock'
 import { Code2 as Code2Anim } from '@/components/animate-ui/icons/code-2'
@@ -252,12 +251,48 @@ function ChevronRight({ size = 28, ...props }: StaticIconProps) {
   )
 }
 
+function ChevronDown({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  )
+}
+
+function ChevronUp({ size = 28, ...props }: StaticIconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m18 15-6-6-6 6" />
+    </svg>
+  )
+}
+
 export const Bell = hoverAnimated(BellAnim, 'Bell')
 export const Building2 = hoverAnimated(Building2Anim, 'Building2')
 export const CalendarCheck = hoverAnimated(CalendarCheckAnim, 'CalendarCheck')
 export const CalendarDays = hoverAnimated(CalendarDaysAnim, 'CalendarDays')
-export const ChevronDown = hoverAnimated(ChevronDownAnim, 'ChevronDown')
-export const ChevronUp = hoverAnimated(ChevronUpAnim, 'ChevronUp')
 export const ClipboardList = hoverAnimated(ClipboardListAnim, 'ClipboardList')
 export const Clock = hoverAnimated(ClockAnim, 'Clock')
 export const Code2 = hoverAnimated(Code2Anim, 'Code2')
@@ -295,4 +330,14 @@ export const UtensilsCrossed = hoverAnimated(
   UtensilsCrossedAnim,
   'UtensilsCrossed'
 )
-export { Plus, X, ArrowLeft, MoreVertical, Check, ChevronLeft, ChevronRight }
+export {
+  Plus,
+  X,
+  ArrowLeft,
+  MoreVertical,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+}

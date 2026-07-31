@@ -38,8 +38,8 @@ export default function TablePropertiesBar({
               title={s.charAt(0).toUpperCase() + s.slice(1)}
               className={`flex items-center justify-center h-8 w-8 rounded border-2 transition-colors ${
                 sel.shape === s
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300'
+                  ? 'border-accent-strong bg-accent-soft'
+                  : 'border-gray-200 hover:border-accent-strong/50'
               }`}
             >
               <div

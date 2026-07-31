@@ -35,7 +35,7 @@ export default function NavBar({
   return (
     <nav
       className={[
-        'bg-white !border-none !shadow-none',
+        'bg-white !shadow-none',
         sticky ? 'sticky top-0 z-10' : '',
         className,
       ]

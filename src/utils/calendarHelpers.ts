@@ -282,10 +282,10 @@ export function findTimeSlotFromTouch(
 export function getEventStyle(_event?: unknown) {
   return {
     style: {
-      backgroundColor: 'var(--color-accent)',
+      backgroundColor: 'rgb(var(--color-accent))',
       borderRadius: '4px',
       opacity: 0.85,
-      color: 'var(--color-accent-fg)',
+      color: 'rgb(var(--color-accent-fg))',
       border: '0px',
       display: 'block',
       fontSize: '12px',

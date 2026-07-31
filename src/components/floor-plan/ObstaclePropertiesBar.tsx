@@ -35,7 +35,7 @@ export default function ObstaclePropertiesBar({
           onFocus={onLabelFocus}
           onChange={e => onLabelChange(e.target.value)}
           maxLength={20}
-          className="text-sm font-bold text-gray-800 border-b border-gray-300 bg-transparent outline-none w-24 focus:border-blue-400"
+          className="text-sm font-bold text-gray-800 border-b border-gray-300 bg-transparent outline-none w-24 focus:border-accent-strong/60"
         />
       </div>
 
@@ -50,8 +50,8 @@ export default function ObstaclePropertiesBar({
             onClick={() => onStyleChange(false)}
             className={`flex items-center justify-center h-8 w-8 rounded border-2 transition-colors ${
               !selObs.outlined
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-blue-300'
+                ? 'border-accent-strong bg-accent-soft'
+                : 'border-gray-200 hover:border-accent-strong/50'
             }`}
             title={t.filled}
           >
@@ -65,8 +65,8 @@ export default function ObstaclePropertiesBar({
             onClick={() => onStyleChange(true)}
             className={`flex items-center justify-center h-8 w-8 rounded border-2 transition-colors ${
               selObs.outlined
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-blue-300'
+                ? 'border-accent-strong bg-accent-soft'
+                : 'border-gray-200 hover:border-accent-strong/50'
             }`}
             title={t.outlined}
           >

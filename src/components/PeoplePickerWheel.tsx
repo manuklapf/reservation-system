@@ -97,7 +97,9 @@ export default function PeoplePickerWheel({
           {SIZES.map(s => (
             <Picker.Item key={s} value={s}>
               {({ selected }) => (
-                <div className={`font-bold ${selected ? 'text-blue-600' : ''}`}>
+                <div
+                  className={`font-bold ${selected ? 'text-danger-strong' : ''}`}
+                >
                   {s === '100+' ? s : `${s} ${s === '1' ? t.person : t.people}`}
                 </div>
               )}

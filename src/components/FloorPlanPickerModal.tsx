@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import FloorDropdown from './FloorDropdown'
 import ModalCloseButton from './ModalCloseButton'
+import Button from '@/components/Button'
 
 interface DBTable {
   id: string
@@ -165,17 +166,16 @@ export default function FloorPlanPickerModal({
             onChange={setActiveIdx}
           />
           <div className="flex-1" />
-          <button
-            type="button"
+          <Button
             onClick={() => {
               onConfirm(draft)
               onClose()
             }}
             disabled={draft.length === 0}
-            className="shrink-0 rounded-full p-2 bg-emerald-500 text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+            className="!bg-success disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Check className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Canvas + legend */}
@@ -366,7 +366,7 @@ export default function FloorPlanPickerModal({
               {t.reserved}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-sm border-2 border-emerald-600 bg-[#4ecdc4]" />
+              <span className="inline-block h-3 w-3 rounded-sm border-2 border-success bg-[#4ecdc4]" />
               {t.selected}
             </span>
           </div>
@@ -383,7 +383,7 @@ export default function FloorPlanPickerModal({
               return (
                 <span
                   key={id}
-                  className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold text-white"
+                  className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-2 ring-black text-white"
                   style={{ backgroundColor: colorMap.get(id) ?? '#4ecdc4' }}
                 >
                   {db.table_identifier}

@@ -41,12 +41,12 @@ export default function ReservationRow({
       <div className="px-4 py-3 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-gray-900 truncate">
+            <p className="text-md font-bold text-gray-900 truncate">
               {reservation.customer_name}
             </p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {prefs.showTime && (
-                <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-violet-800">
+                <span className="inline-flex items-center rounded-full bg-info-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
                   {showDate ? `${reservation.date} · ` : ''}
                   {reservation.time?.slice(0, 5)}
                   {reservation.end_time
@@ -55,24 +55,24 @@ export default function ReservationRow({
                 </span>
               )}
               {prefs.showPartySize && (
-                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-blue-800">
+                <span className="inline-flex items-center rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
                   {reservation.party_size} {t.guests}
                 </span>
               )}
               {prefs.showTable && tableLabel && (
-                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-emerald-800">
+                <span className="inline-flex items-center rounded-full bg-success-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
                   {t.table} {tableLabel}
                 </span>
               )}
               {prefs.showPhone && reservation.customer_phone && (
-                <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-amber-800">
+                <span className="inline-flex items-center rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
                   {reservation.customer_phone}
                 </span>
               )}
             </div>
             {prefs.showNotes && reservation.notes && (
               <div className="max-w-full w-fit">
-                <p className="mt-2 py-0.5 px-2.5 text-xs ring-2 ring-black rounded-full font-semibold truncate">
+                <p className="mt-2 py-0.5 px-2.5 bg-gray-100 text-xs ring-2 ring-black rounded-full font-semibold truncate">
                   {reservation.notes}
                 </p>
               </div>

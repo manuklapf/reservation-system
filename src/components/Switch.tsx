@@ -31,7 +31,7 @@ const Switch = forwardRef<HTMLButtonElement, SwitchProps>(function Switch(
       onClick={() => onChange(!checked)}
       className={[
         'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors outline-none ring-2 ring-background ring-offset-2',
-        checked ? 'bg-blue-600' : 'bg-gray-200',
+        checked ? 'bg-danger' : 'bg-accent',
         className,
       ]
         .filter(Boolean)

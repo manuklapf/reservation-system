@@ -18,9 +18,24 @@
    ============================================================ */
 body {
   min-height: 100vh;
-  background-color: #ffffff;
-  /* A white wash sits over the pattern so the image reads at lower opacity.
+  /* An ice wash sits over the pattern so the image reads at lower opacity.
      (Setting `opacity` on <body> would fade the whole page, not just the art.) */
+  background-image:
+    linear-gradient(
+      rgb(var(--color-ice-blue-soft) / 0.65),
+      rgb(var(--color-ice-blue-soft) / 0.65)
+    ),
+    url('../assets/PATTERN_BLUE.png');
+  background-repeat: repeat;
+  background-size: 470px;
+}
+
+/* Same paper, washed in white instead of ice. Put this on a page root
+   (it covers the <body> art beneath it) when the page supplies its own
+   color and the ice tint would double up — the dashboard, where the
+   reservation cards carry the color. */
+.paper-plain {
+  background-color: #ffffff;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
     url('../assets/PATTERN_BLUE.png');
@@ -495,6 +510,7 @@ html[data-theme='brutalist'] .btn-danger {
 
 :root {
   /* -------------------------------------------------------------
+     RAW PALETTE
      The semantic --color-* / --brutx-* tokens below are mapped
      onto these so the whole app re-skins from one place.
      ------------------------------------------------------------- */
@@ -503,81 +519,336 @@ html[data-theme='brutalist'] .btn-danger {
   --color-gray: #e4e4e4;
   --color-lavender-blush: #fcf0f2;
   --color-light-coral: #f38087;
-  --color-salmon-pink: #fc9fa5;
-  --color-pumpkin: #f88132;
-  --color-sandy-brown: #f99d5f;
   --color-naples-yellow: #ffdc6c;
   --color-amethyst: #8f61c5;
   --color-lavender: #af86d7;
-  --color-wisteria: #c2a0ea;
-  --color-light-green: #77d87e;
   --color-pistachio: #87cc8e;
   --color-celadon: #93dba1;
-  --color-tea-green: #caf6cf;
   --color-mixed: #c171a6;
-  /* RGB channels (not hex) so Tailwind can inject opacity: bg-background/80 */
-  --color-ice-blue: 184 221 225;
-  --color-lemon-yellow: 249 245 169;
-  --color-mandarin-orange: #f88d2a;
-  --color-pear-green: #bed731;
 
-  /* Default theme — light-coral as the accent */
-  --color-bg: #f3f4f6;
+  /* -------------------------------------------------------------
+     FRUIT PALETTE — the six mains, each with three derived shades:
+       -soft    very light tint, for subtle fills/backgrounds
+       -deep    one step darker than the main, for hover/borders
+       -strong  saturated dark shade, for focus rings/active states
+       -ink     dark shade that stays readable as text on white
+     Stored as space-separated RGB triples (no commas) so they work
+     both with Tailwind's `rgb(var(--x) / <alpha-value>)` and with
+     one-off alpha overrides like `rgb(var(--color-peach-red) / 0.15)`.
+     ------------------------------------------------------------- */
+  --color-ice-blue: 184 221 225;
+  --color-ice-blue-soft: 227 242 244;
+  --color-ice-blue-deep: 147 201 207;
+  --color-ice-blue-ink: 43 95 102;
+
+  --color-lemon-yellow: 249 245 169;
+  --color-lemon-yellow-soft: 253 252 230;
+  --color-lemon-yellow-deep: 240 234 133;
+  --color-lemon-yellow-strong: 168 156 26;
+  --color-lemon-yellow-ink: 90 83 12;
+
+  --color-peach-red: 255 129 137;
+  --color-peach-red-soft: 255 233 235;
+  --color-peach-red-deep: 244 100 110;
+  --color-peach-red-ink: 142 32 40;
+
+  --color-grape-purple: 169 134 188;
+  --color-grape-purple-soft: 241 234 245;
+  --color-grape-purple-deep: 143 107 164;
+  --color-grape-purple-ink: 90 61 107;
+
+  --color-mandarin-orange: 248 141 42;
+  --color-mandarin-orange-soft: 254 238 220;
+  --color-mandarin-orange-deep: 224 119 15;
+  --color-mandarin-orange-ink: 138 74 2;
+
+  --color-pear-green: 119 216 126;
+  --color-pear-green-soft: 230 248 232;
+  --color-pear-green-deep: 85 194 94;
+  --color-pear-green-ink: 42 115 51;
+
+  /* -------------------------------------------------------------
+     SEMANTIC ROLES
+     ice-blue carries the page background and all neutrals,
+     lemon-yellow is the highlight (primary actions, selection),
+     peach-red is danger. pear-green / mandarin-orange / grape-purple
+     fill the remaining status roles: success, warning, info.
+     ------------------------------------------------------------- */
+
+  /* -- Tailwind-facing, shadcn contract (HSL triples) --
+     calendarkit-pro reads and overrides these inside its own wrapper,
+     so they have to be HSL. Values mirror the RGB palette above. */
+  --background: 186 41% 80%; /* ice-blue */
+  --foreground: 191 43% 12%; /* ink, cool-cast near-black */
+  --card: 0 0% 100%;
+  --card-foreground: 191 43% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 191 43% 12%;
+  --primary: 55 73% 38%; /* lemon-yellow-strong — carries white text */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 187 44% 92%; /* ice-blue-soft */
+  --secondary-foreground: 191 43% 12%;
+  --muted: 187 44% 92%; /* ice-blue-soft */
+  --muted-foreground: 190 19% 43%;
+  --accent: 57 87% 82%; /* lemon-yellow */
+  --accent-foreground: 56 54% 15%; /* dark olive — lemon can't carry white */
+  --destructive: 356 100% 75%; /* peach-red */
+  --destructive-foreground: 355 66% 17%;
+  --border: 186 38% 69%; /* ice-blue-deep */
+  --input: 186 38% 69%;
+  --ring: 55 73% 38%;
+
+  /* -- Tailwind-facing, our own scale (RGB triples) -- */
+  --rgb-accent-hover: var(--color-lemon-yellow-deep);
+  --rgb-accent-soft: var(--color-lemon-yellow-soft);
+  --rgb-accent-strong: var(--color-lemon-yellow-strong);
+  --rgb-accent-ink: var(--color-lemon-yellow-ink);
+  --rgb-accent-fg: 61 58 18;
+
+  --rgb-danger: var(--color-peach-red);
+  --rgb-danger-hover: var(--color-peach-red-deep);
+  --rgb-danger-soft: var(--color-peach-red-soft);
+  --rgb-danger-strong: 217 74 85;
+  --rgb-danger-ink: var(--color-peach-red-ink);
+  --rgb-danger-fg: 74 15 20;
+
+  --rgb-success: var(--color-pear-green);
+  --rgb-success-hover: var(--color-pear-green-deep);
+  --rgb-success-soft: var(--color-pear-green-soft);
+  --rgb-success-strong: 62 148 72;
+  --rgb-success-ink: var(--color-pear-green-ink);
+  --rgb-success-fg: 18 61 25;
+
+  --rgb-warning: var(--color-mandarin-orange);
+  --rgb-warning-hover: var(--color-mandarin-orange-deep);
+  --rgb-warning-soft: var(--color-mandarin-orange-soft);
+  --rgb-warning-strong: 190 103 8;
+  --rgb-warning-ink: var(--color-mandarin-orange-ink);
+  --rgb-warning-fg: 61 29 0;
+
+  --rgb-info: var(--color-grape-purple);
+  --rgb-info-hover: var(--color-grape-purple-deep);
+  --rgb-info-soft: var(--color-grape-purple-soft);
+  --rgb-info-strong: 123 88 145;
+  --rgb-info-ink: var(--color-grape-purple-ink);
+  --rgb-info-fg: 44 27 54;
+
+  --rgb-surface: 255 255 255;
+  --rgb-surface-alt: var(--color-ice-blue-soft);
+
+  /* -- CSS-facing (ready-to-use colors, used by the rules below) -- */
+  --color-bg: rgb(var(--color-ice-blue));
+  --color-bg-subtle: rgb(var(--color-ice-blue-soft));
   --color-surface: #ffffff;
-  --color-surface-alt: #f9fafb;
-  --color-border: #e5e7eb;
-  --color-border-strong: #d1d5db;
-  --color-text: #111827;
-  --color-text-secondary: #374151;
-  --color-text-muted: #6b7280;
-  --color-accent: var(--color-light-coral);
-  --color-accent-hover: #ef6b73;
-  --color-accent-fg: var(--color-white);
-  --color-accent-subtle: var(--color-lavender-blush);
-  --color-accent-subtle-fg: #c85960;
-  --color-danger: #dc5560;
-  --color-danger-hover: #c9454f;
-  --color-danger-fg: var(--color-white);
-  --color-danger-subtle: #fde8ea;
-  --color-danger-subtle-fg: #dc5560;
-  --color-nav-bg: #ffffff;
+  --color-surface-alt: rgb(var(--color-ice-blue-soft));
+  --color-border: var(--color-black);
+  --color-border-strong: rgb(var(--color-ice-blue-deep));
+  /* Text is a near-black with the same cool cast as ice-blue */
+  --color-text: #11262b;
+  --color-text-secondary: #2f4f55;
+  --color-text-muted: #587a81;
+
+  /* Highlight / primary action: lemon-yellow.
+     Lemon is far too light to carry white text, so its foreground
+     is a dark olive ink rather than white. */
+  --color-accent: rgb(var(--color-lemon-yellow));
+  --color-accent-hover: rgb(var(--color-lemon-yellow-deep));
+  --color-accent-strong: rgb(var(--color-lemon-yellow-strong));
+  --color-accent-fg: #3d3a12;
+  --color-accent-subtle: rgb(var(--color-lemon-yellow-soft));
+  --color-accent-subtle-fg: rgb(var(--color-lemon-yellow-ink));
+
+  /* Danger: peach-red */
+  --color-danger: rgb(var(--color-peach-red));
+  --color-danger-hover: rgb(var(--color-peach-red-deep));
+  --color-danger-fg: #4a0f14;
+  --color-danger-subtle: rgb(var(--color-peach-red-soft));
+  --color-danger-subtle-fg: rgb(var(--color-peach-red-ink));
+
+  /* Success: pear-green */
+  --color-success: rgb(var(--color-pear-green));
+  --color-success-hover: rgb(var(--color-pear-green-deep));
+  --color-success-fg: #123d19;
+  --color-success-subtle: rgb(var(--color-pear-green-soft));
+  --color-success-subtle-fg: rgb(var(--color-pear-green-ink));
+
+  /* Warning: mandarin-orange */
+  --color-warning: rgb(var(--color-mandarin-orange));
+  --color-warning-hover: rgb(var(--color-mandarin-orange-deep));
+  --color-warning-fg: #3d1d00;
+  --color-warning-subtle: rgb(var(--color-mandarin-orange-soft));
+  --color-warning-subtle-fg: rgb(var(--color-mandarin-orange-ink));
+
+  /* Info / secondary accent: grape-purple */
+  --color-info: rgb(var(--color-grape-purple));
+  --color-info-hover: rgb(var(--color-grape-purple-deep));
+  --color-info-fg: #2c1b36;
+  --color-info-subtle: rgb(var(--color-grape-purple-soft));
+  --color-info-subtle-fg: rgb(var(--color-grape-purple-ink));
+
+  --color-nav-bg: rgb(var(--color-white));
+  --color-focus-ring: rgb(var(--color-lemon-yellow-strong));
+  /* Table zebra stripes */
+  --color-stripe-a: #ffffff;
+  --color-stripe-b: rgb(var(--color-ice-blue-soft) / 0.7);
 }
 
+/* ============================================================
+   BRUTALIST THEME — the theme the app boots into.
+   Same fruit palette as :root; what changes is the *structure*
+   of the skin — black ink and black borders on every surface,
+   hard offset shadows, mono type — and the foregrounds, which
+   go black rather than each color's own dark ink.
+   ============================================================ */
 [data-theme='brutalist'] {
-  /* Base — black ink on white */
-  --color-bg: #ffffff;
+  /* -- shadcn contract -- */
+  --foreground: 0 0% 4%; /* black ink everywhere */
+  --card-foreground: 0 0% 4%;
+  --popover-foreground: 0 0% 4%;
+  --secondary-foreground: 0 0% 4%;
+  --accent-foreground: 0 0% 4%;
+  --destructive-foreground: 0 0% 4%;
+  --muted: 57 85% 95%; /* lemon-yellow-soft */
+  --muted-foreground: 0 0% 33%;
+  --border: 0 0% 4%; /* the signature black outline */
+  --input: 0 0% 4%;
+
+  /* -- our scale: fills stay fruit, foregrounds go black -- */
+  --rgb-accent-fg: 9 9 9;
+  --rgb-danger-fg: 9 9 9;
+  --rgb-success-fg: 9 9 9;
+  --rgb-warning-fg: 9 9 9;
+  --rgb-info-fg: 9 9 9;
+  --rgb-surface-alt: var(--color-lemon-yellow-soft);
+
+  /* -- CSS-facing -- */
+  --color-bg: rgb(var(--color-ice-blue));
   --color-surface: #ffffff;
-  --color-surface-alt: var(--color-lavender-blush);
+  --color-surface-alt: rgb(var(--color-lemon-yellow-soft));
   --color-border: var(--color-black);
   --color-border-strong: var(--color-black);
   --color-text: var(--color-black);
   --color-text-secondary: #333333;
   --color-text-muted: #555555;
-  /* Primary action: light-coral */
-  --color-accent: var(--color-light-coral);
-  --color-accent-hover: #ef6b73;
-  --color-accent-fg: var(--color-white);
-  --color-accent-subtle: var(--color-lavender-blush);
-  --color-accent-subtle-fg: #c85960;
-  /* Danger: deeper coral-red so delete stays distinct from the accent */
-  --color-danger: #dc5560;
-  --color-danger-hover: #c9454f;
-  --color-danger-fg: var(--color-white);
-  --color-danger-subtle: #fde8ea;
-  --color-danger-subtle-fg: #dc5560;
-  /* Nav:  naples yellow */
-  --color-nav-bg: var(--color-naples-yellow);
+  /* Primary action: lemon-yellow */
+  --color-accent: rgb(var(--color-lemon-yellow));
+  --color-accent-hover: rgb(var(--color-lemon-yellow-deep));
+  --color-accent-strong: rgb(var(--color-lemon-yellow-strong));
+  --color-accent-fg: var(--color-black);
+  --color-accent-subtle: rgb(var(--color-lemon-yellow-soft));
+  --color-accent-subtle-fg: rgb(var(--color-lemon-yellow-ink));
+  /* Danger: peach-red */
+  --color-danger: rgb(var(--color-peach-red));
+  --color-danger-hover: rgb(var(--color-peach-red-deep));
+  --color-danger-fg: var(--color-black);
+  --color-danger-subtle: rgb(var(--color-peach-red-soft));
+  --color-danger-subtle-fg: rgb(var(--color-peach-red-ink));
+  /* Nav: lemon-yellow */
+  --color-nav-bg: rgb(var(--color-white));
+  --color-focus-ring: rgb(var(--color-lemon-yellow-strong));
   /* Table zebra stripes */
-  --color-stripe-a: var(--color-lavender-blush);
-  --color-stripe-b: #eafaec;
-  /*  extended palette (kept under the brutx-* names used app-wide) */
-  --brutx-teal: var(--color-celadon);
-  --brutx-yellow: var(--color-naples-yellow);
-  --brutx-coral: var(--color-light-coral);
-  --brutx-green: var(--color-pistachio);
-  --brutx-pink: var(--color-mixed);
+  --color-stripe-a: rgb(var(--color-ice-blue-soft));
+  --color-stripe-b: rgb(var(--color-lemon-yellow-soft));
+  /* Extended palette (kept under the brutx-* names used app-wide) */
+  --brutx-teal: rgb(var(--color-ice-blue));
+  --brutx-yellow: rgb(var(--color-lemon-yellow));
+  --brutx-coral: rgb(var(--color-peach-red));
+  --brutx-green: rgb(var(--color-pear-green));
+  --brutx-pink: rgb(var(--color-grape-purple));
+  --brutx-orange: rgb(var(--color-mandarin-orange));
   /* Signature hard offset shadow */
   --brutx-shadow: 3px 3px 0 var(--color-black);
+}
+
+/* ============================================================
+   DEFAULT THEME — APPLICATION LAYER
+   Everything the components reach through Tailwind classes is
+   handled by the tokens above. What's left here is the CSS the
+   components *don't* control: the .btn variants and the
+   react-big-calendar chrome. Scoped with
+   :not([data-theme='brutalist']) rather than
+   [data-theme='default'] so the colors are already right on the
+   first paint, before ThemeContext stamps the attribute.
+   ============================================================ */
+
+/* -------- Buttons (the <Button> component) --------
+   The default theme had no .btn-* variant rules at all — only the
+   brutalist overrides — so every CTA rendered transparent. */
+html:not([data-theme='brutalist']) .btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-accent-fg);
+  border-color: rgb(var(--color-lemon-yellow-strong) / 0.45);
+}
+html:not([data-theme='brutalist']) .btn-primary:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+  border-color: rgb(var(--color-lemon-yellow-strong) / 0.7);
+}
+html:not([data-theme='brutalist']) .btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-strong);
+}
+html:not([data-theme='brutalist']) .btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+}
+html:not([data-theme='brutalist']) .btn-danger {
+  background-color: var(--color-danger);
+  color: var(--color-danger-fg);
+  border-color: rgb(var(--color-peach-red-deep));
+}
+html:not([data-theme='brutalist']) .btn-danger:hover:not(:disabled) {
+  background-color: var(--color-danger-hover);
+}
+
+/* -------- Nav --------
+   Unscoped: both themes have a --color-nav-bg, and the brutalist
+   rule further down only adds its hard bottom border. */
+nav {
+  background-color: var(--color-nav-bg);
+}
+
+/* -------- Calendar (react-big-calendar) -------- */
+html:not([data-theme='brutalist']) .rbc-header,
+html:not([data-theme='brutalist']) .rbc-time-view .rbc-time-gutter,
+html:not([data-theme='brutalist']) .rbc-time-view .rbc-time-header-gutter,
+html:not([data-theme='brutalist']) .rbc-agenda-view .rbc-agenda-time-cell {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+}
+html:not([data-theme='brutalist']) .rbc-off-range-bg {
+  background-color: rgb(var(--color-ice-blue-soft) / 0.6);
+}
+html:not([data-theme='brutalist']) .rbc-today {
+  background-color: rgb(var(--color-lemon-yellow) / 0.4);
+}
+html:not([data-theme='brutalist']) .rbc-toolbar button:hover {
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-border-strong);
+}
+html:not([data-theme='brutalist']) .rbc-toolbar button.rbc-active {
+  background-color: var(--color-accent);
+  color: var(--color-accent-fg);
+  border-color: rgb(var(--color-lemon-yellow-strong) / 0.5);
+}
+html:not([data-theme='brutalist']) .rbc-toolbar button:focus,
+html:not([data-theme='brutalist']) .rbc-event:focus {
+  outline-color: var(--color-accent-strong);
+}
+html:not([data-theme='brutalist']) .rbc-slot-selection {
+  background-color: rgb(var(--color-lemon-yellow) / 0.35);
+  border-color: var(--color-accent-strong);
+}
+html:not([data-theme='brutalist']) .rbc-current-time-indicator {
+  background-color: var(--color-danger);
+}
+html:not([data-theme='brutalist']) .rbc-date-cell a:hover {
+  color: var(--color-accent-subtle-fg);
+}
+html:not([data-theme='brutalist']) .rbc-date-cell:active,
+html:not([data-theme='brutalist']) .rbc-day-bg:active,
+html:not([data-theme='brutalist']) .rbc-time-slot:active {
+  background-color: rgb(var(--color-lemon-yellow) / 0.45) !important;
 }
 
 /* ============================================================
@@ -684,7 +955,7 @@ html[data-theme='brutalist'] .divide-gray-200 > * + * {
 
 /* Primary action: blue → BrutX coral */
 html[data-theme='brutalist'] .bg-blue-600 {
-  background-color: var(--brutx-coral);
+  background-color: var(--color-accent-strong);
 }
 html[data-theme='brutalist'] .hover\:bg-blue-700:hover {
   background-color: var(--color-accent-hover);
@@ -713,10 +984,10 @@ html[data-theme='brutalist'] .hover\:bg-blue-100:hover {
 
 /* Focus rings */
 html[data-theme='brutalist'] .focus\:ring-blue-500:focus {
-  --tw-ring-color: var(--brutx-coral);
+  --tw-ring-color: var(--color-accent-strong);
 }
 html[data-theme='brutalist'] .focus\:border-blue-500:focus {
-  border-color: var(--brutx-coral);
+  border-color: var(--color-accent-strong);
 }
 
 /* Danger: BrutX destructive pink-red */
@@ -750,22 +1021,22 @@ html[data-theme='brutalist'] .hover\:text-red-700:hover {
 
 /* Success/active green → celadon/pistachio */
 html[data-theme='brutalist'] .bg-green-100 {
-  background-color: #e2f6e6;
-  color: #2f7a44;
+  background-color: rgb(var(--color-pear-green-soft));
+  color: rgb(var(--color-pear-green-ink));
 }
 html[data-theme='brutalist'] .text-green-800 {
-  color: #2f7a44;
+  color: rgb(var(--color-pear-green-ink));
 }
 html[data-theme='brutalist'] .text-green-600 {
   color: var(--brutx-green);
 }
 html[data-theme='brutalist'] .hover\:bg-green-50:hover {
-  background-color: #eafaec;
+  background-color: rgb(var(--color-pear-green-soft));
 }
 
 /* Hover states: yellow family */
 html[data-theme='brutalist'] .hover\:bg-gray-25:hover {
-  background-color: #f7f7f7;
+  background-color: rgb(var(--color-ice-blue-soft));
 }
 html[data-theme='brutalist'] .hover\:bg-gray-50:hover {
   background-color: var(--brutx-yellow);
@@ -774,7 +1045,7 @@ html[data-theme='brutalist'] .hover\:bg-gray-100:hover {
   background-color: var(--brutx-yellow);
 }
 html[data-theme='brutalist'] .hover\:bg-gray-300:hover {
-  background-color: #f5c93a;
+  background-color: rgb(var(--color-lemon-yellow-deep));
 }
 html[data-theme='brutalist'] .hover\:text-gray-800:hover {
   color: var(--color-text);
@@ -785,8 +1056,8 @@ html[data-theme='brutalist'] .hover\:text-gray-600:hover {
 
 /* Nav: BrutX yellow with hard bottom border */
 html[data-theme='brutalist'] nav {
-  background-color: var(--color-nav-bg) !important;
-  border-bottom: 2px solid var(--color-border) !important;
+  background-color: var(--color-nav-bg);
+  border-bottom: 2px solid var(--color-border);
 }
 
 /* Zebra-stripe table rows */
@@ -800,12 +1071,6 @@ html[data-theme='brutalist'] thead tr {
   background-color: var(--brutx-yellow) !important;
 }
 
-/* Cards/panels: hard offset shadow */
-html[data-theme='brutalist'] .bg-white {
-  border: 2px solid var(--color-border);
-  box-shadow: var(--brutx-shadow);
-}
-
 /* Form inputs */
 html[data-theme='brutalist'] input,
 html[data-theme='brutalist'] select,
@@ -816,13 +1081,13 @@ html[data-theme='brutalist'] textarea {
   box-shadow: 2px 2px 0 #000 !important;
 }
 
-html[data-theme='brutalist'] input:focus,
+/* html[data-theme='brutalist'] input:focus,
 html[data-theme='brutalist'] select:focus,
 html[data-theme='brutalist'] textarea:focus {
-  box-shadow: 2px 2px 0 var(--brutx-coral) !important;
-  border-color: var(--brutx-coral) !important;
+  box-shadow: 2px 2px 0 var(--color-black) !important;
+  border-color: var(--color-black) !important;
   outline: none !important;
-}
+} */
 
 html[data-theme='brutalist'] input::placeholder,
 html[data-theme='brutalist'] textarea::placeholder {
@@ -848,11 +1113,11 @@ html[data-theme='brutalist'] .rbc-header {
 }
 
 html[data-theme='brutalist'] .rbc-today {
-  background-color: #eafaec;
+  background-color: rgb(var(--color-lemon-yellow) / 0.45);
 }
 
 html[data-theme='brutalist'] .rbc-off-range-bg {
-  background-color: #f9f9f9;
+  background-color: rgb(var(--color-ice-blue-soft) / 0.6);
 }
 
 html[data-theme='brutalist'] .rbc-event {
@@ -860,7 +1125,7 @@ html[data-theme='brutalist'] .rbc-event {
 }
 
 html[data-theme='brutalist'] .rbc-event:focus {
-  outline-color: var(--brutx-coral);
+  outline-color: var(--color-accent-strong);
 }
 
 html[data-theme='brutalist'] .rbc-toolbar button {
@@ -878,14 +1143,14 @@ html[data-theme='brutalist'] .rbc-toolbar button:hover {
 }
 
 html[data-theme='brutalist'] .rbc-toolbar button.rbc-active {
-  background-color: var(--brutx-coral);
-  color: #ffffff;
+  background-color: var(--color-accent);
+  color: var(--color-accent-fg);
   border-color: var(--color-border);
   box-shadow: 2px 2px 0 #000;
 }
 
 html[data-theme='brutalist'] .rbc-toolbar button:focus {
-  outline: 2px solid var(--brutx-coral);
+  outline: 2px solid var(--color-accent-strong);
   outline-offset: 2px;
 }
 
@@ -895,8 +1160,8 @@ html[data-theme='brutalist'] .rbc-current-time-indicator {
 }
 
 html[data-theme='brutalist'] .rbc-slot-selection {
-  background-color: rgba(255, 107, 107, 0.15);
-  border: 2px dashed var(--brutx-coral);
+  background-color: rgb(var(--color-lemon-yellow) / 0.45);
+  border: 2px dashed var(--color-accent-strong);
 }
 
 html[data-theme='brutalist'] .rbc-date-cell a {
@@ -904,22 +1169,22 @@ html[data-theme='brutalist'] .rbc-date-cell a {
 }
 
 html[data-theme='brutalist'] .rbc-date-cell a:hover {
-  color: var(--brutx-coral);
+  color: var(--color-accent-strong);
 }
 
 html[data-theme='brutalist'] .rbc-date-cell:active,
 html[data-theme='brutalist'] .rbc-day-bg:active,
 html[data-theme='brutalist'] .rbc-time-slot:active {
-  background-color: rgba(255, 107, 107, 0.15) !important;
+  background-color: rgb(var(--color-lemon-yellow) / 0.45) !important;
 }
 
 html[data-theme='brutalist'] .rbc-time-view .rbc-time-gutter {
-  background-color: #fffbe6;
+  background-color: rgb(var(--color-lemon-yellow-soft));
   border-right: 2px solid var(--color-border);
 }
 
 html[data-theme='brutalist'] .rbc-time-view .rbc-time-header-gutter {
-  background-color: #fffbe6;
+  background-color: rgb(var(--color-lemon-yellow-soft));
 }
 
 html[data-theme='brutalist'] .rbc-day-slot .rbc-time-slot {

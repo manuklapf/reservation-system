@@ -83,7 +83,7 @@ export default function TableManagementPanel({
   return (
     <>
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="mb-4 p-4 bg-danger-soft border border-danger/55 rounded-lg text-danger-ink text-sm">
           {error}
         </div>
       )}
@@ -99,7 +99,7 @@ export default function TableManagementPanel({
             placeholder={t.tableIdentifierPlaceholder}
             value={newIdentifier}
             onChange={e => onNewIdentifierChange(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-strong"
             disabled={saving}
           />
           <input
@@ -107,7 +107,7 @@ export default function TableManagementPanel({
             placeholder={t.capacityPlaceholder}
             value={newCapacity}
             onChange={e => onNewCapacityChange(e.target.value)}
-            className="w-full sm:w-28 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-28 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-strong"
             disabled={saving}
             min="1"
           />
@@ -161,7 +161,7 @@ export default function TableManagementPanel({
                           type="text"
                           value={editIdentifier}
                           onChange={e => onEditIdentifierChange(e.target.value)}
-                          className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-accent-strong"
                           disabled={saving}
                         />
                       ) : (
@@ -176,7 +176,7 @@ export default function TableManagementPanel({
                           type="number"
                           value={editCapacity}
                           onChange={e => onEditCapacityChange(e.target.value)}
-                          className="w-20 px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-20 px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-accent-strong"
                           disabled={saving}
                           min="1"
                         />
@@ -190,7 +190,7 @@ export default function TableManagementPanel({
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           table.is_active
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-success/35 text-success-ink'
                             : 'bg-gray-100 text-gray-800'
                         }`}
                       >
@@ -203,7 +203,7 @@ export default function TableManagementPanel({
                           <button
                             onClick={() => onSave(table.id)}
                             disabled={saving}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-green-600 hover:bg-green-50 disabled:text-gray-400"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-success-ink hover:bg-success-soft disabled:text-gray-400"
                             aria-label={t.save}
                             title={t.save}
                           >
@@ -212,7 +212,7 @@ export default function TableManagementPanel({
                           <button
                             onClick={onCancel}
                             disabled={saving}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-accent-background hover:text-gray-800 disabled:text-gray-400"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-accent hover:text-gray-800 disabled:text-gray-400"
                             aria-label={t.cancel}
                             title={t.cancel}
                           >
@@ -236,7 +236,7 @@ export default function TableManagementPanel({
                               )
                             }}
                             disabled={saving}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-accent-background hover:text-gray-800 disabled:text-gray-400"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-accent hover:text-gray-800 disabled:text-gray-400"
                             aria-label={tmp.actions}
                           >
                             <MoreVertical className="h-4 w-4" />
@@ -252,7 +252,7 @@ export default function TableManagementPanel({
                                   onEdit(table)
                                   setOpenMenuId(null)
                                 }}
-                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-accent-background hover:text-gray-800"
+                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-accent hover:text-gray-800"
                               >
                                 <Pencil className="h-3.5 w-3.5 text-gray-400" />
                                 {t.editTable}
@@ -262,7 +262,7 @@ export default function TableManagementPanel({
                                   onToggleActive(table.id, table.is_active)
                                   setOpenMenuId(null)
                                 }}
-                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-accent-background hover:text-gray-800"
+                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-accent hover:text-gray-800"
                               >
                                 {table.is_active ? (
                                   <EyeOff className="h-3.5 w-3.5 text-gray-400" />
@@ -276,7 +276,7 @@ export default function TableManagementPanel({
                                   onDelete(table.id)
                                   setOpenMenuId(null)
                                 }}
-                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                                className="flex items-center gap-2 w-full px-4 py-2 text-left text-sm text-danger-ink hover:bg-danger-soft"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                                 {t.deleteTable}

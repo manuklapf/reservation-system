@@ -501,14 +501,14 @@ export default function ReservationCreateModal({
                 {step === (reservationLengthEnabled ? 4 : 3) && (
                   <div className="space-y-1/2 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                      <User className="h-5 w-5 text-yellow-500" animate />
+                      <User className="h-5 w-5 text-warning-ink" animate />
                       {stepTitles[reservationLengthEnabled ? 4 : 3]}
                     </p>
                     <input
                       type="text"
                       name="customer_name"
                       id="wiz_customer_name"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors"
                       placeholder={t.customerNamePlaceholder}
                       value={formData.customer_name}
                       onChange={handleChange}
@@ -518,7 +518,10 @@ export default function ReservationCreateModal({
                 {step === (reservationLengthEnabled ? 5 : 4) && (
                   <div className="space-y-6 px-1">
                     <p className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-3">
-                      <ClipboardList className="h-5 w-5 text-red-500" animate />
+                      <ClipboardList
+                        className="h-5 w-5 text-danger-ink"
+                        animate
+                      />
                       {stepTitles[reservationLengthEnabled ? 5 : 4]}
                     </p>
                     <div>
@@ -532,7 +535,7 @@ export default function ReservationCreateModal({
                         name="notes"
                         id="wiz_notes"
                         rows={3}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors resize-none"
                         value={formData.notes}
                         onChange={handleChange}
                         placeholder={t.specialNotesPlaceholder}
@@ -547,8 +550,8 @@ export default function ReservationCreateModal({
                         onClick={() => setShowFloorPicker(true)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-colors text-sm font-medium ${
                           formData.table_ids.length > 0
-                            ? 'border-emerald-400 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                            : 'border-dashed border-gray-300 text-gray-400 hover:border-emerald-300 hover:text-emerald-500 hover:bg-emerald-50'
+                            ? 'border-success bg-success-soft text-success-ink hover:bg-success/35'
+                            : 'border-dashed border-gray-300 text-gray-400 hover:border-success/60 hover:text-success-ink hover:bg-success-soft'
                         }`}
                       >
                         <UtensilsCrossed className="h-4 w-4 shrink-0" animate />
@@ -570,7 +573,7 @@ export default function ReservationCreateModal({
                         type="tel"
                         name="customer_phone"
                         id="wiz_customer_phone"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-strong focus:border-accent-strong transition-colors"
                         placeholder={t.phonePlaceholder}
                         value={formData.customer_phone}
                         onChange={handleChange}
@@ -587,9 +590,9 @@ export default function ReservationCreateModal({
                     key={i}
                     className={`rounded-full transition-all duration-300 ${
                       i === step
-                        ? 'w-5 h-2 bg-blue-500'
+                        ? 'w-5 h-2 bg-accent'
                         : i < step
-                          ? 'w-2 h-2 bg-blue-300'
+                          ? 'w-2 h-2 bg-info'
                           : 'w-2 h-2 bg-gray-200'
                     }`}
                   />
