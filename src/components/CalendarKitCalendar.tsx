@@ -172,14 +172,12 @@ interface CalendarKitCalendarProps {
   onSelectEvent?: (reservation: Reservation) => void
   onSelectSlot?: (slotInfo: { start: Date; end: Date }) => void
   refreshKey?: number
-  demoReservations?: Reservation[]
 }
 
 export default function CalendarKitCalendar({
   onSelectEvent,
   onSelectSlot,
   refreshKey = 0,
-  demoReservations,
 }: CalendarKitCalendarProps) {
   const { tenantId } = useAuth()
   const { language } = useI18n()
@@ -188,11 +186,7 @@ export default function CalendarKitCalendar({
   const [localRefreshKey, setLocalRefreshKey] = useState(0)
   const combinedKey = refreshKey + localRefreshKey
 
-  const { reservations: fetchedReservations, loading } = useReservations(
-    demoReservations ? null : tenantId,
-    combinedKey
-  )
-  const reservations = demoReservations ?? fetchedReservations
+  const { reservations, loading } = useReservations(tenantId, combinedKey)
 
   // Track whether the initial load has completed so subsequent refetches
   // (e.g. after drag-and-drop) don't trigger the loading skeleton.
@@ -362,7 +356,7 @@ export default function CalendarKitCalendar({
   }, [events])
 
   return (
-    <div id="ck-wrapper" className="h-full">
+    <div id="ck-wrapper" className="h-full shadow-md">
       <style>{`
         /* ── Week/day event cards: text color + opacity ───────────────────── */
         #ck-wrapper .glass * { color: white !important; opacity: 1 !important; }
@@ -385,11 +379,18 @@ export default function CalendarKitCalendar({
         /* ── Keep header above event cards (hover:z-10 on events) ─────────── */
         #ck-wrapper [class~="min-h-[64px]"] { position: relative; z-index: 10; }
 
+        /* ── Header styles ─────────── */
+        #ck-wrapper [class~="bg-muted/50"][class~="backdrop-blur-sm"],
+        #ck-wrapper [class~="bg-muted/40"],
+        #ck-wrapper [class~="hover:bg-background/50"][class~="h-8"][class~="px-3"]:hover { background: transparent; }
+        #ck-wrapper [class~="flex"][class~="items-center"][class~="gap-2"][class~="md:gap-3"] { flex-direction: row-reverse; }
+        #ck-wrapper [class~="ml-2"][class~="md:ml-4"] { margin-left: 0 !important; }
+
         /* ── Hide agenda view button (4th in the view-switcher group) ─────── */
         #ck-wrapper [class~="backdrop-blur-sm"] > button:nth-child(4) { display: none !important; }
 
-        /* ── Hide hamburger / sidebar toggle ────────────────────────────── */
-        #ck-wrapper [class~="h-10"][class~="w-10"][class~="hidden"] { display: none !important; }
+        /* ── Hide hamburger / sidebar toggle and today button ────────────────────────────── */
+        #ck-wrapper [class~="h-10"][class~="w-10"][class~="hidden"], #ck-wrapper [class~="hover:border-primary/40"][class~="hover:bg-primary/5"] { display: none !important; }
 
         /* ── Hide sidebar panel ──────────────────────────────────────────── */
         #ck-wrapper [class~="hidden"][class~="overflow-hidden"] { display: none !important; width: 0 !important; }
@@ -408,7 +409,16 @@ export default function CalendarKitCalendar({
         /* ── Fit month/week grids to narrow viewports ────────────────────── */
         /* The library hardcodes min-w-[800px] on both grids below its own md */
         /* breakpoint, which pushes them past the phone viewport. */
-        #ck-wrapper [class~="min-w-[800px]"] { min-width: 0 !important; }
+        #ck-wrapper [class~="min-w-[800px]"] { 
+          min-width: 0 !important;
+          box-shadow: none !important;
+        }
+        
+        /* ── Monthly View: Day Badges ────────────────────── */
+        #ck-wrapper [class~="text-muted-foreground/60"][class~="bg-muted/50"] { 
+          background-color: rgb(184,221,225);
+          color: black;
+        }    
 
         /* ── Timeslot grid lines ─────────────────────────────────────────── */
         #ck-wrapper [class~="border-dashed"] {

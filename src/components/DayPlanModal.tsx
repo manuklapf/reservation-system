@@ -696,17 +696,21 @@ export default function DayPlanModal({
                             height: p.h,
                             backgroundColor: p.color,
                             borderRadius: p.shape === 'round' ? '50%' : 4,
+                            /* Highlights ride the semantic palette: success
+                               (pear-green) marks a live drop target, warning
+                               (mandarin-orange) marks the focused table —
+                               the same orange the list header names it in. */
                             border: isDragOver
-                              ? '3px solid #2563eb'
+                              ? '3px solid rgb(var(--rgb-success-strong))'
                               : isFocused
-                                ? '3px solid #f59e0b'
+                                ? '3px solid rgb(var(--rgb-warning-strong))'
                                 : tableResCount > 0
                                   ? '2px solid rgba(255,255,255,0.5)'
                                   : '2px solid rgba(0,0,0,0.15)',
                             boxShadow: isDragOver
-                              ? '0 0 0 4px rgba(37,99,235,0.3), 2px 3px 8px rgba(0,0,0,0.12)'
+                              ? '0 0 0 4px rgb(var(--rgb-success) / 0.4), 2px 3px 8px rgba(0,0,0,0.12)'
                               : isFocused
-                                ? '0 0 0 4px rgba(245,158,11,0.3), 2px 3px 8px rgba(0,0,0,0.12)'
+                                ? '0 0 0 4px rgb(var(--rgb-warning) / 0.35), 2px 3px 8px rgba(0,0,0,0.12)'
                                 : '2px 3px 8px rgba(0,0,0,0.10)',
                             cursor: 'pointer',
                             display: 'flex',
@@ -729,7 +733,12 @@ export default function DayPlanModal({
                                 minWidth: 18,
                                 height: 18,
                                 borderRadius: 9,
-                                backgroundColor: '#1d4ed8',
+                                /* info (grape-purple) — the same role that
+                                   carries the reservation times in the list.
+                                   The white hairline keeps it separated from
+                                   whatever color the table itself is. */
+                                backgroundColor: 'rgb(var(--rgb-info-strong))',
+                                border: '1.5px solid rgba(255,255,255,0.9)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',

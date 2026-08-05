@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { I18nProvider } from '@/contexts/I18nContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'

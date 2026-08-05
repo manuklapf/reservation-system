@@ -122,14 +122,14 @@ export default function MailboxPanel({
       {/* Panel */}
       <div
         ref={panelRef}
-        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white border-2 border-black z-50 flex flex-col transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black">
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-accent-ink" />
+            <Mail className="h-5 w-5 text-danger" />
             <h2 className="text-lg font-semibold text-gray-900">{t.title}</h2>
             {requests.length > 0 && (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-accent-fg">

@@ -124,12 +124,6 @@
     "widgetDirectLink": "Direct link",
     "sessionError": "Unable to submit your request. Please open this page in a private/incognito browser window and try again."
   },
-  "calendarPage": {
-    "loginRequired": "Please log in to view the calendar.",
-    "backToDashboard": "Back to Dashboard",
-    "title": "Reservations Calendar",
-    "description": "View and manage your reservations in calendar view"
-  },
   "setupPage": {
     "loginRequired": "Please log in to access this page.",
     "accessDenied": "You don't have permission to access this page.",
@@ -435,9 +429,6 @@
     "saving": "Saving…",
     "saveChanges": "Save changes",
     "timeConflictTitle": "Time conflict"
-  },
-  "demo": {
-    "backToHome": "Back to home"
   },
   "accountPage": {
     "title": "Account",

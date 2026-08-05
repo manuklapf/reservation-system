@@ -4,13 +4,6 @@ import { Reservation } from '@/types/reservation'
 import ReservationEditModal from './ReservationEditModal'
 import ReservationCreateModal from './ReservationCreateModal'
 
-interface Table {
-  id: string
-  table_identifier: string
-  capacity: number
-  is_active: boolean
-}
-
 interface ReservationModalProps {
   isOpen: boolean
   onClose: () => void
@@ -19,12 +12,6 @@ interface ReservationModalProps {
   selectedTime?: string
   onSave: (reservation: Reservation) => void
   onDelete?: (reservationId: string) => void
-  demoTables?: Table[]
-  demoReservations?: Reservation[]
-  onDemoSave?: (
-    data: Omit<Reservation, 'id' | 'created_at' | 'updated_at'>
-  ) => Reservation
-  onDemoDelete?: (id: string) => void
 }
 
 export default function ReservationModal({
@@ -35,10 +22,6 @@ export default function ReservationModal({
   selectedTime,
   onSave,
   onDelete,
-  demoTables,
-  demoReservations,
-  onDemoSave,
-  onDemoDelete,
 }: ReservationModalProps) {
   if (reservation) {
     return (
@@ -48,10 +31,6 @@ export default function ReservationModal({
         reservation={reservation}
         onSave={onSave}
         onDelete={onDelete}
-        demoTables={demoTables}
-        demoReservations={demoReservations}
-        onDemoSave={onDemoSave}
-        onDemoDelete={onDemoDelete}
       />
     )
   }
@@ -63,9 +42,6 @@ export default function ReservationModal({
       selectedDate={selectedDate}
       selectedTime={selectedTime}
       onSave={onSave}
-      demoTables={demoTables}
-      demoReservations={demoReservations}
-      onDemoSave={onDemoSave}
     />
   )
 }

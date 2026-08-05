@@ -36,7 +36,7 @@ export default function NavBar({
     <nav
       className={[
         'bg-white !shadow-none',
-        sticky ? 'sticky top-0 z-10' : '',
+        sticky ? 'sticky top-0 z-40' : '',
         className,
       ]
         .filter(Boolean)

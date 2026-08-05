@@ -39,12 +39,6 @@ interface ReservationEditModalProps {
   reservation: Reservation
   onSave: (reservation: Reservation) => void
   onDelete?: (reservationId: string) => void
-  demoTables?: Table[]
-  demoReservations?: Reservation[]
-  onDemoSave?: (
-    data: Omit<Reservation, 'id' | 'created_at' | 'updated_at'>
-  ) => Reservation
-  onDemoDelete?: (id: string) => void
 }
 
 export default function ReservationEditModal({
@@ -53,10 +47,6 @@ export default function ReservationEditModal({
   reservation,
   onSave,
   onDelete,
-  demoTables,
-  demoReservations,
-  onDemoSave,
-  onDemoDelete,
 }: ReservationEditModalProps) {
   const { user, tenantId } = useAuth()
   const { messages } = useI18n()
@@ -109,54 +99,12 @@ export default function ReservationEditModal({
   }, [tenantId])
 
   useEffect(() => {
-    if (isOpen && demoTables) {
-      setTables(demoTables.filter(t => t.is_active))
-      setLoadingTables(false)
-    }
-  }, [isOpen, demoTables])
-
-  useEffect(() => {
-    if (isOpen && tenantId && supabase && !demoTables) {
+    if (isOpen && tenantId && supabase) {
       fetchTables()
     }
-  }, [isOpen, tenantId, fetchTables, demoTables])
+  }, [isOpen, tenantId, fetchTables])
 
   const filterAvailableTables = React.useCallback(async () => {
-    if (demoReservations) {
-      const currentIds = new Set(
-        reservation.table_ids?.length
-          ? reservation.table_ids
-          : reservation.table_id
-            ? [reservation.table_id]
-            : []
-      )
-
-      const reservedTableIds = demoReservations
-        .filter(r => {
-          if (r.date !== formData.date || r.id === reservation.id) return false
-
-          if (reservationLengthEnabled) {
-            // Check if time ranges overlap
-            return timesOverlap(
-              formData.time,
-              formData.end_time || undefined,
-              r.time,
-              r.end_time
-            )
-          } else {
-            // Check if within ±1 hour
-            return withinOneHour(formData.time, r.time)
-          }
-        })
-        .flatMap(r =>
-          r.table_ids?.length ? r.table_ids : r.table_id ? [r.table_id] : []
-        )
-        .filter((id: string) => !currentIds.has(id))
-
-      setAvailableTables(tables.filter(t => !reservedTableIds.includes(t.id)))
-      return
-    }
-
     if (!supabase || !tenantId || !formData.date || !formData.time) return
 
     const { data: reservations, error } = await supabase
@@ -211,7 +159,6 @@ export default function ReservationEditModal({
     reservationLengthEnabled,
     tables,
     reservation,
-    demoReservations,
   ])
 
   useEffect(() => {
@@ -257,35 +204,6 @@ export default function ReservationEditModal({
     }
 
     setLoading(true)
-
-    if (onDemoSave) {
-      try {
-        const demoData: Omit<Reservation, 'id' | 'created_at' | 'updated_at'> =
-          {
-            customer_name: formData.customer_name,
-            customer_phone: formData.customer_phone,
-            table_id: formData.table_ids[0] ?? null,
-            table_ids: formData.table_ids,
-            table_identifiers: formData.table_ids
-              .map(id => tables.find(tb => tb.id === id)?.table_identifier)
-              .filter(Boolean) as string[],
-            table_number: null,
-            date: formData.date,
-            time: formData.time,
-            end_time: formData.end_time || null,
-            party_size: parseInt(formData.party_size),
-            notes: formData.notes,
-            tenant_id: 'demo-tenant',
-            created_by: 'demo',
-          }
-        const saved = onDemoSave(demoData)
-        onSave(saved)
-        onClose()
-      } finally {
-        setLoading(false)
-      }
-      return
-    }
 
     if (!user) {
       setLoading(false)
@@ -359,13 +277,6 @@ export default function ReservationEditModal({
       message: t.confirmDelete,
       onConfirm: async () => {
         setLoading(true)
-        if (onDemoDelete) {
-          onDemoDelete(reservation.id)
-          onDelete?.(reservation.id)
-          setLoading(false)
-          onClose()
-          return
-        }
         if (!supabase) {
           setLoading(false)
           return

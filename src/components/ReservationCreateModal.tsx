@@ -35,11 +35,6 @@ interface ReservationCreateModalProps {
   selectedDate?: Date
   selectedTime?: string
   onSave: (reservation: Reservation) => void
-  demoTables?: Table[]
-  demoReservations?: Reservation[]
-  onDemoSave?: (
-    data: Omit<Reservation, 'id' | 'created_at' | 'updated_at'>
-  ) => Reservation
 }
 
 export default function ReservationCreateModal({
@@ -48,9 +43,6 @@ export default function ReservationCreateModal({
   selectedDate,
   selectedTime,
   onSave,
-  demoTables,
-  demoReservations,
-  onDemoSave,
 }: ReservationCreateModalProps) {
   const { user, tenantId, staffName } = useAuth()
   const { messages } = useI18n()
@@ -97,44 +89,12 @@ export default function ReservationCreateModal({
   }, [tenantId])
 
   useEffect(() => {
-    if (isOpen && demoTables) {
-      setTables(demoTables.filter(t => t.is_active))
-      setLoadingTables(false)
-    }
-  }, [isOpen, demoTables])
-
-  useEffect(() => {
-    if (isOpen && tenantId && supabase && !demoTables) {
+    if (isOpen && tenantId && supabase) {
       fetchTables()
     }
-  }, [isOpen, tenantId, fetchTables, demoTables])
+  }, [isOpen, tenantId, fetchTables])
 
   const filterAvailableTables = React.useCallback(async () => {
-    if (demoReservations) {
-      const reservedTableIds = demoReservations
-        .filter(r => {
-          if (r.date !== formData.date) return false
-
-          if (reservationLengthEnabled) {
-            // Check if time ranges overlap
-            return timesOverlap(
-              formData.time,
-              formData.end_time || undefined,
-              r.time,
-              r.end_time
-            )
-          } else {
-            // Check if within ±1 hour
-            return withinOneHour(formData.time, r.time)
-          }
-        })
-        .flatMap(r =>
-          r.table_ids?.length ? r.table_ids : r.table_id ? [r.table_id] : []
-        )
-      setAvailableTables(tables.filter(t => !reservedTableIds.includes(t.id)))
-      return
-    }
-
     if (!supabase || !tenantId || !formData.date || !formData.time) return
 
     try {
@@ -180,7 +140,6 @@ export default function ReservationCreateModal({
     formData.end_time,
     reservationLengthEnabled,
     tables,
-    demoReservations,
   ])
 
   useEffect(() => {
@@ -271,33 +230,6 @@ export default function ReservationCreateModal({
 
   const submitReservation = async () => {
     setLoading(true)
-
-    if (onDemoSave) {
-      try {
-        const demoData: Omit<Reservation, 'id' | 'created_at' | 'updated_at'> =
-          {
-            customer_name: formData.customer_name,
-            customer_phone: formData.customer_phone,
-            table_id: formData.table_ids[0] || formData.table_id || null,
-            table_ids: formData.table_ids,
-            table_identifiers: formData.table_identifiers,
-            table_number: null,
-            date: formData.date,
-            time: formData.time,
-            end_time: formData.end_time || null,
-            party_size: parseInt(formData.party_size),
-            notes: formData.notes,
-            tenant_id: 'demo-tenant',
-            created_by: 'demo',
-          }
-        const saved = onDemoSave(demoData)
-        onSave(saved)
-        onClose()
-      } finally {
-        setLoading(false)
-      }
-      return
-    }
 
     if (!user) {
       setLoading(false)

@@ -288,7 +288,6 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen paper-plain">
       <NavBar
-        className="z-50"
         left={
           <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
         }

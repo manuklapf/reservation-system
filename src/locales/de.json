@@ -124,12 +124,6 @@
     "widgetDirectLink": "Direktlink",
     "sessionError": "Anfrage konnte nicht gesendet werden. Bitte öffnen Sie diese Seite in einem privaten Browserfenster und versuchen Sie es erneut."
   },
-  "calendarPage": {
-    "loginRequired": "Bitte melde dich an, um den Kalender anzuzeigen.",
-    "backToDashboard": "Zurück zum Dashboard",
-    "title": "Reservierungskalender",
-    "description": "Sieh dir Reservierungen im Kalenderformat an und verwalte sie. Klicke auf eine Reservierung zum Bearbeiten oder auf einen freien Slot fur eine neue Reservierung."
-  },
   "setupPage": {
     "loginRequired": "Bitte melde dich an, um auf diese Seite zuzugreifen.",
     "accessDenied": "Du hast keine Berechtigung, auf diese Seite zuzugreifen.",
@@ -435,9 +429,6 @@
     "saving": "Speichern…",
     "saveChanges": "Änderungen speichern",
     "timeConflictTitle": "Zeitkonflikt"
-  },
-  "demo": {
-    "backToHome": "Zurück zur Startseite"
   },
   "accountPage": {
     "title": "Konto",
