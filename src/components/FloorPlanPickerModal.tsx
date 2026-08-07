@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Check, Users } from '@/components/icons'
+import { ArrowLeft, Check, CircleHelp, Users } from '@/components/icons'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import FloorDropdown from './FloorDropdown'
-import ModalCloseButton from './ModalCloseButton'
 import Button from '@/components/Button'
 
 interface DBTable {
@@ -73,6 +72,7 @@ export default function FloorPlanPickerModal({
   const [activeIdx, setActiveIdx] = useState(0)
   const [draft, setDraft] = useState<string[]>([])
   const [scale, setScale] = useState(0.72)
+  const [showHelp, setShowHelp] = useState(false)
   const { messages } = useI18n()
   const t = messages.floorPlanPickerModal
 
@@ -87,11 +87,15 @@ export default function FloorPlanPickerModal({
   useEffect(() => {
     if (!isOpen) return
     const measure = () => {
-      // 32 = backdrop p-4 × 2; 896 = max-w-4xl; 32 = canvas p-4 × 2
-      const availW = Math.min(window.innerWidth - 32, 896) - 32
-      // 165 ≈ top bar + footer + legend + gap + canvas vertical padding
-      const availH = window.innerHeight * 0.9 - 165
-      const s = Math.min(availW / CANVAS_W, availH / CANVAS_H, 1)
+      // The card is `w-full max-w-4xl` inside the backdrop's p-1 (4px a side),
+      // and its canvas area is unpadded — so the canvas gets the whole card box.
+      const availW = Math.min(window.innerWidth - 8, 896)
+      // 120 ≈ top bar + footer: each is a ~38px button plus its vertical padding
+      // and 1px divider, with a little slack for the Brutalist theme's thicker
+      // button borders. The card itself is capped at 90vh.
+      const availH = window.innerHeight * 0.9 - 120
+      // No upper bound on the scale: fill whichever axis runs out first.
+      const s = Math.min(availW / CANVAS_W, availH / CANVAS_H)
       setScale(Math.max(s, 0.15))
     }
     measure()
@@ -155,11 +159,12 @@ export default function FloorPlanPickerModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-1 backdrop-blur-sm">
-      <ModalCloseButton onClose={onClose} />
-
       <div className="flex w-full max-w-4xl max-h-[90vh] flex-col rounded-2xl bg-white shadow-2xl">
         {/* Top bar */}
         <div className="flex shrink-0 items-center gap-2 border-b border-gray-200 py-2 px-3">
+          <Button onClick={onClose} aria-label={messages.common.close}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <FloorDropdown
             floors={floors}
             activeIdx={activeIdx}
@@ -178,8 +183,8 @@ export default function FloorPlanPickerModal({
           </Button>
         </div>
 
-        {/* Canvas + legend */}
-        <div className="flex flex-col items-center gap-3 overflow-hidden p-4">
+        {/* Canvas */}
+        <div className="flex flex-col items-center overflow-hidden">
           {loadingFloors ? (
             <div className="flex h-40 items-center justify-center text-sm text-gray-400">
               {t.loadingFloorPlans}
@@ -207,7 +212,6 @@ export default function FloorPlanPickerModal({
                   transform: `scale(${scale})`,
                   transformOrigin: 'top left',
                   borderRadius: 12,
-                  border: '2px solid #e5e7eb',
                   backgroundImage: [
                     'linear-gradient(to right, #e5e7eb 1px, transparent 1px)',
                     'linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)',
@@ -276,14 +280,14 @@ export default function FloorPlanPickerModal({
                         height: p.h,
                         backgroundColor: p.color,
                         backgroundImage: !isAvailable
-                          ? 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px)'
+                          ? 'repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 20px)'
                           : 'none',
                         borderRadius: p.shape === 'round' ? '50%' : 4,
                         border: isSelected
-                          ? '3px solid #059669'
+                          ? '3px solid #000'
                           : '2px solid rgba(0,0,0,0.15)',
                         boxShadow: isSelected
-                          ? '0 0 0 4px rgba(5,150,105,0.3), 2px 3px 8px rgba(0,0,0,0.12)'
+                          ? '0 0 0 4px rgba(0,0,0,0.3), 2px 3px 8px rgba(0,0,0,0.12)'
                           : '2px 3px 8px rgba(0,0,0,0.10)',
                         cursor: 'pointer',
                         display: 'flex',
@@ -305,7 +309,7 @@ export default function FloorPlanPickerModal({
                             width: 16,
                             height: 16,
                             borderRadius: '50%',
-                            backgroundColor: '#059669',
+                            backgroundColor: '#000',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -348,51 +352,91 @@ export default function FloorPlanPickerModal({
               </div>
             </div>
           )}
-
-          {/* Legend */}
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-sm bg-[#4ecdc4]" />
-              {t.available}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-3 w-3 rounded-sm bg-[#4ecdc4]"
-                style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(45deg, transparent, transparent 1.5px, rgba(0,0,0,0.2) 1.5px, rgba(0,0,0,0.2) 3px)',
-                }}
-              />
-              {t.reserved}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-sm border-2 border-success bg-[#4ecdc4]" />
-              {t.selected}
-            </span>
-          </div>
         </div>
 
-        {/* Footer — selected tables */}
-        <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto border-t border-gray-200 px-4 py-2.5">
-          {draft.length === 0 ? (
-            <span className="text-sm text-gray-400">{t.tapTablesToSelect}</span>
-          ) : (
-            draft.map(id => {
-              const db = tableMap.get(id)
-              if (!db) return null
-              return (
-                <span
-                  key={id}
-                  className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-2 ring-black text-white"
-                  style={{ backgroundColor: colorMap.get(id) ?? '#4ecdc4' }}
-                >
-                  {db.table_identifier}
-                </span>
-              )
-            })
-          )}
+        {/* Footer — selected tables + help */}
+        <div className="flex shrink-0 items-center gap-2 border-t border-gray-200 px-4 py-2.5">
+          {/* py-1/-my-1: the scroll container clips on both axes, so the chips
+              need inner room for their ring without making the footer taller. */}
+          <div className="-my-1 flex flex-1 items-center gap-1.5 overflow-x-auto px-1 py-2">
+            {draft.length === 0 ? (
+              <span className="text-sm text-gray-400">
+                {t.tapTablesToSelect}
+              </span>
+            ) : (
+              draft.map(id => {
+                const db = tableMap.get(id)
+                if (!db) return null
+                return (
+                  <span
+                    key={id}
+                    className="shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ring-2 ring-black text-white"
+                    style={{ backgroundColor: colorMap.get(id) ?? '#4ecdc4' }}
+                  >
+                    {db.table_identifier}
+                  </span>
+                )
+              })
+            )}
+          </div>
+          <Button
+            onClick={() => setShowHelp(true)}
+            aria-label={t.help}
+            title={t.help}
+            className="shrink-0"
+          >
+            <CircleHelp className="h-5 w-5" />
+          </Button>
         </div>
       </div>
+
+      {/* Help — legend + how to use this picker */}
+      {showHelp && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            className="w-80 space-y-3 rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="text-base font-semibold text-gray-900">
+              {t.helpTitle}
+            </p>
+            <p className="text-sm leading-relaxed text-gray-500">
+              {t.helpDescription}
+            </p>
+            <div className="space-y-2 rounded-xl bg-gray-50 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                {t.helpLegendTitle}
+              </p>
+              <span className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="inline-block h-3.5 w-3.5 shrink-0 rounded-sm bg-[#4ecdc4]" />
+                {t.available}
+              </span>
+              <span className="flex items-center gap-2 text-sm text-gray-600">
+                <span
+                  className="inline-block h-3.5 w-3.5 shrink-0 rounded-sm bg-[#4ecdc4]"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(45deg, transparent, transparent 1.5px, #000 1.5px, #000 3px)',
+                  }}
+                />
+                {t.reserved}
+              </span>
+              <span className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="inline-block h-3.5 w-3.5 shrink-0 rounded-sm border-2 border-black bg-[#4ecdc4]" />
+                {t.selected}
+              </span>
+            </div>
+            <div className="flex justify-end pt-1">
+              <Button onClick={() => setShowHelp(false)}>
+                {messages.common.close}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -15,6 +15,8 @@ import { Reservation } from '@/types/reservation'
 import { useI18n } from '@/contexts/I18nContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useDisplayPrefs } from '@/contexts/DisplayPrefsContext'
+import { Info } from '@/components/icons'
+import Button from '@/components/Button'
 
 /** Fallback length for reservations stored without an end_time. */
 const DEFAULT_DURATION_MS = 60 * 60 * 1000
@@ -180,8 +182,23 @@ export default function CalendarKitCalendar({
   refreshKey = 0,
 }: CalendarKitCalendarProps) {
   const { tenantId } = useAuth()
-  const { language } = useI18n()
+  const { language, messages } = useI18n()
   const { theme } = useTheme()
+
+  // Shown on every mobile visit to the calendar until dismissed — after that the
+  // calendar is usable as-is, small-screen rough edges included.
+  const [noticeDismissed, setNoticeDismissed] = useState(false)
+
+  // Phones swap the month-view event pills for a single tap-to-open badge.
+  // 767px is one below Tailwind's `md`, so tablets keep the full pill list.
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)')
+    const update = () => setIsMobile(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
 
   const [localRefreshKey, setLocalRefreshKey] = useState(0)
   const combinedKey = refreshKey + localRefreshKey
@@ -289,9 +306,11 @@ export default function CalendarKitCalendar({
         el.style.borderColor = color
       })
 
-      // Month view: event indicator pills
-      // - solid background (library renders low-opacity)
-      // - limit to 1 per day cell; show "+X more" for overflow
+      // Month view: solidify the event pills (the library renders them at low
+      // opacity), grouped per day cell. Each pill sits inside a DraggableEvent
+      // wrapper (`.touch-none`) which is the direct child of the day cell's
+      // event container — so group by that container, never by pill.parentElement
+      // (that is the per-event wrapper, one per reservation).
       const containers = new Map<HTMLElement, HTMLElement[]>()
       wrapper
         .querySelectorAll<HTMLElement>(
@@ -302,50 +321,63 @@ export default function CalendarKitCalendar({
           if (color && !color.startsWith('var(')) {
             pill.style.backgroundColor = color
           }
-          const parent = pill.parentElement
-          if (!parent) return
-          if (!containers.has(parent)) containers.set(parent, [])
-          containers.get(parent)!.push(pill)
+          const eventEl =
+            pill.closest<HTMLElement>('[class~="touch-none"]') ?? pill
+          const container = eventEl.parentElement
+          if (!container) return
+          if (!containers.has(container)) containers.set(container, [])
+          containers.get(container)!.push(eventEl)
         })
 
-      containers.forEach((pills, parent) => {
-        // Show only the first pill; hide the rest
-        pills.forEach((pill, i) => {
-          pill.style.display = i === 0 ? '' : 'none'
-        })
+      // The count element carries no click handler of its own: the tap bubbles
+      // to the day cell, which navigates to that day's view.
+      const setCount = (container: HTMLElement, text: string) => {
+        let countEl = container.querySelector<HTMLElement>('[data-ck-count]')
+        if (!countEl) {
+          countEl = document.createElement('div')
+          countEl.dataset.ckCount = '1'
+          countEl.className =
+            'text-xs text-foreground font-semibold text-center py-1 px-2 rounded-md bg-[#b8dde1] cursor-pointer transition-colors'
+          container.appendChild(countEl)
+        }
+        if (countEl.textContent !== text) countEl.textContent = text
+      }
 
-        if (pills.length <= 1) {
-          parent.querySelector('[data-ck-more]')?.remove()
+      // React only reconciles its own children, so a count element whose day
+      // lost all its reservations has to be cleaned up by hand.
+      wrapper.querySelectorAll<HTMLElement>('[data-ck-count]').forEach(el => {
+        const container = el.parentElement
+        if (!container || !containers.has(container)) el.remove()
+      })
+
+      containers.forEach((eventEls, container) => {
+        // The library's own "+N more" indicator (rendered when a day has >4)
+        const libMoreEl = Array.from(container.children).find(
+          (el): el is HTMLElement =>
+            el instanceof HTMLElement &&
+            !eventEls.includes(el) &&
+            !el.dataset.ckCount
+        )
+        const hiddenCount = libMoreEl
+          ? parseInt(libMoreEl.textContent?.match(/\+(\d+)/)?.[1] ?? '0', 10)
+          : 0
+
+        // Tablet / desktop keep the library's own per-reservation rendering
+        if (!isMobile) {
+          eventEls.forEach(el => {
+            el.style.display = ''
+          })
+          if (libMoreEl) libMoreEl.style.display = ''
+          container.querySelector('[data-ck-count]')?.remove()
           return
         }
 
-        // Absorb the library's own "+N more" indicator (appears when >4 events)
-        const libMoreEl = Array.from(parent.children).find(
-          (el): el is HTMLElement =>
-            el instanceof HTMLElement &&
-            !el.matches('[class~="py-1.5"]') &&
-            !(el as HTMLElement).dataset.ckMore &&
-            (el.textContent?.includes('more') ?? false)
-        )
-        const libMoreCount = libMoreEl
-          ? parseInt(libMoreEl.textContent?.match(/\+(\d+)/)?.[1] ?? '0', 10)
-          : 0
+        // Mobile: exactly one element per day — the total reservation count
+        eventEls.forEach(el => {
+          el.style.display = 'none'
+        })
         if (libMoreEl) libMoreEl.style.display = 'none'
-
-        const overflowCount = pills.length - 1 + libMoreCount
-        const desiredText = `+${overflowCount} more`
-
-        let moreEl = parent.querySelector<HTMLElement>('[data-ck-more]')
-        if (!moreEl) {
-          moreEl = document.createElement('div')
-          moreEl.dataset.ckMore = '1'
-          moreEl.className =
-            'text-[10px] text-primary font-semibold text-center py-1 px-2 rounded-md bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors'
-          moreEl.textContent = desiredText
-          parent.appendChild(moreEl)
-        } else if (moreEl.textContent !== desiredText) {
-          moreEl.textContent = desiredText
-        }
+        setCount(container, String(eventEls.length + hiddenCount))
       })
     }
 
@@ -353,11 +385,38 @@ export default function CalendarKitCalendar({
     const observer = new MutationObserver(solidify)
     observer.observe(wrapper, { childList: true, subtree: true })
     return () => observer.disconnect()
-  }, [events])
+  }, [events, isMobile])
 
   return (
-    <div id="ck-wrapper" className="h-full shadow-md">
-      <style>{`
+    <>
+      {/* Rendered outside #ck-wrapper so none of the CalendarKit overrides below
+          can reach it. */}
+      {isMobile && !noticeDismissed && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={() => setNoticeDismissed(true)}
+        >
+          <div
+            className="w-80 space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-2.5">
+              <Info className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
+              <p className="text-sm leading-relaxed text-gray-600">
+                {messages.calendar.mobileNotice}
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => setNoticeDismissed(true)}>
+                {messages.calendar.mobileNoticeDismiss}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div id="ck-wrapper" className="h-full shadow-md">
+        <style>{`
         /* ── Week/day event cards: text color + opacity ───────────────────── */
         #ck-wrapper .glass * { color: white !important; opacity: 1 !important; }
 
@@ -383,8 +442,13 @@ export default function CalendarKitCalendar({
         #ck-wrapper [class~="bg-muted/50"][class~="backdrop-blur-sm"],
         #ck-wrapper [class~="bg-muted/40"],
         #ck-wrapper [class~="hover:bg-background/50"][class~="h-8"][class~="px-3"]:hover { background: transparent; }
-        #ck-wrapper [class~="flex"][class~="items-center"][class~="gap-2"][class~="md:gap-3"] { flex-direction: row-reverse; }
+        #ck-wrapper [class~="flex"][class~="items-center"][class~="gap-2"][class~="justify-between"] > div[class~="gap-2"][class~="md:gap-3"] { flex-direction: row-reverse; }
         #ck-wrapper [class~="ml-2"][class~="md:ml-4"] { margin-left: 0 !important; }
+        #ck-wrapper [class~="backdrop-blur-sm"][class~="bg-muted/50"][class~="rounded-xl"] { 
+          margin-left: 0 !important;
+          backdrop-filter: none;
+          padding: 0 !important;
+        }
 
         /* ── Hide agenda view button (4th in the view-switcher group) ─────── */
         #ck-wrapper [class~="backdrop-blur-sm"] > button:nth-child(4) { display: none !important; }
@@ -438,28 +502,61 @@ export default function CalendarKitCalendar({
             touch-action: auto !important;
           }
         }
-      `}</style>
-      <Scheduler
-        events={events}
-        isLoading={loading && !hasInitialLoadRef.current}
-        onEventClick={handleEventClick}
-        onEventUpdate={handleEventUpdate}
-        onEventResize={
-          prefs.reservationLengthEnabled ? handleEventResize : undefined
+
+        /* ── Mobile only (below md) ──────────────────────────────────────── */
+        @media (max-width: 767px) {
+
+          /* Header*/
+          #ck-wrapper [class~="text-lg"][class~="md:text-xl"][class~="capitalize"][class~="tracking-tight"] { font-size: 0.9rem; }
+          /* Frameless view container (month/week/day body below the header) */
+          #ck-wrapper [class~="h-full"][class~="rounded-2xl"][class~="shadow-sm"] {
+            border: 0 !important;
+            box-shadow: none !important;
+          }
+          
+          /* flex row for mobile */
+          #ck-wrapper [class~="flex-col"][class~="md:flex-row"][class~="px-3"][class~="md:px-5"] {
+            flex-direction: row !important;
+          }
+
+          /* Month view: hide the library's day-total badge in the cell corner — */
+          /* the count element below the date is the only indicator on mobile. */
+          #ck-wrapper [class~="text-muted-foreground/60"][class~="bg-muted/50"] {
+            display: none !important;
+          }
+
+          /* Week view */
+          #ck-wrapper [class~="w-9"][class~="h-9"][class~="scale-110"][class~="bg-primary"] {
+            width: auto;
+            height: auto;
+          }
+          #ck-wrapper [class~="w-9"][class~="h-9"][class~="hover:bg-accent/80"][class~="rounded-xl"][class~="mx-auto"]:hover {
+            background-color: transparent
+          }
         }
-        renderEventForm={({ isOpen, onClose, event, initialDate }) => (
-          <SlotClickBridge
-            isOpen={isOpen}
-            onClose={onClose}
-            event={event}
-            initialDate={initialDate}
-            onSelectSlot={onSelectSlot}
-          />
-        )}
-        translations={language === 'de' ? germanTranslations : undefined}
-        locale={language === 'de' ? deFns : undefined}
-        theme={calendarTheme}
-      />
-    </div>
+        `}</style>
+        <Scheduler
+          events={events}
+          isLoading={loading && !hasInitialLoadRef.current}
+          onEventClick={handleEventClick}
+          onEventUpdate={handleEventUpdate}
+          onEventResize={
+            prefs.reservationLengthEnabled ? handleEventResize : undefined
+          }
+          renderEventForm={({ isOpen, onClose, event, initialDate }) => (
+            <SlotClickBridge
+              isOpen={isOpen}
+              onClose={onClose}
+              event={event}
+              initialDate={initialDate}
+              onSelectSlot={onSelectSlot}
+            />
+          )}
+          translations={language === 'de' ? germanTranslations : undefined}
+          locale={language === 'de' ? deFns : undefined}
+          theme={calendarTheme}
+        />
+      </div>
+    </>
   )
 }

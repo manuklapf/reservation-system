@@ -23,6 +23,7 @@ import { Bell as BellAnim } from '@/components/animate-ui/icons/bell'
 import { Building2 as Building2Anim } from '@/components/animate-ui/icons/building-2'
 import { CalendarCheck as CalendarCheckAnim } from '@/components/animate-ui/icons/calendar-check'
 import { CalendarDays as CalendarDaysAnim } from '@/components/animate-ui/icons/calendar-days'
+import { CircleHelp as CircleHelpAnim } from '@/components/animate-ui/icons/circle-help'
 import { ClipboardList as ClipboardListAnim } from '@/components/animate-ui/icons/clipboard-list'
 import { Clock as ClockAnim } from '@/components/animate-ui/icons/clock'
 import { Code2 as Code2Anim } from '@/components/animate-ui/icons/code-2'
@@ -293,6 +294,7 @@ export const Bell = hoverAnimated(BellAnim, 'Bell')
 export const Building2 = hoverAnimated(Building2Anim, 'Building2')
 export const CalendarCheck = hoverAnimated(CalendarCheckAnim, 'CalendarCheck')
 export const CalendarDays = hoverAnimated(CalendarDaysAnim, 'CalendarDays')
+export const CircleHelp = hoverAnimated(CircleHelpAnim, 'CircleHelp')
 export const ClipboardList = hoverAnimated(ClipboardListAnim, 'ClipboardList')
 export const Clock = hoverAnimated(ClockAnim, 'Clock')
 export const Code2 = hoverAnimated(Code2Anim, 'Code2')

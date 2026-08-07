@@ -556,7 +556,7 @@ export default function DayPlanModal({
         {/* Below lg the modal fills the screen; from lg it hugs its content, so
             once the plan is capped by the available height the modal stops
             widening instead of padding the plan out with empty space. */}
-        <div className="flex h-full w-full flex-col bg-white lg:w-auto lg:max-w-full">
+        <div className="flex h-full w-full flex-col bg-white">
           {/* Header — left-aligned and padded on the right to clear the
               viewport-pinned close button. */}
           <div className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-gray-200 py-3 pl-4 pr-16 lg:py-4 lg:pl-6">

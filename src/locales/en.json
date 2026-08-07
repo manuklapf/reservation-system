@@ -242,7 +242,9 @@
     "tableLabel": "Table",
     "legendConfirmed": "Confirmed",
     "legendPending": "Pending",
-    "legendCancelled": "Cancelled"
+    "legendCancelled": "Cancelled",
+    "mobileNotice": "We recommend to use the calendar view on tablet/desktop for now. We are working on optimizations for smaller screens at the moment. Thank you!",
+    "mobileNoticeDismiss": "Got it"
   },
   "settingsPage": {
     "title": "Settings",
@@ -379,7 +381,11 @@
     "selected": "Selected",
     "unavailable": "(unavailable)",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "help": "Help",
+    "helpTitle": "Selecting tables",
+    "helpDescription": "Tap a table to select it, tap it again to remove it. Your selection is listed at the bottom. Switch floors with the dropdown at the top left. Confirm with the checkmark, or go back to discard your changes.",
+    "helpLegendTitle": "Legend"
   },
   "tableManagement": {
     "namePlaceholder": "Name",

@@ -242,7 +242,9 @@
     "tableLabel": "Tisch",
     "legendConfirmed": "Bestätigt",
     "legendPending": "Ausstehend",
-    "legendCancelled": "Storniert"
+    "legendCancelled": "Storniert",
+    "mobileNotice": "Wir empfehlen, die Kalenderansicht vorerst auf Tablet oder Desktop zu nutzen. Wir arbeiten gerade an Optimierungen für kleinere Bildschirme. Vielen Dank!",
+    "mobileNoticeDismiss": "Verstanden"
   },
   "settingsPage": {
     "title": "Einstellungen",
@@ -379,7 +381,11 @@
     "selected": "Ausgewählt",
     "unavailable": "(nicht verfügbar)",
     "cancel": "Abbrechen",
-    "confirm": "Bestätigen"
+    "confirm": "Bestätigen",
+    "help": "Hilfe",
+    "helpTitle": "Tische auswählen",
+    "helpDescription": "Tippe auf einen Tisch, um ihn auszuwählen, und erneut, um ihn zu entfernen. Deine Auswahl wird unten angezeigt. Ebenen wechselst du über die Auswahl oben links. Bestätige mit dem Häkchen oder verwirf die Änderungen mit Zurück.",
+    "helpLegendTitle": "Legende"
   },
   "tableManagement": {
     "namePlaceholder": "Name",

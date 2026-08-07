@@ -335,12 +335,12 @@ export default function ReservationCreateModal({
 
         {/* Content — centered in full page */}
         <div
-          className="relative w-full max-w-lg p-6 sm:p-4"
+          className="relative w-full max-w-lg p-8 sm:p-4"
           onClick={e => e.stopPropagation()}
         >
           {/* Left arrow */}
           {step > 0 && (
-            <div className="absolute left-8 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10">
+            <div className="absolute left-6 sm:left-0 top-1/2 -translate-y-1/2 -translate-x-5 z-10">
               <Button onClick={handlePrev} aria-label={common.previous}>
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -348,7 +348,7 @@ export default function ReservationCreateModal({
           )}
 
           {/* Right arrow / submit */}
-          <div className="absolute right-8 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10">
+          <div className="absolute right-6 sm:right-0 top-1/2 -translate-y-1/2 translate-x-5 z-10">
             <Button
               onClick={isLastStep ? submitReservation : handleNext}
               disabled={loading || !canProceed}

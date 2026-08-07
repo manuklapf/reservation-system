@@ -195,13 +195,9 @@ export default function ReservationEditModal({
     }
   }, [isOpen, reservation])
 
+  // A reservation may have no tables assigned, so an empty selection saves fine.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!formData.table_ids.length) {
-      alert(t.errors.selectTable)
-      return
-    }
 
     setLoading(true)
 
@@ -340,7 +336,7 @@ export default function ReservationEditModal({
       >
         <ModalCloseButton onClose={onClose} />
         <div
-          className="relative w-full max-w-lg p-6 sm:p-4"
+          className="relative w-full max-w-lg p-4"
           onClick={e => e.stopPropagation()}
         >
           {/* Delete button — left side */}
@@ -396,8 +392,8 @@ export default function ReservationEditModal({
             </Button>
           </div>
 
-          <div className="bg-white rounded-xl shadow-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all">
-            <div className="p-8">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-h-[80vh] sm:max-h-[90vh] overflow-y-auto transform transition-all">
+            <div className="p-6 sm:p-8">
               <form
                 id="edit-reservation-form"
                 onSubmit={handleSubmit}

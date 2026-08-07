@@ -312,9 +312,9 @@ export default function DashboardPage() {
       />
 
       <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+        <div className="px-1 py-6 sm:px-0">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold px-1 text-gray-900">
               {t.reservations}
             </h2>
             <div className="flex items-center gap-1">
