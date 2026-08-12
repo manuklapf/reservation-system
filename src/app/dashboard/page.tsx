@@ -86,7 +86,6 @@ export default function DashboardPage() {
     end: Date
   } | null>(null)
   const [mailboxOpen, setMailboxOpen] = useState(false)
-  const [tenantName, setTenantName] = useState('')
   const filterRef = useRef<HTMLDivElement>(null)
   const { language, messages } = useI18n()
 
@@ -106,18 +105,6 @@ export default function DashboardPage() {
       fetchReservations()
     }
   }, [user, tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!tenantId || !supabase) return
-    supabase
-      .from('tenants')
-      .select('name')
-      .eq('id', tenantId)
-      .single()
-      .then(({ data }) => {
-        if (data?.name) setTenantName(data.name)
-      })
-  }, [tenantId])
 
   useEffect(() => {
     if (!tenantId || !supabase) return
@@ -537,7 +524,6 @@ export default function DashboardPage() {
         onClose={() => setMailboxOpen(false)}
         requests={pendingRequests}
         onRefresh={fetchReservations}
-        tenantName={tenantName}
       />
     </div>
   )

@@ -46,7 +46,7 @@ export default function ReservationRow({
             </p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {prefs.showTime && (
-                <span className="inline-flex items-center rounded-full bg-info-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
+                <span className="inline-flex items-center rounded-full bg-info-soft px-2.5 py-0.5 text-xs font-semibold text-gray-800">
                   {showDate ? `${reservation.date} · ` : ''}
                   {reservation.time?.slice(0, 5)}
                   {reservation.end_time
@@ -55,24 +55,24 @@ export default function ReservationRow({
                 </span>
               )}
               {prefs.showPartySize && (
-                <span className="inline-flex items-center rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
+                <span className="inline-flex items-center rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-gray-800">
                   {reservation.party_size} {t.guests}
                 </span>
               )}
               {prefs.showTable && tableLabel && (
-                <span className="inline-flex items-center rounded-full bg-success-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
+                <span className="inline-flex items-center rounded-full bg-success-soft px-2.5 py-0.5 text-xs font-semibold text-gray-800">
                   {t.table} {tableLabel}
                 </span>
               )}
               {prefs.showPhone && reservation.customer_phone && (
-                <span className="inline-flex items-center rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black text-gray-800">
+                <span className="inline-flex items-center rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold text-gray-800">
                   {reservation.customer_phone}
                 </span>
               )}
             </div>
             {prefs.showNotes && reservation.notes && (
               <div className="max-w-full w-fit">
-                <p className="mt-2 py-0.5 px-2.5 bg-gray-100 text-xs ring-2 ring-black rounded-full font-semibold truncate">
+                <p className="mt-2 py-0.5 px-2.5 bg-gray-100 text-xs rounded-full font-semibold truncate">
                   {reservation.notes}
                 </p>
               </div>

@@ -239,7 +239,11 @@ export async function provisionDemoSandbox(
         end_time: r.end_time,
         party_size: r.party_size,
         notes: r.notes,
-        status: pending ? 'pending' : 'confirmed',
+        // Deliberately not setting `status`. The column is vestigial — nothing
+        // in the app reads or writes it — but a legacy RLS policy makes rows
+        // with status='confirmed' readable by *anyone* holding the public anon
+        // key. Leaving the 'pending' default keeps demo guests unreadable to
+        // the outside world, exactly like reservations the app creates.
         table_id: ids[0] ?? null,
         table_ids: ids,
         table_identifiers: identifiers,

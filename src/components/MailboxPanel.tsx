@@ -12,7 +12,6 @@ interface MailboxPanelProps {
   onClose: () => void
   requests: Reservation[]
   onRefresh: () => void
-  tenantName: string
 }
 
 export default function MailboxPanel({
@@ -20,7 +19,6 @@ export default function MailboxPanel({
   onClose,
   requests,
   onRefresh,
-  tenantName,
 }: MailboxPanelProps) {
   const { user, tenantId, staffName } = useAuth()
   const { messages, language } = useI18n()
@@ -53,25 +51,22 @@ export default function MailboxPanel({
     type: 'approved' | 'denied',
     reservation: Reservation
   ) => {
-    if (!reservation.customer_email) return
+    if (!reservation.customer_email || !supabase) return
     try {
+      // The server reads the guest's address and the message details from the
+      // database itself; it only needs to know which reservation and who is
+      // asking, so the endpoint can't be turned into an open mail relay.
+      const { data } = await supabase.auth.getSession()
+      const token = data.session?.access_token
+      if (!token) return
+
       await fetch('/api/send-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type,
-          tenantName,
-          reservation: {
-            id: reservation.id,
-            customerName: reservation.customer_name,
-            customerEmail: reservation.customer_email,
-            date: reservation.date,
-            time: reservation.time,
-            endTime: reservation.end_time ?? null,
-            partySize: reservation.party_size,
-            notes: reservation.notes ?? null,
-          },
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ type, reservationId: reservation.id }),
       })
     } catch (err) {
       console.error('Failed to send email notification:', err)

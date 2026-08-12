@@ -3,26 +3,23 @@ import {
   SendRawEmailCommand,
   SendEmailCommand,
 } from '@aws-sdk/client-ses'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { generateIcs } from '@/utils/generateIcs'
+import { makeAdminClient, getRequestStaff } from '@/lib/supabaseAdmin'
+import { isDemoTenant } from '@/lib/demo/provision'
 
 const sesClient = new SESClient({
   region: process.env.AWS_REGION ?? 'eu-central-1',
 })
 
+/**
+ * Request body. Only the reservation id travels from the client — the guest's
+ * address, the restaurant name and every detail in the message are looked up
+ * server-side, after checking the caller owns that reservation.
+ */
 export interface SendEmailPayload {
   type: 'approved' | 'denied'
-  reservation: {
-    id: string
-    customerName: string
-    customerEmail: string
-    date: string
-    time: string
-    endTime?: string | null
-    partySize: number
-    notes?: string | null
-  }
-  tenantName: string
+  reservationId: string
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -275,25 +272,92 @@ function buildRawMime(params: {
 
 // ── Route handler ──────────────────────────────────────────────────────────
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const payload: SendEmailPayload = await request.json()
-    const { type, reservation, tenantName } = payload
+    const body = await request.json().catch(() => null)
+    const type = body?.type
+    const reservationId = body?.reservationId
 
-    if (!reservation.customerEmail) {
+    if (type !== 'approved' && type !== 'denied') {
+      return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
+    }
+    if (typeof reservationId !== 'string' || !reservationId) {
+      return NextResponse.json(
+        { error: 'reservationId is required' },
+        { status: 400 }
+      )
+    }
+
+    let admin
+    try {
+      admin = makeAdminClient()
+    } catch {
+      return NextResponse.json(
+        { error: 'Server is not configured.' },
+        { status: 500 }
+      )
+    }
+
+    // Only a signed-in staff member may trigger mail, and only for their own
+    // tenant's reservations. Everything that ends up in the message is read
+    // back from the database rather than taken from the request, so this
+    // endpoint cannot be used to send arbitrary content to arbitrary people.
+    const staff = await getRequestStaff(admin, request)
+    if (!staff) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { data: row } = await admin
+      .from('reservations')
+      .select(
+        'id, tenant_id, customer_name, customer_email, date, time, end_time, party_size, notes'
+      )
+      .eq('id', reservationId)
+      .maybeSingle()
+
+    if (!row || row.tenant_id !== staff.tenantId) {
+      return NextResponse.json(
+        { error: 'Reservation not found' },
+        { status: 404 }
+      )
+    }
+
+    // A demo sandbox must never be able to send mail from the real domain.
+    if (await isDemoTenant(admin, staff.tenantId)) {
+      return NextResponse.json({ success: true, skipped: 'demo-tenant' })
+    }
+
+    if (!row.customer_email) {
       return NextResponse.json(
         { error: 'No email address provided' },
         { status: 400 }
       )
     }
 
+    const { data: tenantRow } = await admin
+      .from('tenants')
+      .select('name')
+      .eq('id', staff.tenantId)
+      .single()
+
+    const tenantName = tenantRow?.name ?? 'Restaurant'
+    const reservation = {
+      id: row.id as string,
+      customerName: row.customer_name as string,
+      customerEmail: row.customer_email as string,
+      date: row.date as string,
+      time: row.time as string,
+      endTime: row.end_time as string | null,
+      partySize: row.party_size as number,
+      notes: row.notes as string | null,
+    }
+
     const from = process.env.SES_FROM_EMAIL ?? 'noreply@example.com'
     const to = reservation.customerEmail
 
-    // Demo sandboxes are seeded with example.com guests (RFC 2606 reserved).
-    // Approving one of those requests must not send mail anywhere.
+    // Reserved domains (RFC 2606) never resolve to a real inbox.
     if (/@(example\.(com|net|org)|.*\.example)$/i.test(to)) {
-      return NextResponse.json({ success: true, skipped: 'demo-address' })
+      return NextResponse.json({ success: true, skipped: 'reserved-domain' })
     }
 
     if (type === 'approved') {

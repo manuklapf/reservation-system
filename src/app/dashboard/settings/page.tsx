@@ -255,7 +255,7 @@ export default function SettingsPage() {
                 >
                   <div className="flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-2 ring-black ${color}`}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${color}`}
                     >
                       {label}
                     </span>
