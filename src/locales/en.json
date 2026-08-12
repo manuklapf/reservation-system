@@ -315,6 +315,20 @@
     "checkoutError": "Could not start checkout. Please try again.",
     "exportError": "Export failed. Please try again."
   },
+  "demo": {
+    "title": "Setting up your demo",
+    "subtitle": "We're filling a busy restaurant with tables, staff and reservations for you.",
+    "resetNotice": "Everything you change is reset 24 hours after the demo starts.",
+    "errorTitle": "The demo could not be started",
+    "error": "Something went wrong. Please try again.",
+    "retry": "Try again",
+    "bannerResetIn": "Demo mode · your data resets in {time}",
+    "restart": "Restart demo",
+    "hoursShort": "h",
+    "minutesShort": "min",
+    "resume": "Back to the demo",
+    "resumeHint": "Your demo restaurant is still running."
+  },
   "staffManagement": {
     "title": "Manage Staff",
     "backToSettings": "Back to Settings",

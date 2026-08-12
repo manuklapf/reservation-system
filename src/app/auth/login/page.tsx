@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
+import { readDemoSession } from '@/lib/demo/session'
 import Button from '@/components/Button'
 
 export default function LoginPage() {
@@ -16,6 +17,13 @@ export default function LoginPage() {
   const { messages } = useI18n()
   const router = useRouter()
   const t = messages.login
+  // Signing out of a demo sandbox lands here without usable credentials, so
+  // offer a way straight back into it while it is still alive.
+  const [hasDemoSandbox, setHasDemoSandbox] = useState(false)
+
+  useEffect(() => {
+    setHasDemoSandbox(!!readDemoSession())
+  }, [])
 
   // Show setup message if Supabase is not configured
   if (!supabase) {
@@ -87,6 +95,19 @@ export default function LoginPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">{t.subtitle}</p>
         </div>
+
+        {hasDemoSandbox && (
+          <div className="rounded-md border border-info/45 bg-info-soft px-4 py-3 text-center">
+            <p className="text-sm text-info-ink">{messages.demo.resumeHint}</p>
+            <Button
+              size="sm"
+              className="mt-2"
+              onClick={() => router.push('/demo')}
+            >
+              {messages.demo.resume}
+            </Button>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>

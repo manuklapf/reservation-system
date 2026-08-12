@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { makeAdminClient, getRequestStaff } from '@/lib/supabaseAdmin'
+import { isDemoTenant } from '@/lib/demo/provision'
 
 export const runtime = 'nodejs'
 
@@ -24,7 +25,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const redirectUrl = `${appUrl ?? new URL(req.url).origin}/dashboard?upgraded=1`
+  // Demo sandboxes must never reach a real payment page.
+  if (await isDemoTenant(admin, staff.tenantId)) {
+    return NextResponse.json(
+      { error: 'Billing is disabled in the demo.' },
+      { status: 403 }
+    )
+  }
+
+  const redirectUrl =`${appUrl ?? new URL(req.url).origin}/dashboard?upgraded=1`
 
   const payload = {
     data: {

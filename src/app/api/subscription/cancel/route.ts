@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { makeAdminClient, getRequestStaff } from '@/lib/supabaseAdmin'
+import { isDemoTenant } from '@/lib/demo/provision'
 
 export const runtime = 'nodejs'
 
@@ -34,6 +35,13 @@ export async function POST(req: NextRequest) {
   }
   if (staff.role !== 'admin' && staff.role !== 'platform_admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  // Demo sandboxes have no real subscription behind them.
+  if (await isDemoTenant(admin, staff.tenantId)) {
+    return NextResponse.json(
+      { error: 'Billing is disabled in the demo.' },
+      { status: 403 }
+    )
   }
 
   const body = await req.json().catch(() => null)

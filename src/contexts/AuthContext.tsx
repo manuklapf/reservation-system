@@ -17,6 +17,11 @@ import {
 
 export type UserRole = 'platform_admin' | 'admin' | 'staff'
 
+export interface DemoState {
+  /** ISO timestamp at which the sandbox and all of its data are deleted. */
+  expiresAt: string
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -31,6 +36,8 @@ interface AuthContextType {
   /** Effective account state (trial / active / expired + access). Null until loaded. */
   account: AccountState | null
   planStatus: PlanStatus | null
+  /** Set when signed into a throwaway demo sandbox; carries its reset deadline. */
+  demo: DemoState | null
   trialDaysLeft: number
   accessLocked: boolean
   refreshAccount: () => Promise<void>
@@ -46,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [staffName, setStaffName] = useState<string | null>(null)
   const [account, setAccount] = useState<AccountState | null>(null)
   const [planStatus, setPlanStatus] = useState<PlanStatus | null>(null)
+  const [demo, setDemo] = useState<DemoState | null>(null)
 
   useEffect(() => {
     if (!supabase) {
@@ -75,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setStaffName(null)
         setAccount(null)
         setPlanStatus(null)
+        setDemo(null)
       }
       setLoading(false)
     })
@@ -133,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) return
     const { data, error } = await supabase
       .from('tenants')
-      .select('plan_status, trial_ends_at')
+      .select('plan_status, trial_ends_at, is_demo, demo_expires_at')
       .eq('id', id)
       .single()
 
@@ -141,11 +150,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fail open: don't lock people out on a transient read error.
       setAccount(null)
       setPlanStatus(null)
+      setDemo(null)
       return
     }
 
     setPlanStatus((data.plan_status as PlanStatus) ?? 'trial')
     setAccount(getAccountState(data))
+    setDemo(
+      data.is_demo && data.demo_expires_at
+        ? { expiresAt: data.demo_expires_at as string }
+        : null
+    )
   }, [])
 
   const refreshAccount = useCallback(async () => {
@@ -176,6 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setRole(null)
     setAccount(null)
     setPlanStatus(null)
+    setDemo(null)
   }
 
   return (
@@ -193,6 +209,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         staffName,
         account,
         planStatus,
+        demo,
         trialDaysLeft: account?.mode === 'trial' ? account.daysLeft : 0,
         accessLocked: account?.access === 'locked',
         refreshAccount,

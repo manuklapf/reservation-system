@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { isDemoTenant } from '@/lib/demo/provision'
 
 function makeAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -75,10 +76,17 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Logins created inside a demo sandbox are tagged so the cleanup sweep can
+  // remove them along with the sandbox itself.
+  const demo = await isDemoTenant(admin, caller.tenantId)
+
   const { error: authError } = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
+    ...(demo && {
+      user_metadata: { demo: true, demo_tenant_id: caller.tenantId },
+    }),
   })
 
   if (authError) {

@@ -71,7 +71,7 @@ In your Supabase SQL Editor, create a tenant and staff member:
 INSERT INTO tenants (name, slug) VALUES ('Your Restaurant', 'your-restaurant');
 
 -- Create a staff member (first create the user in Supabase Auth UI)
-INSERT INTO staff (tenant_id, email, name, role) 
+INSERT INTO staff (tenant_id, email, name, role)
 VALUES (
     (SELECT id FROM tenants WHERE slug = 'your-restaurant'),
     'your-email@example.com',
@@ -103,13 +103,51 @@ The system supports embeddable reservation views at `/{tenant-slug}`:
 
 ```html
 <!-- Embed in any website -->
-<iframe 
-  src="https://your-domain.com/your-restaurant" 
-  width="100%" 
+<iframe
+  src="https://your-domain.com/your-restaurant"
+  width="100%"
   height="600"
-  frameborder="0">
+  frameborder="0"
+>
 </iframe>
 ```
+
+### Public Demo Link (`/demo`)
+
+`https://your-domain.com/demo` is a link you can put on a marketing site: it
+provisions a **private sandbox per visitor**, signs them in and drops them on the
+dashboard with a fully booked restaurant already in it. Nothing is restricted —
+the visitor can create, edit and delete anything — and the whole sandbox is
+deleted **24 hours after it was created**, which resets everything they entered.
+
+Setup:
+
+1. Run `sql/demo-sandbox-migration.sql` in the Supabase SQL editor.
+2. Set `CRON_SECRET` in the environment (Vercel Cron uses it to authorize the
+   scheduled cleanup defined in `vercel.json`). Set `DEMO_ENABLED=false` to turn
+   the link off again.
+3. Verify with the app running: `node setup/test-demo-sandbox.js`.
+
+How it works:
+
+- `POST /api/demo` creates a tenant flagged `is_demo` with a `demo_expires_at`
+  deadline, an auto-login, the team, two floors with their tables, and a
+  reservation book generated around the **current date** (`src/lib/demo/`).
+  Sandboxes are `plan_status = 'active'`, so no trial banner or paywall appears.
+- Reservations run from two days back to three weeks ahead: lunch and dinner
+  services, busier on weekends, thinning out toward the end of the horizon, no
+  double-booked tables, Monday closed, plus a few unanswered guest requests
+  waiting in the mailbox.
+- Cleanup happens in two places: every `/demo` visit sweeps expired sandboxes,
+  and `/api/demo/cleanup` runs daily via cron for quiet periods. Deleting the
+  tenant cascades to its staff, tables, floor plans and reservations.
+- Guests are seeded with `@example.com` addresses and `/api/send-email` skips
+  those, so approving a demo request never sends real mail. Billing endpoints
+  reject demo tenants.
+- A banner in the dashboard counts down to the reset and offers a restart.
+
+Load guards: max 8 sandboxes per IP per hour and 300 live sandboxes overall
+(the oldest are evicted beyond that) — see `src/lib/demo/provision.ts`.
 
 ## Database Schema
 
@@ -139,6 +177,7 @@ The application uses Supabase's auto-generated APIs with RLS policies:
 4. Deploy
 
 The application is configured for seamless Vercel deployment with:
+
 - Automatic builds
 - Environment variable support
 - Edge runtime compatibility

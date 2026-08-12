@@ -290,6 +290,12 @@ export async function POST(request: Request) {
     const from = process.env.SES_FROM_EMAIL ?? 'noreply@example.com'
     const to = reservation.customerEmail
 
+    // Demo sandboxes are seeded with example.com guests (RFC 2606 reserved).
+    // Approving one of those requests must not send mail anywhere.
+    if (/@(example\.(com|net|org)|.*\.example)$/i.test(to)) {
+      return NextResponse.json({ success: true, skipped: 'demo-address' })
+    }
+
     if (type === 'approved') {
       const html = approvedHtml(
         reservation.customerName,

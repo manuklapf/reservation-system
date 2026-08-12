@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import TrialBanner from '@/components/TrialBanner'
+import DemoBanner from '@/components/DemoBanner'
 import AccountGate from '@/components/AccountGate'
 
 export default function DashboardLayout({
@@ -47,6 +48,7 @@ export default function DashboardLayout({
 
   return (
     <>
+      <DemoBanner />
       <TrialBanner />
       {children}
     </>
