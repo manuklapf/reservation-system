@@ -9,6 +9,7 @@ import Button from '@/components/Button'
 import FloorPlanEditor from '@/components/FloorPlanEditor'
 import NavBar from '@/components/NavBar'
 import { useI18n } from '@/contexts/I18nContext'
+import LoadingScreen from '@/components/LoadingScreen'
 
 type Table = {
   id: string
@@ -350,20 +351,15 @@ export default function FloorPlanPage() {
     0
   )
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>{t.loginRequired}</p>
-      </div>
-    )
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>{t.accessDenied}</p>
-      </div>
-    )
+  if (!user || !isAdmin || !tenantId || !floorsLoaded) {
+    if (!user || !isAdmin) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <p>{!user ? t.loginRequired : t.accessDenied}</p>
+        </div>
+      )
+    }
+    return <LoadingScreen />
   }
 
   return (
@@ -423,7 +419,7 @@ export default function FloorPlanPage() {
             </div>
           </div>
 
-          {tenantId && floorsLoaded && floors.length > 0 ? (
+          {floors.length > 0 ? (
             <div className="space-y-10">
               {floors.map(floor => {
                 // Tables belong to a floor and only appear in that floor's list
@@ -471,9 +467,7 @@ export default function FloorPlanPage() {
                 {fps.addFloor}
               </button>
             </div>
-          ) : (
-            <p className="text-sm text-gray-400">{fps.loading}</p>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

@@ -2,6 +2,18 @@
 const nextConfig = {
   async headers() {
     return [
+      // The loading-screen duck is a fixed asset that only changes when it is
+      // re-exported, so let browsers keep it instead of revalidating a ~1 MB
+      // video on every cold navigation.
+      {
+        source: '/loading/:file*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=604800, stale-while-revalidate=2592000',
+          },
+        ],
+      },
       {
         // Deny framing by default. The previous `/:tenantSlug*` pattern matched
         // every path, so the login page and dashboard were embeddable by any

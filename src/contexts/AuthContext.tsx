@@ -14,6 +14,7 @@ import {
   type AccountState,
   type PlanStatus,
 } from '@/lib/trial'
+import { armWelcomeHold } from '@/hooks/useWelcomeHold'
 
 export type UserRole = 'platform_admin' | 'admin' | 'staff'
 
@@ -74,6 +75,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Only a real sign-in earns the held loading screen. Session restores and
+      // token refreshes arrive here too, and holding on those would stall every
+      // reload behind a duck the visitor did not ask to see again.
+      if (event === 'SIGNED_IN') armWelcomeHold()
+
       setUser(session?.user ?? null)
       if (session?.user) {
         fetchUserTenant(session.user.email!)

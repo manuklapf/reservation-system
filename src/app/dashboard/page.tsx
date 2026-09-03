@@ -24,6 +24,8 @@ import NavBar from '@/components/NavBar'
 import { Reservation } from '@/types/reservation'
 import { useI18n, Language } from '@/contexts/I18nContext'
 import Button from '@/components/Button'
+import LoadingScreen from '@/components/LoadingScreen'
+import { useWelcomeHold } from '@/hooks/useWelcomeHold'
 
 function CapacityRing({ used, total }: { used: number; total: number }) {
   const r = 10
@@ -66,6 +68,7 @@ function CapacityRing({ used, total }: { used: number; total: number }) {
 
 export default function DashboardPage() {
   const { user, loading, tenantId, isPlatformAdmin } = useAuth()
+  const welcomeHolding = useWelcomeHold()
   const router = useRouter()
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
@@ -90,7 +93,6 @@ export default function DashboardPage() {
   const { language, messages } = useI18n()
 
   const t = messages.dashboard
-  const common = messages.common
 
   useEffect(() => {
     if (!loading && !user) {
@@ -260,12 +262,8 @@ export default function DashboardPage() {
     ? allDays
     : allDays.filter(d => d >= todayISO)
 
-  if (loading) {
-    return (
-      <div className="min-h-screen paper-plain flex items-center justify-center">
-        <div className="text-xl">{common.loading}</div>
-      </div>
-    )
+  if (loading || welcomeHolding || loadingReservations) {
+    return <LoadingScreen />
   }
 
   if (!user) {
@@ -401,10 +399,6 @@ export default function DashboardPage() {
                 onSelectEvent={handleOpenEditModal}
                 onSelectSlot={handleSelectSlot}
               />
-            </div>
-          ) : loadingReservations ? (
-            <div className="text-center py-8">
-              <div className="text-lg">{t.loadingReservations}</div>
             </div>
           ) : (
             <div className="space-y-6">

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { makeAdminClient } from '@/lib/supabaseAdmin'
+import { isDemoTenant } from '@/lib/demo/provision'
 
 // Self-service account updates for the signed-in user: display name, email,
 // and password. Email/password changes require re-entering the current
 // password. Email changes also rewrite the staff row (the app keys staff by
 // email) and the marketing site's subscription record.
+//
+// Demo sandboxes are excluded: a throwaway login must stay throwaway.
 
 export async function PATCH(req: NextRequest) {
   let admin
@@ -30,6 +33,27 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const email = user.email
+
+  // A visitor who could put their own address and password on a demo login
+  // would walk away with a working account, so nothing here is editable in a
+  // sandbox. The user metadata is checked as well as the tenant flag: staff
+  // logins created inside a sandbox carry it even before the staff row is read.
+  const demoUser =
+    (user.user_metadata as { demo?: boolean } | null)?.demo === true
+  const { data: staffRow } = await admin
+    .from('staff')
+    .select('tenant_id')
+    .eq('email', email)
+    .maybeSingle()
+  if (
+    demoUser ||
+    (staffRow?.tenant_id && (await isDemoTenant(admin, staffRow.tenant_id)))
+  ) {
+    return NextResponse.json(
+      { error: 'Account settings are disabled in the demo.' },
+      { status: 403 }
+    )
+  }
 
   const body = await req.json().catch(() => null)
   const name = typeof body?.name === 'string' ? body.name.trim() : undefined

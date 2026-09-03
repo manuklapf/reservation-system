@@ -11,6 +11,7 @@ import {
 } from '@/lib/demo/session'
 import Button from '@/components/Button'
 import { UtensilsCrossed } from '@/components/icons'
+import LoadingScreen from '@/components/LoadingScreen'
 
 /**
  * Public entry point for the "try it out" link. Provisions a private sandbox
@@ -101,11 +102,7 @@ export default function DemoPage() {
           <>
             <h1 className="text-xl font-bold text-gray-900">{t.title}</h1>
             <p className="mt-2 text-sm text-gray-600">{t.subtitle}</p>
-            <div
-              className="mx-auto mt-6 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-800"
-              role="status"
-              aria-label={messages.common.loading}
-            />
+            <LoadingScreen variant="panel" label={null} />
           </>
         )}
 

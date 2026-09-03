@@ -63,6 +63,7 @@ export default function AccountPage() {
     planStatus,
     isAdmin,
     isPlatformAdmin,
+    demo,
     signOut,
     refreshAccount,
   } = useAuth()
@@ -155,6 +156,49 @@ export default function AccountPage() {
       ? t.roleAdmin
       : t.roleStaff
 
+  // In a sandbox the account is scenery: the login is thrown away with the
+  // tenant and there is no real subscription behind it. Omitting the handlers
+  // leaves AccountView showing the overview only — /api/account and the billing
+  // routes refuse demo tenants regardless, this just hides the dead controls.
+  const selfService = demo
+    ? {}
+    : {
+        onSaveName: async (name: string) => {
+          await patchAccount({ name })
+        },
+        onChangeEmail: async (newEmail: string, currentPassword: string) => {
+          const result = await patchAccount({ newEmail, currentPassword })
+          if (result.emailChanged) {
+            await signOut()
+            router.push('/auth/login')
+          }
+          return { emailChanged: !!result.emailChanged }
+        },
+        onChangePassword: async (
+          currentPassword: string,
+          newPassword: string
+        ) => {
+          await patchAccount({ newPassword, currentPassword })
+        },
+        onCancelSubscription: async (reason: string) => {
+          if (!supabase) throw new Error('Not configured')
+          const {
+            data: { session },
+          } = await supabase.auth.getSession()
+          const res = await fetch('/api/subscription/cancel', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.access_token ?? ''}`,
+            },
+            body: JSON.stringify({ reason }),
+          })
+          const json = await res.json().catch(() => null)
+          if (!res.ok) throw new Error(json?.error ?? t.genericError)
+          await Promise.all([loadSubscription(), refreshAccount()])
+        },
+      }
+
   return (
     <div className="min-h-screen bg-background/40">
       <NavBar
@@ -172,45 +216,23 @@ export default function AccountPage() {
         right={<div className="w-9" />}
       />
 
+      {demo && (
+        <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6 lg:px-8">
+          <div className="rounded-lg border border-info/45 bg-info-soft p-4 text-sm text-info-ink">
+            {messages.demo.accountNotice}
+          </div>
+        </div>
+      )}
+
       <AccountView
         showHeader={false}
         email={user.email ?? ''}
         organizationName={tenantName}
         roleLabel={roleLabel}
-        isAdmin={isAdmin || isPlatformAdmin}
+        isAdmin={!demo && (isAdmin || isPlatformAdmin)}
         subscription={subscription}
         initialName={staffName ?? ''}
-        onSaveName={async name => {
-          await patchAccount({ name })
-        }}
-        onChangeEmail={async (newEmail, currentPassword) => {
-          const result = await patchAccount({ newEmail, currentPassword })
-          if (result.emailChanged) {
-            await signOut()
-            router.push('/auth/login')
-          }
-          return { emailChanged: !!result.emailChanged }
-        }}
-        onChangePassword={async (currentPassword, newPassword) => {
-          await patchAccount({ newPassword, currentPassword })
-        }}
-        onCancelSubscription={async reason => {
-          if (!supabase) throw new Error('Not configured')
-          const {
-            data: { session },
-          } = await supabase.auth.getSession()
-          const res = await fetch('/api/subscription/cancel', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.access_token ?? ''}`,
-            },
-            body: JSON.stringify({ reason }),
-          })
-          const json = await res.json().catch(() => null)
-          if (!res.ok) throw new Error(json?.error ?? t.genericError)
-          await Promise.all([loadSubscription(), refreshAccount()])
-        }}
+        {...selfService}
       />
     </div>
   )

@@ -121,23 +121,31 @@ export default function MailboxPanel({
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black">
+        {/* Header — the marketing site's dashboard strip: a white bar carrying
+            its own black border and hard offset shadow (both come from
+            `shadow` in the brutalist theme), an uppercase title, and the
+            pending count as a bordered danger chip. `relative z-10` keeps the
+            offset shadow above the list scrolling underneath it. */}
+        <div className="relative z-10 flex items-center justify-between bg-white px-4 py-3 shadow">
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-danger" />
-            <h2 className="text-lg font-semibold text-gray-900">{t.title}</h2>
+            <h2 className="text-sm font-bold uppercase tracking-tight">
+              {t.title}
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
             {requests.length > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-accent-fg">
+              <span className="inline-flex items-center border-2 border-black bg-danger px-2 py-0.5 text-[11px] font-bold uppercase text-danger-fg">
                 {requests.length}
               </span>
             )}
+            <button
+              onClick={onClose}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-accent hover:text-gray-800 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-accent hover:text-gray-800 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
         {/* Content */}

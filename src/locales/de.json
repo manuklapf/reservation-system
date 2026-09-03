@@ -327,7 +327,8 @@
     "hoursShort": "Std.",
     "minutesShort": "Min.",
     "resume": "Zurück zur Demo",
-    "resumeHint": "Dein Demo-Restaurant läuft noch."
+    "resumeHint": "Dein Demo-Restaurant läuft noch.",
+    "accountNotice": "Dies ist ein Demo-Konto. Profil-, Login- und Abrechnungseinstellungen sind hier deaktiviert, und nach Ende der Demo wird alles zurückgesetzt. Starte die kostenlose Testphase für ein eigenes Konto."
   },
   "staffManagement": {
     "title": "Mitarbeiter verwalten",

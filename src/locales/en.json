@@ -327,7 +327,8 @@
     "hoursShort": "h",
     "minutesShort": "min",
     "resume": "Back to the demo",
-    "resumeHint": "Your demo restaurant is still running."
+    "resumeHint": "Your demo restaurant is still running.",
+    "accountNotice": "This is a demo account. Profile, login and billing settings are turned off here, and everything resets when the demo ends. Start a free trial to get an account of your own."
   },
   "staffManagement": {
     "title": "Manage Staff",

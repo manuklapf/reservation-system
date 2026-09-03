@@ -8,6 +8,7 @@ import { ArrowLeft, Trash2, UserPlus } from '@/components/icons'
 import { useI18n } from '@/contexts/I18nContext'
 import Button from '@/components/Button'
 import NavBar from '@/components/NavBar'
+import LoadingScreen from '@/components/LoadingScreen'
 
 type StaffMember = {
   id: string
@@ -104,20 +105,15 @@ export default function StaffManagementPage() {
     setRemovingId(null)
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>{setupT.loginRequired}</p>
-      </div>
-    )
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>{setupT.accessDenied}</p>
-      </div>
-    )
+  if (!user || !isAdmin || loading) {
+    if (!user || !isAdmin) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <p>{!user ? setupT.loginRequired : setupT.accessDenied}</p>
+        </div>
+      )
+    }
+    return <LoadingScreen />
   }
 
   return (
@@ -199,9 +195,7 @@ export default function StaffManagementPage() {
           <h2 className="text-sm font-semibold text-gray-800 mb-4">
             {t.currentStaff}
           </h2>
-          {loading ? (
-            <p className="text-sm text-gray-400">{messages.common.loading}</p>
-          ) : loadError ? (
+          {loadError ? (
             <p className="text-sm text-danger-ink">{loadError}</p>
           ) : staff.length === 0 ? (
             <p className="text-sm text-gray-400">{t.noStaff}</p>

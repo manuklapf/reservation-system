@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/contexts/I18nContext'
 import ReservationRequestForm from '@/components/ReservationRequestForm'
 import { getAccountState } from '@/lib/trial'
+import LoadingScreen from '@/components/LoadingScreen'
 
 interface Tenant {
   id: string
@@ -37,11 +38,7 @@ export default function RequestContent({ tenantSlug }: { tenantSlug: string }) {
   }, [tenantSlug])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">{t.loading}</p>
-      </div>
-    )
+    return <LoadingScreen label={t.loading} />
   }
 
   if (!tenant) {

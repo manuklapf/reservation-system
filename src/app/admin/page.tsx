@@ -9,6 +9,7 @@ import { Building2, LogOut, Plus, Users } from '@/components/icons'
 import { getAccountState } from '@/lib/trial'
 import Button from '@/components/Button'
 import NavBar from '@/components/NavBar'
+import LoadingScreen from '@/components/LoadingScreen'
 
 type PlanStatus = 'trial' | 'active' | 'expired'
 
@@ -156,12 +157,8 @@ export default function PlatformAdminPage() {
     setSavingPlan(null)
   }
 
-  if (loading || !user || !isPlatformAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-400 text-sm">{messages.common.loading}</p>
-      </div>
-    )
+  if (loading || !user || !isPlatformAdmin || fetching) {
+    return <LoadingScreen />
   }
 
   return (
@@ -301,11 +298,7 @@ export default function PlatformAdminPage() {
 
         {/* Restaurant list */}
         <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-          {fetching ? (
-            <p className="p-6 text-sm text-gray-400">
-              {messages.common.loading}
-            </p>
-          ) : loadError ? (
+          {loadError ? (
             <p className="p-6 text-sm text-danger-ink">{loadError}</p>
           ) : tenants.length === 0 ? (
             <p className="p-6 text-sm text-gray-400">{t.noRestaurants}</p>
